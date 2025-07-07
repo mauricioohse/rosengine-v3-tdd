@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <link rel="dns-prefetch" href="/">
+    <link rel="preload" as="fetch" href="index.wasm" crossorigin>
+    <link rel="preload" as="fetch" href="index.data" crossorigin>
+    <title>Cucko Launch</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .emscripten {
+        width: 800px;
+        height: 800px;
+        display: block;
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+      }
+      /* Optional: Add a container to handle overflow */
+      #container {
+        width: 800px;
+        height: 800px;
+        position: relative;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+    <script type='text/javascript'>
+      var Module = {
+        canvas: (function() { return document.getElementById('canvas'); })()
+      };
+    </script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

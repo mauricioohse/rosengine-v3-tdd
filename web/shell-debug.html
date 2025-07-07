@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <link rel="dns-prefetch" href="/">
+    <link rel="preload" as="fetch" href="index.wasm" crossorigin>
+    <link rel="preload" as="fetch" href="index.data" crossorigin>
+    <title>Cucko Launch</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: black;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .emscripten {
+        width: 800px;
+        height: 800px;
+        display: block;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+      }
+      #output {
+        font-family: monospace;
+        width: 800px;
+        height: 200px;
+        margin-top: 20px;
+        background-color: #222;
+        color: #fff;
+        overflow-y: auto;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      .error { color: #ff5555; }
+      .warn { color: #ffb86c; }
+      .info { color: #8be9fd; }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+    <div id="output"></div>
+    <script type='text/javascript'>
+      var Module = {
+        canvas: (function() { return document.getElementById('canvas'); })(),
+        print: function(text) {
+          var element = document.getElementById('output');
+          element.innerHTML += text + "<br>";
+          element.scrollTop = element.scrollHeight;
+        },
+        printErr: function(text) {
+          var element = document.getElementById('output');
+          element.innerHTML += '<span class="error">' + text + "</span><br>";
+          element.scrollTop = element.scrollHeight;
+          console.error(text);
+        }
+      };
+    </script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

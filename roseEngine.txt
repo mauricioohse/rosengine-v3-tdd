@@ -1,0 +1,107 @@
+# RoseEngine Documentation
+
+## Framework Overview
+- Targets: Windows, Web (Emscripten)
+- Language: C++ without STL
+- Compiler: g++ (Windows), Emscripten (Web)
+- Core Library: SDL2 (with SDL_image, SDL_ttf, SDL_mixer)
+
+## Architecture
+
+### Core Engine (Engine.h)
+The engine uses a component-based architecture with the following core systems:
+- Window Management
+- Resource Management
+- Entity Component System (ECS)
+- System Management
+- Component Arrays
+
+### Entity Component System
+
+#### Entity Management (entity.h)
+- Entities are simple IDs (uint32_t)
+- Component masks track which components each entity has
+- Support for entity creation, destruction, and validation
+- Maximum of MAX_ENTITIES entities
+- Bitflag-based component tracking
+
+#### Components (components.h)
+Core Components:
+- Transform (position, rotation, scale)
+- Sprite (texture, dimensions, visibility)
+- WASD Controller (movement input)
+- Collider (AABB collision)
+- Animation (sprite sheet animation)
+- Gravity (vertical movement)
+- Camera (viewport, following, screen shake)
+- Physics (velocity, forces)
+- Custom game components (Cloud, Background, Peanut, etc.)
+
+All components inherit from a base Component class and include:
+- Init() function for setup
+- Destroy() function for cleanup
+- Component-specific data and behavior
+
+#### Systems (systems.h)
+- System base class with Init/Update/Destroy interface
+- SystemManager handles registration and updates
+- Systems operate on entities with specific component combinations
+- Support for up to MAX_SYSTEMS (32) simultaneous systems
+
+Implemented Systems:
+- RenderSystem
+- WASDControllerSystem
+- CollisionSystem
+- GravitySystem
+- CameraSystem
+- Various game-specific systems (Cloud, Background, etc.)
+
+### Resource Management (resource_manager.h)
+Static resource manager handling:
+- Textures (SDL_Texture)
+- Fonts (SDL_ttf)
+- Sounds (SDL_mixer)
+- Enum-based resource identification
+- Automatic resource loading/unloading
+- Resource caching
+
+### Window Management (window.h)
+Handles:
+- Window creation and destruction
+- Renderer management
+- Screen clearing and presentation
+- Resolution control
+
+## Key Features
+- ECS-based architecture
+- Flexible entity system
+- Resource management with automatic cleanup
+- Sound and music support
+- Text rendering
+- Sprite animation
+- Camera system with screen shake
+- Collision detection
+- Physics simulation
+- Input handling
+
+## Game Integration
+Games built with RoseEngine should:
+1. Create a Game class inheriting core functionality
+2. Register needed systems
+3. Create entities with required components
+4. Implement game-specific logic in systems
+
+## Technical Details
+- Frame rate capped at 60 FPS
+- Delta time-based updates
+- Support for both Windows and Web builds
+- Automatic resource management
+- Event-based input system
+
+## Best Practices
+1. Use component composition over inheritance
+2. Register systems in order of dependency
+3. Use resource IDs instead of direct pointers
+4. Clean up entities and components explicitly
+5. Use the provided macros for component operations
+

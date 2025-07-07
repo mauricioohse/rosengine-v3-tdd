@@ -1,0 +1,13 @@
+/* 
+- every component needs to be defined here
+- the xcomponent() macro will be called by 
+component_enums.h       - defines the enum types 
+component_storage.h     - add to the component data structure
+component_manager.h     - add the functions to add and get component
+component_macros.h      - makes it easier to ADD_COMPONENT() 
+*/
+
+xcomponent(TRANSFORM, Transform, 0, (EntityID entity, float x, float y, float rotation, float scale), (x, y, rotation, scale))
+xcomponent(SPRITE, Sprite, 1, (EntityID entity, Texture* texture), (texture))
+xcomponent(TEXT, Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
+xcomponent(UIBOX, UIBox, 12, (EntityID entity, float width, float height), (width, height))

@@ -1,0 +1,51 @@
+---
+config:
+  nodeSpacing: 100
+  rankSpacing: 80
+---
+flowchart TD
+    subgraph Init [Engine Initialization]
+        direction LR
+        A["Engine.Init"] --> B["Window.Create"] 
+        A --> C["ResourceManager.InitAll"]
+        A --> D["SceneManager.Init"]
+        A --> E["EntityManager.Init"]
+    end
+    
+    subgraph Loop [Game Loop]
+        direction TB
+        F["Engine.Run"] --> G["SceneManager.LoadInitialScene"]
+        G --> H{"Game Loop"}
+        H --> I["SceneManager.Update"]
+        I --> J["Input.Process"]
+        I --> K["SystemManager.UpdateAll"]
+        I --> L["Renderer.DrawFrame"]
+    end
+    
+    subgraph SceneManager [Scene Management]
+        direction TB
+        M[SceneStack] --> N["Scene Updates"]
+        N --> O["Scene-Owned Entities"]
+        N --> P["Systems (with scene context)"]
+        Q[SceneTransitions]
+        
+        note["Scene States:
+        ACTIVE    - update and draw
+        PAUSED    - only draw
+        INACTIVE  - skip both
+        DESTROYED - remove from stack
+
+        Stack Example:
+        PauseMenu (ACTIVE)
+        GameScene (PAUSED)
+        MainMenu (INACTIVE)"]
+    end
+    
+    D --> M
+    G --> Q
+    Q -->|load| R["SceneA"]
+    Q -->|unload| S["SceneB"]
+    
+    style D fill:#4CAF50,stroke:#388E3C
+    style Q fill:#4CAF50,stroke:#388E3C
+    style note fill:#fff,stroke:#333,stroke-dasharray: 5
