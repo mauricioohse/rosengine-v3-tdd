@@ -2,8 +2,9 @@
 CXX_WINDOWS = g++
 CXX_WEB = emcc
 CXXFLAGS = -Wall -MD -MP
-INCLUDES = -I./include/SDL2 -I./src 
 
+#includes all folders, make it easier to #include headers
+INCLUDES = -I./include/SDL2 -I./src $(shell find src -type d -exec echo -I./{} \;)
 # Source files - now includes all cpp files in src and subdirectories
 SOURCES = $(shell find src -name '*.cpp')
 BUILD_DIR = bin

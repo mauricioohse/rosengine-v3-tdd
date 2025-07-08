@@ -4,6 +4,7 @@
 #include "game.h"
 #include "pause_scene.h"
 #include "../core/input.h"
+#include "grid.h"
 
 
 MainGameScene g_mainGame;
@@ -41,4 +42,6 @@ void MainGameScene::handle_pause_input()
 void MainGameScene::OptionalUpdate(float deltaTime)
 {
     handle_pause_input();
+
+    Grid::DrawGrid();
 }
