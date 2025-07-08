@@ -308,6 +308,20 @@ struct UIBoxComponent : Component {
     }
 };
 
+struct EnemyComponent : Component {
+    int alive;
+
+    void Init() {
+        alive = 1;
+    }
+
+    void Destroy()
+    {
+        alive = 0;
+    }
+
+};
+
 // Component initialization functions declarations only
 void InitTransform(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f);
 void InitSprite(EntityID entity, Texture* texture);

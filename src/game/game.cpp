@@ -16,6 +16,7 @@
 #include "menu_scene.h"
 #include "main_game_scene.h"
 #include "pause_scene.h"
+#include "enemy_movement_system.h"
 Game g_Game;
 
 bool Game::Init() {
@@ -24,6 +25,7 @@ bool Game::Init() {
     g_Engine.systemManager.RegisterSystem(new TextUpdateSystem());
     g_Engine.systemManager.RegisterSystem(new UISystem());
     g_Engine.systemManager.RegisterSystem(&musicSystem);
+    g_Engine.systemManager.RegisterSystem(new enemy_movement_system());
 
 
     g_Engine.sceneManager.PushScene(&g_menu);

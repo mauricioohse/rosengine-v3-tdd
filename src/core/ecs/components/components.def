@@ -11,3 +11,4 @@ xcomponent(TRANSFORM, Transform, 0, (EntityID entity, float x, float y, float ro
 xcomponent(SPRITE, Sprite, 1, (EntityID entity, Texture* texture), (texture))
 xcomponent(TEXT, Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
 xcomponent(UIBOX, UIBox, 12, (EntityID entity, float width, float height), (width, height))
+xcomponent(ENEMY, Enemy, 13, (EntityID entity), ())

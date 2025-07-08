@@ -55,6 +55,7 @@ enum TextureID {
     TEXTURE_BOX,
     TEXTURE_BOX_BLUE,
     TEXTURE_BOX_MIX,
+    TEXTURE_BOX_ENEMY,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -71,6 +72,7 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/box.png", TEXTURE_BOX},
     {"assets/box_blue.png", TEXTURE_BOX_BLUE},
     {"assets/box_mix.png", TEXTURE_BOX_MIX},
+    {"assets/box_enemy.png", TEXTURE_BOX_ENEMY},
     // Add new textures here
 };
 

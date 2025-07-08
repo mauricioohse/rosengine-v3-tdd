@@ -48,6 +48,11 @@ void TowerPlacement::Update() {
         isPlacementMode = true;
         printf("water tower selected\n");
     }
+    if (Input::IsKeyPressed(SDL_SCANCODE_4)) {
+        selectedTowerType = 3; // enemy, debug
+        isPlacementMode = true;
+        printf("water tower selected\n");
+    }
     if (Input::IsKeyPressed(SDL_SCANCODE_ESCAPE)) {
         isPlacementMode = false;
         printf("placement mode cancelled\n");
@@ -104,30 +109,28 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     switch (selectedTowerType)
     {
     default:
-    case 0:
+    case 0: // fire
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
         break;
 
-    case 1:
+    case 1: // water
         tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
     break;
     
-    case 2:
-    tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
+    case 2: // water + fire
+        tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
+
+    case 3: // DEBUG: PLACES ENEMIES
+        tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY); 
+        g_Engine.componentArrays.Transforms[tower].scale=0.1f;
+        ADD_ENEMY(tower);
+
     }
     g_Engine.componentArrays.Sprites[tower].Init(tex);
     
     // initialize collider (static, not trigger)
     g_Engine.componentArrays.colliders[tower].Init(48, 48, true, false);
-    
-    // printf("tower created at grid position (%d, %d), transform: (%.2f, %.2f, rot=%.2f, scale=%.2f), sprite: %dx%d\n", 
-    //        gridPoint.x, gridPoint.y,
-    //        g_Engine.componentArrays.Transforms[tower].x,
-    //        g_Engine.componentArrays.Transforms[tower].y,
-    //        g_Engine.componentArrays.Transforms[tower].rotation,
-    //        g_Engine.componentArrays.Transforms[tower].scale,
-    //        g_Engine.componentArrays.Sprites[tower].width,
-    //        g_Engine.componentArrays.Sprites[tower].height);
+
     return tower;
 } 
