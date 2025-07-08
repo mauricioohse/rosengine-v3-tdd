@@ -23,6 +23,7 @@ typedef struct Point{
 namespace Grid {
     extern Point GRID_START_POINT;
     extern Point GRID_END_POINT;
+    extern int GRID_SQUARE_LENGTH;
 
     void DrawGrid();
     Point GetNearestGridPoint(int x, int y); // aligned on the top left

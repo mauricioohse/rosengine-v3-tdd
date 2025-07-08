@@ -59,10 +59,10 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
     }
 
     SDL_Rect destRect = {
-        (int)screenX - sprite->width/2,
-        (int)screenY - sprite->height/2,
-        sprite->width,
-        sprite->height
+        (int)screenX - sprite->width*transform->scale/2,
+        (int)screenY - sprite->height*transform->scale/2,
+        sprite->width*transform->scale,
+        sprite->height*transform->scale
     };
 
     SDL_RenderCopyEx(
@@ -183,40 +183,6 @@ void RenderSystem::RenderUIEntity(EntityID entity, ComponentArrays* components, 
     }
 }
 
-void RenderSystem::RenderEntity(TransformComponent* transform, SpriteComponent* sprite) {
-    if (!sprite->texture || !sprite->texture->sdlTexture) return;
-
-    // Calculate screen position (applying camera offset)
-    int screenX = (int)(transform->x - cameraX);
-    int screenY = (int)(transform->y - cameraY);
-    
-    // Create destination rectangle
-    SDL_Rect destRect;
-    destRect.x = screenX;
-    destRect.y = screenY;
-    destRect.w = sprite->width * transform->scale;
-    destRect.h = sprite->height * transform->scale;
-    
-    // Create source rectangle (for sprite sheets)
-    SDL_Rect* srcRect = (sprite->srcRect.w > 0) ? &sprite->srcRect : NULL;
-    
-    // Calculate rotation center
-    SDL_Point center = {
-        (int)(sprite->width * transform->scale / 2),
-        (int)(sprite->height * transform->scale / 2)
-    };
-    
-    // Render the sprite
-    SDL_RenderCopyEx(
-        g_Engine.window->renderer,
-        sprite->texture->sdlTexture,
-        srcRect,
-        &destRect,
-        transform->rotation,
-        &center,
-        SDL_FLIP_NONE
-    );
-}
 
 void RenderSystem::RenderAnimatedEntity(TransformComponent* transform, AnimationComponent* anim) {
     if (!anim->spriteSheet || !anim->spriteSheet->sdlTexture) return;

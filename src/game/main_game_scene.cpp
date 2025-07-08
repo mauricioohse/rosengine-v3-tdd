@@ -5,6 +5,7 @@
 #include "pause_scene.h"
 #include "../core/input.h"
 #include "grid.h"
+#include "tower_placement.h"
 
 
 MainGameScene g_mainGame;
@@ -19,6 +20,8 @@ void MainGameScene::OnLoad()
     g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
     g_Engine.componentArrays.wasdControllers[box].Init(600);
 
+    // initialize tower placement system
+    TowerPlacement::Init();
 
     state = SceneState::INACTIVE;
 }
@@ -42,6 +45,9 @@ void MainGameScene::handle_pause_input()
 void MainGameScene::OptionalUpdate(float deltaTime)
 {
     handle_pause_input();
+
+    // update tower placement
+    TowerPlacement::Update();
 
     Grid::DrawGrid();
 }

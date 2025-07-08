@@ -53,6 +53,8 @@ struct FontResource {
 enum TextureID {
     TEXTURE_NONE = 0,
     TEXTURE_BOX,
+    TEXTURE_BOX_BLUE,
+    TEXTURE_BOX_MIX,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -67,6 +69,8 @@ struct TextureResource {
 // Global resource definitions
 static const TextureResource GAME_TEXTURES[] = {
     {"assets/box.png", TEXTURE_BOX},
+    {"assets/box_blue.png", TEXTURE_BOX_BLUE},
+    {"assets/box_mix.png", TEXTURE_BOX_MIX},
     // Add new textures here
 };
 
