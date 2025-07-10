@@ -87,3 +87,10 @@ Point Grid::GetNearestGridPoint(int x, int y)
     int y_pos = GRID_START_POINT.y + y_count_offset*GRID_SQUARE_LENGTH;
     return Point{x_pos, y_pos};
 }
+
+Point Grid::GetNearestGridPointCenter(int x, int y)
+{
+    Point corner = GetNearestGridPoint(x,y);
+    Point center = corner + Point{Grid::GRID_SQUARE_LENGTH/2, Grid::GRID_SQUARE_LENGTH/2};
+    return center;
+}

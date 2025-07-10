@@ -12,3 +12,9 @@ xcomponent(SPRITE, Sprite, 1, (EntityID entity, Texture* texture), (texture))
 xcomponent(TEXT, Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
 xcomponent(UIBOX, UIBox, 12, (EntityID entity, float width, float height), (width, height))
 xcomponent(ENEMY, Enemy, 13, (EntityID entity), ())
+xcomponent(TOWER, Tower, 14, (EntityID entity, int t, int r, float CD), (t, r, CD))
+xcomponent(PROJECTILE, Projectile, 15, (EntityID entity,float lifeTime, int _targetX, int _targetY, int _speed, int _shouldExplode, int _explosionRadius), ( lifeTime,  _targetX, _targetY,  _speed,  _shouldExplode,  _explosionRadius))
+xcomponent(TIMEDSPRITE,TimedSprite, 16, (EntityID entity,float currTime_, float animTime_, float deleteTime_, int loop_, int maxSprites_), ( currTime_,  animTime_, deleteTime_,  loop_,  maxSprites_))
+xcomponent(MOVETOXY,MoveToTargetXY, 17, (EntityID entity, int x, int y, int spd), ( x,  y, spd))
+
+

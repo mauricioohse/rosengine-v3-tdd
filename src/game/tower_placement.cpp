@@ -91,17 +91,13 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     }
     
     // add basic components
-    g_Engine.entityManager.AddComponentToEntity(tower, 
-        COMPONENT_TRANSFORM | COMPONENT_SPRITE | COMPONENT_COLLIDER);
-    
-    // initialize transform at grid position
-    g_Engine.componentArrays.Transforms[tower].Init(
+    ADD_COLLIDER(tower, 48, 48, 1, 0);
+    ADD_TRANSFORM(tower,
         (float)gridPoint.x + Grid::GRID_SQUARE_LENGTH/2, 
         (float)gridPoint.y + Grid::GRID_SQUARE_LENGTH/2,
         0.0F,
-        0.5F
-    );
-    
+        0.5F );
+
     // initialize sprite (you'll need to add tower textures to resource manager)
     // for now using the box texture as placeholder
 
@@ -110,14 +106,17 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     {
     default:
     case 0: // fire
+        ADD_TOWER(tower, 1, 150, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
         break;
 
     case 1: // water
+        ADD_TOWER(tower, 2, 100, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
     break;
     
     case 2: // water + fire
+        ADD_TOWER(tower, 3, 200, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
 
@@ -127,7 +126,7 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
         ADD_ENEMY(tower);
 
     }
-    g_Engine.componentArrays.Sprites[tower].Init(tex);
+    ADD_SPRITE(tower, tex);
     
     // initialize collider (static, not trigger)
     g_Engine.componentArrays.colliders[tower].Init(48, 48, true, false);

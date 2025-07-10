@@ -15,9 +15,18 @@ void enemy_movement_system::Update(float deltaTime, std::vector<EntityID> entiti
             TransformComponent* transform = 
                 (TransformComponent*)components->GetComponentData(entity, COMPONENT_TRANSFORM);
 
+            EnemyComponent * enemy = 
+                (EnemyComponent*)components->GetComponentData(entity, COMPONENT_ENEMY);
+
             if (transform)
             {
                 transform->x -= 1.0f;
+            }
+
+            if (!enemy->alive)
+            {
+                g_Engine.entityManager.DestroyEntity(entity);
+                printf("killing entity %d because note alive\n",entity);
             }
         }
     }

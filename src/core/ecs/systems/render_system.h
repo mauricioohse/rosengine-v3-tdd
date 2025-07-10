@@ -17,4 +17,5 @@ private:
     static void RenderSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
     static void RenderTextEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
     static void RenderUIEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
+    void RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera,  float deltaTime);
 };

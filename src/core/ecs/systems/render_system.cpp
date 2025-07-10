@@ -40,6 +40,79 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
             RenderUIEntity(entity, components, camera);
         }
     }
+    // 4. render TIMEDSPRITEENTITY
+    for (EntityID entity : entities) {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_TIMEDSPRITE)) {
+            RenderTimedSpriteEntity(entity, components, camera, deltaTime);
+        }
+    }
+}
+
+void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera, float deltaTime) {
+    TransformComponent* transform = 
+        (TransformComponent*)components->GetComponentData(entity, COMPONENT_TRANSFORM);
+    TimedSpriteComponent* timedSprite = 
+        (TimedSpriteComponent*)components->GetComponentData(entity, COMPONENT_TIMEDSPRITE);
+
+    if (!transform || !timedSprite) return;
+
+    // increment current time based on delta time
+    timedSprite->currTime += deltaTime;
+
+    // calculate current frame based on currTime and animTime
+    int currentFrame = 0;
+    if (timedSprite->animTime > 0) {
+        currentFrame = timedSprite->currTime / timedSprite->animTime;
+        
+        // handle looping or clamping
+        if (timedSprite->loop) {
+            currentFrame = currentFrame % timedSprite->maxSprites;
+        } else {
+            if (currentFrame >= timedSprite->maxSprites) {
+                currentFrame = timedSprite->maxSprites - 1;
+            }
+        }
+    }
+
+    // printf("currentframe: %d, currtime: %.2f, animtime: %.2f, deltaTime %.3f\n", 
+    //        currentFrame, timedSprite->currTime, timedSprite->animTime);
+
+    // bounds check
+    if (currentFrame >= timedSprite->maxSprites || 
+        currentFrame < 0 || 
+        !timedSprite->sprites[currentFrame]) return;
+
+    Texture* currentTexture = timedSprite->sprites[currentFrame];
+
+    float screenX = transform->x;
+    float screenY = transform->y;
+    
+    if (camera) {
+        screenX -= camera->x;
+        screenY -= camera->y;
+    }
+
+    SDL_Rect destRect = {
+        (int)screenX - currentTexture->width*transform->scale/2,
+        (int)screenY - currentTexture->height*transform->scale/2,
+        currentTexture->width*transform->scale,
+        currentTexture->height*transform->scale
+    };
+
+    SDL_RenderCopyEx(
+        g_Engine.window->renderer,
+        currentTexture->sdlTexture,
+        NULL,
+        &destRect,
+        transform->rotation,
+        NULL,
+        SDL_FLIP_NONE
+    );
+
+    if (timedSprite->currTime> timedSprite->deleteAfterTime)
+    {
+        g_Engine.entityManager.DestroyEntity(entity);
+    }
 }
 
 void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera) {

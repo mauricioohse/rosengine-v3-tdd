@@ -308,6 +308,109 @@ struct UIBoxComponent : Component {
     }
 };
 
+struct TowerComponent : Component {
+    int type;
+    int range; // radius
+    float attackCD; // attack cooldown, measured in seconds
+    float currCD;
+
+    void Init(int t, int r, float CD) {
+        type = t;
+        range = r;
+        attackCD = CD;
+        currCD=0;
+    }
+
+    void Destroy()
+    {
+        type = 0;
+    }
+};
+
+struct ProjectileComponent : Component {
+
+    float currLifetime; // in seconds
+    int targetX;
+    int targetY;
+    int speed;
+    int shouldExplode;
+    int explosionRadius;
+
+    void Init(float lifeTime, int _targetX, int _targetY, int _speed, int _shouldExplode, int _explosionRadius){
+        currLifetime = lifeTime;
+        targetX = _targetX;
+        targetY = _targetY;
+        speed = _speed;
+        shouldExplode = _shouldExplode;
+        explosionRadius = _explosionRadius;
+    }
+
+    void Destroy() override
+    {
+        currLifetime = 0;
+        targetX = 0;
+        targetY = 0;
+        speed = 0;
+        shouldExplode = 0;
+        explosionRadius = 0;
+    }
+};
+
+struct MoveToTargetXYComponent : Component {
+    int targetX;
+    int targetY;
+    int speed;
+    int hasTransformComponent; // used to log missing only once
+
+    void Init(int x, int y, int spd) {
+        targetX = x;
+        targetY = y;
+        speed = spd;
+    }
+
+    void Destroy() override {
+        int targetX = 0;
+        int targetY = 0;
+        int hasTransformComponent = 0; // used to log missing only once
+    }
+};
+
+struct TimedSpriteComponent : Component {
+    Texture *sprites[5];
+    float currTime;
+    float animTime; // frame time
+    float deleteAfterTime; // deletes the entity after this time
+    int loop;
+    int maxSprites;
+
+    void Init(float currTime_, float animTime_, float deleteTime_, int loop_, int maxSprites_)
+    {
+        currTime = currTime_;
+        animTime = animTime_;
+        deleteAfterTime = deleteTime_;
+        loop = loop_;
+        maxSprites = maxSprites_;
+        for (int i = 0; i < 5; i++) {
+            sprites[i] = nullptr;
+        }
+    }
+
+    void Destroy() override
+    {
+        currTime = 0.0f;
+        animTime = 0.0f;
+        loop = 0;
+        maxSprites = 0;
+        for (int i = 0; i < 5; i++) {
+            sprites[i] = nullptr;
+        }
+    }
+};
+
+struct ExplosionComponent : Component {
+    int timeToExplode;
+};
+
 struct EnemyComponent : Component {
     int alive;
 

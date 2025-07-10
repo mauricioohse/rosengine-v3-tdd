@@ -56,6 +56,10 @@ enum TextureID {
     TEXTURE_BOX_BLUE,
     TEXTURE_BOX_MIX,
     TEXTURE_BOX_ENEMY,
+    TEXTURE_BASIC_PROJECTILE,
+    TEXTURE_EXPLOSION_1,
+    TEXTURE_EXPLOSION_2,
+    TEXTURE_EXPLOSION_3,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -73,6 +77,10 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/box_blue.png", TEXTURE_BOX_BLUE},
     {"assets/box_mix.png", TEXTURE_BOX_MIX},
     {"assets/box_enemy.png", TEXTURE_BOX_ENEMY},
+    {"assets/basic_projectile.png", TEXTURE_BASIC_PROJECTILE},
+    {"assets/explosion_1.png", TEXTURE_EXPLOSION_1},
+    {"assets/explosion_2.png", TEXTURE_EXPLOSION_2},
+    {"assets/explosion_3.png", TEXTURE_EXPLOSION_3},
     // Add new textures here
 };
 

@@ -27,5 +27,6 @@ namespace Grid {
 
     void DrawGrid();
     Point GetNearestGridPoint(int x, int y); // aligned on the top left
+    Point GetNearestGridPointCenter(int x, int y); // center aligned
     bool IsInsideGrid(int x, int y);
 }

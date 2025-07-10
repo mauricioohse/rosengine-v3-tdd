@@ -72,6 +72,8 @@ bool EntityManager::HasComponent(EntityID entity, ComponentType componentMask) {
     if (!IsEntityValid(entity)) {
         return false;
     }
+
+    // todo: should we check if the entity is active/exists and not only the component mask?
     
     // Check if all bits from componentMask are present in entity's mask
     return (componentMasks[entity] & componentMask) == componentMask;
