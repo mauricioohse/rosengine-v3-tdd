@@ -88,8 +88,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
             }
 
             // update lifetime
-            projectile->currLifetime -= deltaTime;
-            if (projectile->currLifetime <= 0 || hasReachedTarget )
+            if (hasReachedTarget )
             {
                 // create explosion component if projectile should explode
                 if (projectile->shouldExplode) {

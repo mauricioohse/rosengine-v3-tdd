@@ -387,22 +387,18 @@ enum PROJECTILE_TYPE {
 
 struct ProjectileComponent : Component {
 
-    float currLifetime; // in seconds
     PROJECTILE_TYPE type;
     int targetX;
     int targetY;
     EntityID targetEntity;
-    int speed;
     int shouldExplode;
     int explosionRadius;
     int damage;
 
-    void Init(PROJECTILE_TYPE _type , float lifeTime, EntityID target, int _targetX, int _targetY, int _speed, int dmg, int _shouldExplode, int _explosionRadius){
-        currLifetime = lifeTime;
+    void Init(PROJECTILE_TYPE _type , EntityID target, int _targetX, int _targetY, int dmg, int _shouldExplode, int _explosionRadius){
         damage = dmg;
         targetX = _targetX;
         targetY = _targetY;
-        speed = _speed;
         shouldExplode = _shouldExplode;
         explosionRadius = _explosionRadius;
         targetEntity = target;
@@ -411,10 +407,8 @@ struct ProjectileComponent : Component {
 
     void Destroy() override
     {
-        currLifetime = 0;
         targetX = 0;
         targetY = 0;
-        speed = 0;
         shouldExplode = 0;
         explosionRadius = 0;
     }
