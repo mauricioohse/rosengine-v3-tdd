@@ -2,6 +2,7 @@
 #include "../core/ecs/ecs_types.h"
 #include "../core/input.h"
 #include "grid.h"
+#include "components.h"
 
 struct TowerPlacement {
     static void Init();
@@ -13,5 +14,7 @@ struct TowerPlacement {
   
 private:
     static bool isPlacementMode;
-    static int selectedTowerType; // 0 = fire, 1 = water, etc.
+    static TOWER_TYPE selectedTowerType; // 0 = fire, 1 = water, etc.
+
+
 }; 

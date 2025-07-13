@@ -308,13 +308,21 @@ struct UIBoxComponent : Component {
     }
 };
 
+enum TOWER_TYPE{
+    TOWER_NONE,
+    TOWER_FIRE,
+    TOWER_WATER,
+    TOWER_FIREWATER,
+    TOWER_DEBUG
+};
+
 struct TowerComponent : Component {
-    int type;
+    TOWER_TYPE type;
     int range; // radius
     float attackCD; // attack cooldown, measured in seconds
     float currCD;
 
-    void Init(int t, int r, float CD) {
+    void Init(TOWER_TYPE t, int r, float CD) {
         type = t;
         range = r;
         attackCD = CD;
@@ -323,7 +331,7 @@ struct TowerComponent : Component {
 
     void Destroy()
     {
-        type = 0;
+        type = (TOWER_TYPE) 0 ;
     }
 };
 
@@ -341,17 +349,55 @@ struct LifeTimeComponent : Component {
     }
 };
 
+struct JetAnimationComponent : Component {
+    int srcX;
+    int srcY;
+    int destX;
+    int destY;
+    float lifetime;
+    int currentStep;
+
+    void Init(int _srcX, int _srcY, int _destX, int _destY)
+    {
+        srcX = _srcX;
+        srcY = _srcY;
+        destX = _destX;
+        destY = _destY;
+        lifetime = .500;
+        currentStep = 0;
+    }
+
+    void Destroy() override 
+    {
+        srcX = 0;
+        srcY = 0;
+        destX = 0;
+        destY = 0;
+    }
+};
+
+enum PROJECTILE_TYPE {
+    PROJECTILE_NONE,
+    PROJECTILE_BOMB,
+    PROJECTILE_JET,
+    PROJECTILE_GUST,
+    PROJECTILE_LIGHTNING,
+    PROJECTILE_PELLET
+};
+
 struct ProjectileComponent : Component {
 
     float currLifetime; // in seconds
+    PROJECTILE_TYPE type;
     int targetX;
     int targetY;
+    EntityID targetEntity;
     int speed;
     int shouldExplode;
     int explosionRadius;
     int damage;
 
-    void Init(float lifeTime, int _targetX, int _targetY, int _speed, int dmg, int _shouldExplode, int _explosionRadius){
+    void Init(PROJECTILE_TYPE _type , float lifeTime, EntityID target, int _targetX, int _targetY, int _speed, int dmg, int _shouldExplode, int _explosionRadius){
         currLifetime = lifeTime;
         damage = dmg;
         targetX = _targetX;
@@ -359,6 +405,8 @@ struct ProjectileComponent : Component {
         speed = _speed;
         shouldExplode = _shouldExplode;
         explosionRadius = _explosionRadius;
+        targetEntity = target;
+        type = _type;
     }
 
     void Destroy() override

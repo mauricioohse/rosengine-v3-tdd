@@ -6,11 +6,11 @@
 #include "grid.h"
 
 bool TowerPlacement::isPlacementMode = false;
-int TowerPlacement::selectedTowerType = 0;
+TOWER_TYPE TowerPlacement::selectedTowerType = TOWER_NONE;
 
 void TowerPlacement::Init() {
     isPlacementMode = true;
-    selectedTowerType = 0;
+    selectedTowerType = TOWER_NONE;
 }
 
 void TowerPlacement::Update() {
@@ -34,22 +34,22 @@ void TowerPlacement::Update() {
     
     // handle keyboard input for tower selection
     if (Input::IsKeyPressed(SDL_SCANCODE_1)) {
-        selectedTowerType = 0; // fire tower
+        selectedTowerType = TOWER_FIRE; // fire tower
         isPlacementMode = true;
         printf("fire tower selected\n");
     }
     if (Input::IsKeyPressed(SDL_SCANCODE_2)) {
-        selectedTowerType = 1; // water tower
+        selectedTowerType = TOWER_WATER; // water tower
         isPlacementMode = true;
         printf("water tower selected\n");
     }
     if (Input::IsKeyPressed(SDL_SCANCODE_3)) {
-        selectedTowerType = 2; // water+fire tower
+        selectedTowerType = TOWER_FIREWATER; // water+fire tower
         isPlacementMode = true;
         printf("water tower selected\n");
     }
     if (Input::IsKeyPressed(SDL_SCANCODE_4)) {
-        selectedTowerType = 3; // enemy, debug
+        selectedTowerType = TOWER_DEBUG; // enemy, debug
         isPlacementMode = true;
         printf("water tower selected\n");
     }
@@ -61,7 +61,7 @@ void TowerPlacement::Update() {
 
 void TowerPlacement::Destroy() {
     isPlacementMode = false;
-    selectedTowerType = 0;
+    selectedTowerType = TOWER_NONE;
 }
 
 bool TowerPlacement::TryPlaceTower(int mouseX, int mouseY) {
@@ -105,22 +105,22 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     switch (selectedTowerType)
     {
     default:
-    case 0: // fire
-        ADD_TOWER(tower, 1, 150, 2);
+    case TOWER_FIRE: // fire
+        ADD_TOWER(tower, selectedTowerType, 125, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
         break;
 
-    case 1: // water
-        ADD_TOWER(tower, 2, 100, 2);
+    case TOWER_WATER: // water
+        ADD_TOWER(tower, selectedTowerType, 250, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
     break;
     
-    case 2: // water + fire
-        ADD_TOWER(tower, 3, 200, 2);
+    case TOWER_FIREWATER: // water + fire
+        ADD_TOWER(tower, selectedTowerType, 200, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
 
-    case 3: // DEBUG: PLACES ENEMIES
+    case TOWER_DEBUG: // DEBUG: PLACES ENEMIES
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY); 
         g_Engine.componentArrays.Transforms[tower].scale=0.1f;
         ADD_ENEMY(tower, 100);

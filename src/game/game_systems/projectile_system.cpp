@@ -40,6 +40,15 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
     }
 }
 
+void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
+{
+    EntityID jet = g_mainGame.RegisterEntity();
+
+    ADD_JET(jet, srcX, srcY, destX, destY);
+    ADD_LIFETIME(jet, .2);
+
+}
+
 void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays * components)
 {
 
@@ -61,6 +70,21 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 float distance = sqrt(dx * dx + dy * dy);
                 hasReachedTarget = (distance <= 10); // consider 10 pixel as tolerance
                 
+            }
+
+            if (projectile->type ==  PROJECTILE_JET)
+            {
+                // insta cast the JET, deal damage to the enemy, and delete the projectile entity
+
+                CastJetAtTarget(transform->x, transform->y, projectile->targetX, projectile->targetY);
+
+                EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, COMPONENT_ENEMY);
+                if (enemy)
+                {
+                    enemy->currHealth-=projectile->damage;
+                }
+                g_mainGame.DeleteEntity(entity);
+                continue; // continue the for loop
             }
 
             // update lifetime
@@ -87,10 +111,11 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                     }
                 }
 
-                // remove projectile component
                 g_mainGame.DeleteEntity(entity);
-                //g_Engine.entityManager.RemoveComponentFromEntity(entity, COMPONENT_SPRITE);
             }
         }
+    
+    
+    
     }
 }

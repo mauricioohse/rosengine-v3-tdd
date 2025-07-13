@@ -10,9 +10,6 @@ void tower_behavior_system::Init()
 }
 
 
-
-
-
 static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy)
 {
     // get enemy position for targeting
@@ -27,13 +24,25 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
     // add transform component at tower position
     ADD_TRANSFORM(projectile, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
     
-    // add sprite component with basic projectile texture
-    ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
     
     // add projectile component with enemy position as target
-    ADD_PROJECTILE(projectile, 3.0f, (int)enemy_transform->x, (int)enemy_transform->y, 200, 50, 1, 100);
+    switch (tc->type)
+    {
+        case TOWER_FIRE:
+        default:
+        ADD_PROJECTILE(projectile, PROJECTILE_BOMB,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 200, 50, 1, 100);
+        ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
+        ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 200);
 
-    ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 200);
+        break;
+        case TOWER_WATER:
+        ADD_PROJECTILE(projectile, PROJECTILE_JET,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 200, 200, 0, 0);
+        ADD_LIFETIME(projectile, 1.0f);
+        break;
+    }
+
+
+
 
     printf("projectile created: tower at (%.2f, %.2f) targeting enemy at (%d, %d)\n", 
            tower_transform->x, tower_transform->y, (int)enemy_transform->x, (int)enemy_transform->y);
@@ -49,7 +58,7 @@ static void HandleShooting(EntityID tower, TowerComponent * tc, EntityID enemy)
     }
 }
 
-static void HandleEnemyInRange(EntityID tower, TowerComponent * tc, TransformComponent * tr,  std::vector<EntityID> entities){
+static EntityID CheckEnemyInRange(EntityID tower, TowerComponent * tc, TransformComponent * tr,  std::vector<EntityID> entities){
 
     // check collision with enemies
     for (EntityID enemy: entities)
@@ -74,7 +83,7 @@ static void HandleEnemyInRange(EntityID tower, TowerComponent * tc, TransformCom
                 //        tr->x, tr->y, cc_range.width, cc_range.height, 
                 //        enemy_tr->x, enemy_tr->y, enemy_cc->width, enemy_cc->height);
 
-                HandleShooting(tower, tc, enemy);
+                return enemy;
             }
             
 
@@ -82,37 +91,39 @@ static void HandleEnemyInRange(EntityID tower, TowerComponent * tc, TransformCom
         
     }
 
+    return 0xFFFFFFFFu;
+
 }
 
-static void UpdateAttackCD(TowerComponent *tc,float deltaTime)
-{
-    tc->currCD-=deltaTime;
-}
 
 void tower_behavior_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
 {
     for (EntityID e : entities)
     {
-        if (g_Engine.entityManager.HasComponent(e, COMPONENT_TRANSFORM | COMPONENT_TOWER | COMPONENT_COLLIDER))
+        if (g_Engine.entityManager.HasComponent(e, COMPONENT_TRANSFORM | COMPONENT_TOWER /*| COMPONENT_COLLIDER*/ ) )
         {
 
             TowerComponent *tc = (TowerComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_TOWER);
             TransformComponent *tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_TRANSFORM);
-            ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_COLLIDER);
+            // ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_COLLIDER);
 
             switch (tc->type)
             {
             case 1: // fire
-                DrawRangeAroundTower(tr->x, tr->y, tc->range);
                 break;
             default:
                 // do nothing
                 break;
             }
 
-            HandleEnemyInRange(e, tc, tr, entities);
+            // check if there is an enemy in range
+            EntityID enemy = CheckEnemyInRange(e, tc, tr, entities);
+            
+            if (enemy != 0xFFFFFFFFu)
+                HandleShooting(e, tc, enemy);
 
-            UpdateAttackCD(tc, deltaTime);
+            // update attack CD
+            tc->currCD-=deltaTime;
         }
     }
 
@@ -122,50 +133,4 @@ void tower_behavior_system::Destroy()
 {
 }
 
-static void DrawCircle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius)
-{
-   const int32_t diameter = (radius * 2);
 
-   int32_t x = (radius - 1);
-   int32_t y = 0;
-   int32_t tx = 1;
-   int32_t ty = 1;
-   int32_t error = (tx - diameter);
-
-   while (x >= y)
-   {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
-
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
-
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
-   }
-}
-
-void tower_behavior_system::DrawRangeAroundTower(float x, float y, int radius){
-    Point p = Grid::GetNearestGridPointCenter(x,y);
-
-
-    SDL_Renderer * renderer = g_Engine.window->renderer;    
-
-    SDL_SetRenderDrawColor(renderer, 255, 0 , 125, 125);
-    DrawCircle(renderer, p.x, p.y, radius);
-}

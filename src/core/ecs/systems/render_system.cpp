@@ -1,12 +1,129 @@
 #include "render_system.h"
 #include "../../engine.h"
 #include <stdio.h>
+#include "grid.h"
+#include "math.h"
 
 void RenderSystem::Init() {
     printf("RenderSystem initialized\n");
     cameraX = 0.0f;
     cameraY = 0.0f;
 }
+
+static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
+{
+    SDL_Renderer * renderer = g_Engine.window->renderer;
+   const int32_t diameter = (radius * 2);
+
+   int32_t x = (radius - 1);
+   int32_t y = 0;
+   int32_t tx = 1;
+   int32_t ty = 1;
+   int32_t error = (tx - diameter);
+
+   SDL_SetRenderDrawColor(renderer, 122, 122, 122, 122);
+
+   while (x >= y)
+   {
+      //  Each of the following renders an octant of the circle
+      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
+      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
+      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
+      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
+      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
+      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
+      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
+      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+
+      if (error <= 0)
+      {
+         ++y;
+         error += ty;
+         ty += 2;
+      }
+
+      if (error > 0)
+      {
+         --x;
+         tx += 2;
+         error += (tx - diameter);
+      }
+   }
+}
+
+
+static void RenderJet(EntityID entity)
+{
+    // draw a  water Jet from src to dest.
+    // life time is .5 seconds. draw a watery jet from src to target, with a splash on the target
+    // use the lifetime to change the animation. the jet starts thin, increasis width until .250 seconds, at which point the splash starts and the jet ends
+    // the splash is the remaining .25 seconds 
+
+    if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_JET | COMPONENT_LIFETIME)) {
+        return;
+    }
+    
+    JetAnimationComponent* jet = (JetAnimationComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_JET);
+    LifeTimeComponent* lifetime = (LifeTimeComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_LIFETIME);
+    SDL_Renderer* renderer = g_Engine.window->renderer;
+    
+    float progress = (0.2f - lifetime->remaininglifeTime) / 0.2f; // 0.0 to 1.0
+    
+    if (progress <= 0.5f) {
+        // first half: draw expanding jet
+        float jetProgress = progress * 2.0f; // 0.0 to 1.0
+        int width = (int)(jetProgress * 8.0f) + 1; // 1 to 9 pixels wide
+        
+        // calculate line points
+        int dx = jet->destX - jet->srcX;
+        int dy = jet->destY - jet->srcY;
+        float length = sqrtf((float)(dx * dx + dy * dy));
+        
+        if (length > 0) {
+            float normalX = -dy / length;
+            float normalY = dx / length;
+            
+            // draw multiple parallel lines for thickness
+            SDL_SetRenderDrawColor(renderer, 100, 150, 255, 200);
+            for (int i = -width/2; i <= width/2; i++) {
+                int startX = jet->srcX + (int)(normalX * i);
+                int startY = jet->srcY + (int)(normalY * i);
+                int endX = jet->destX + (int)(normalX * i);
+                int endY = jet->destY + (int)(normalY * i);
+                SDL_RenderDrawLine(renderer, startX, startY, endX, endY);
+            }
+        }
+    } else {
+        // second half: draw splash at destination
+        float splashProgress = (progress - 0.5f) * 2.0f; // 0.0 to 1.0
+        int splashRadius = (int)(splashProgress * 20.0f) + 5; // 5 to 25 pixels
+        
+        SDL_SetRenderDrawColor(renderer, 100, 150, 255, (int)(255 * (1.0f - splashProgress)));
+        
+        // draw splash circles
+        for (int r = 0; r < splashRadius; r += 3) {
+            DrawCircle(jet->destX, jet->destY, r);
+        }
+    }
+}
+
+
+
+static void RenderTowerRange(EntityID entity)
+{
+    if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_TOWER | COMPONENT_TRANSFORM)) {
+        return;
+    }
+    
+    TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TOWER);
+    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TRANSFORM);
+
+    Point p = Grid::GetNearestGridPointCenter(transform->x,transform->y);
+
+    DrawCircle(p.x, p.y, tower->range);
+
+}
+
 static void RenderEnemyLife(EntityID entity)
 {
     if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_ENEMY | COMPONENT_TRANSFORM)) {
@@ -59,44 +176,7 @@ static void RenderEnemyLife(EntityID entity)
     }
 }
 
-static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
-{
-    SDL_Renderer * renderer = g_Engine.window->renderer;
-   const int32_t diameter = (radius * 2);
 
-   int32_t x = (radius - 1);
-   int32_t y = 0;
-   int32_t tx = 1;
-   int32_t ty = 1;
-   int32_t error = (tx - diameter);
-
-   while (x >= y)
-   {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
-
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
-
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
-   }
-}
 
 static void RenderDebugAOE(EntityID e)
 {
@@ -165,6 +245,25 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
             RenderEnemyLife(entity);
         }
     }
+
+    // draw tower range - in the future we should add a button (like shift) to only draw all when pressed
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_TOWER))
+        {
+            RenderTowerRange(entity);
+        }
+    }
+
+    // handle Jet animation logic + render
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_JET | COMPONENT_LIFETIME))
+        {
+            RenderJet(entity);
+        }
+    }
+
 }
 
 void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera, float deltaTime) {
