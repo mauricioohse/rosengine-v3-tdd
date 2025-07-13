@@ -1,8 +1,10 @@
 - [x] do LifeTimeSystem
 - [x] Implement enemy health + enemy life bar, and projectile damage
-- [ ] implement water (jet, sniper, range)
+- [x] implement water (jet, sniper, range)
+- [ ] clean projectile component data
 - [ ] Implement earth (pelets) tower
 - [ ] implement air (hitscan CC) tower
+- [x] implement fire+water tower (AOE jet)
 - [ ] implement tower range on hover
 - [ ] implement circular collision for tower range instead of AABB 
 - [ ] do DamageSystem and component?

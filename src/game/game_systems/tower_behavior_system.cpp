@@ -31,13 +31,24 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
         case TOWER_FIRE:
         default:
         ADD_PROJECTILE(projectile, PROJECTILE_BOMB,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 200, 50, 1, 100);
-        ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
+    ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
         ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 200);
 
         break;
         case TOWER_WATER:
         ADD_PROJECTILE(projectile, PROJECTILE_JET,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 200, 200, 0, 0);
         ADD_LIFETIME(projectile, 1.0f);
+
+        case TOWER_FIREWATER:
+        ADD_PROJECTILE(projectile, PROJECTILE_BOMB,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 1000, 100, 1, 100);
+        ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
+        ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 1000);
+
+        EntityID jet = g_mainGame.RegisterEntity();
+        ADD_TRANSFORM(jet, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
+        ADD_PROJECTILE(jet, PROJECTILE_JET,3.0f,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 200, 50, 0, 0);
+        ADD_LIFETIME(jet, 1.0f);
+
         break;
     }
 
