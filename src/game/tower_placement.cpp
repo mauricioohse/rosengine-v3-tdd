@@ -73,7 +73,7 @@ bool TowerPlacement::TryPlaceTower(int mouseX, int mouseY) {
     EntityID tower = CreateTowerAt(gridPoint);
     
     if (tower != INVALID_ENTITY) {
-        isPlacementMode = false; // exit placement mode after successful placement
+        isPlacementMode = true; // exit placement mode after successful placement
         return true;
     }
     

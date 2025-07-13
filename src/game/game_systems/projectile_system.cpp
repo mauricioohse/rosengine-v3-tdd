@@ -1,6 +1,7 @@
 #include "projectile_system.h"
 #include "engine.h"
 #include "math.h"
+#include "main_game_scene.h"
 
 void projectile_system::Init()
 {
@@ -70,8 +71,11 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 if (projectile->shouldExplode) {
                     // only add timed sprite if it doesn't already exist
                     if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_TIMEDSPRITE)) {
-                        ADD_TIMEDSPRITE(entity, 0, 0.2f , 0.6f, 0, 3);
-                        TimedSpriteComponent* timedSprite = (TimedSpriteComponent*)components->GetComponentData(entity, COMPONENT_TIMEDSPRITE);
+                        EntityID explosion = g_mainGame.RegisterEntity();
+                        ADD_TIMEDSPRITE(explosion, 0, 0.2f , 0, 3);
+                        ADD_LIFETIME(explosion, 0.6f);
+                        ADD_TRANSFORM(explosion, transform->x, transform->y, transform->rotation, 1.0f);
+                        TimedSpriteComponent* timedSprite = (TimedSpriteComponent*)components->GetComponentData(explosion, COMPONENT_TIMEDSPRITE);
                         if (timedSprite) {
                             timedSprite->sprites[0] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_1);
                             timedSprite->sprites[1] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_2);
@@ -79,11 +83,13 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                         }
 
                         CauseExplosionDamage(transform, projectile, entities);
+                        
                     }
                 }
 
                 // remove projectile component
-                g_Engine.entityManager.RemoveComponentFromEntity(entity, COMPONENT_SPRITE);
+                g_mainGame.DeleteEntity(entity);
+                //g_Engine.entityManager.RemoveComponentFromEntity(entity, COMPONENT_SPRITE);
             }
         }
     }

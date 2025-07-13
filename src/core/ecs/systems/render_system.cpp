@@ -8,6 +8,56 @@ void RenderSystem::Init() {
     cameraY = 0.0f;
 }
 
+static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
+{
+    SDL_Renderer * renderer = g_Engine.window->renderer;
+   const int32_t diameter = (radius * 2);
+
+   int32_t x = (radius - 1);
+   int32_t y = 0;
+   int32_t tx = 1;
+   int32_t ty = 1;
+   int32_t error = (tx - diameter);
+
+   while (x >= y)
+   {
+      //  Each of the following renders an octant of the circle
+      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
+      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
+      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
+      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
+      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
+      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
+      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
+      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+
+      if (error <= 0)
+      {
+         ++y;
+         error += ty;
+         ty += 2;
+      }
+
+      if (error > 0)
+      {
+         --x;
+         tx += 2;
+         error += (tx - diameter);
+      }
+   }
+}
+
+static void RenderDebugAOE(EntityID e)
+{
+    if (g_Engine.entityManager.HasComponent(e, COMPONENT_TRANSFORM | COMPONENT_PROJECTILE)) {
+        TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(e, COMPONENT_TRANSFORM);
+        ProjectileComponent* projectile = (ProjectileComponent*)g_Engine.componentArrays.GetComponentData(e, COMPONENT_PROJECTILE);
+        
+        // draw red circle at transform position with projectile explosion radius
+        DrawCircle(transform->x, transform->y, projectile->explosionRadius);
+    }
+}
+
 void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
     // Find the active camera (assuming only one camera for now)
     CameraComponent* camera = nullptr;
@@ -44,6 +94,15 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     for (EntityID entity : entities) {
         if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_TIMEDSPRITE)) {
             RenderTimedSpriteEntity(entity, components, camera, deltaTime);
+        }
+    }
+
+    // 5. render debug explosion area
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_PROJECTILE))
+        {
+            RenderDebugAOE(entity);
         }
     }
 }
@@ -108,11 +167,6 @@ void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* com
         NULL,
         SDL_FLIP_NONE
     );
-
-    if (timedSprite->currTime> timedSprite->deleteAfterTime)
-    {
-        g_Engine.entityManager.DestroyEntity(entity);
-    }
 }
 
 void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera) {

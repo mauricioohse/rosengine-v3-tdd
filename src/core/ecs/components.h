@@ -327,6 +327,20 @@ struct TowerComponent : Component {
     }
 };
 
+struct LifeTimeComponent : Component {
+    float remaininglifeTime; // in seconds
+
+    void Init(float lifeTime)
+    {
+        remaininglifeTime = lifeTime;
+    }
+
+    void Destroy() override 
+    {
+        remaininglifeTime = 0;
+    }
+};
+
 struct ProjectileComponent : Component {
 
     float currLifetime; // in seconds
@@ -335,6 +349,8 @@ struct ProjectileComponent : Component {
     int speed;
     int shouldExplode;
     int explosionRadius;
+    int damage;
+    int explosionDamage;
 
     void Init(float lifeTime, int _targetX, int _targetY, int _speed, int _shouldExplode, int _explosionRadius){
         currLifetime = lifeTime;
@@ -379,15 +395,13 @@ struct TimedSpriteComponent : Component {
     Texture *sprites[5];
     float currTime;
     float animTime; // frame time
-    float deleteAfterTime; // deletes the entity after this time
     int loop;
     int maxSprites;
 
-    void Init(float currTime_, float animTime_, float deleteTime_, int loop_, int maxSprites_)
+    void Init(float currTime_, float animTime_, int loop_, int maxSprites_)
     {
         currTime = currTime_;
         animTime = animTime_;
-        deleteAfterTime = deleteTime_;
         loop = loop_;
         maxSprites = maxSprites_;
         for (int i = 0; i < 5; i++) {
