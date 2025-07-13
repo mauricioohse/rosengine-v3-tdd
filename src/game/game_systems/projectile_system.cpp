@@ -33,7 +33,7 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
             // check if enemy is within explosion radius
             if (distance <= prt->explosionRadius && enemy_comp->alive) {
                 // kill enemy by setting alive to 0
-                enemy_comp->alive = 0;
+                enemy_comp->currHealth -= prt->damage;
                 printf("enemy killed by explosion at distance %.2f\n", distance);
             }
         }

@@ -31,7 +31,7 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
     ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
     
     // add projectile component with enemy position as target
-    ADD_PROJECTILE(projectile, 3.0f, (int)enemy_transform->x, (int)enemy_transform->y, 200, 1, 100);
+    ADD_PROJECTILE(projectile, 3.0f, (int)enemy_transform->x, (int)enemy_transform->y, 200, 50, 1, 100);
 
     ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 200);
 

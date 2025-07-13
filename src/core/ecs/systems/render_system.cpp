@@ -7,6 +7,57 @@ void RenderSystem::Init() {
     cameraX = 0.0f;
     cameraY = 0.0f;
 }
+static void RenderEnemyLife(EntityID entity)
+{
+    if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_ENEMY | COMPONENT_TRANSFORM)) {
+        return;
+    }
+    
+    EnemyComponent* enemy = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_ENEMY);
+    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TRANSFORM);
+    
+    if (!enemy->alive || enemy->maxHealth <= 0) {
+        return;
+    }
+    
+    SDL_Renderer* renderer = g_Engine.window->renderer;
+    
+    // health bar dimensions
+    const int BAR_WIDTH = 12;
+    const int BAR_HEIGHT = 2;
+    int BAR_OFFSET_Y = -8; // default offset above enemy
+    
+    // adjust offset if sprite component exists
+    if (g_Engine.entityManager.HasComponent(entity, COMPONENT_SPRITE)) {
+        SpriteComponent* sprite = (SpriteComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_SPRITE);
+        if (sprite->texture) {
+            BAR_OFFSET_Y = -(sprite->texture->height / 2) + 15; // above sprite bounds
+        }
+    }
+    
+    // calculate bar position (centered above enemy)
+    int barX = (int)(transform->x - BAR_WIDTH / 2);
+    int barY = (int)(transform->y + BAR_OFFSET_Y);
+    
+    // calculate health percentage
+    float healthPercent = (float)enemy->currHealth / (float)enemy->maxHealth;
+    int greenWidth = (int)(BAR_WIDTH * healthPercent);
+    int redWidth = BAR_WIDTH - greenWidth;
+    
+    // draw red background (missing health)
+    if (redWidth > 0) {
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_Rect redRect = {barX + greenWidth, barY, redWidth, BAR_HEIGHT};
+        SDL_RenderFillRect(renderer, &redRect);
+    }
+    
+    // draw green foreground (current health)
+    if (greenWidth > 0) {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_Rect greenRect = {barX, barY, greenWidth, BAR_HEIGHT};
+        SDL_RenderFillRect(renderer, &greenRect);
+    }
+}
 
 static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
 {
@@ -103,6 +154,15 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_PROJECTILE))
         {
             RenderDebugAOE(entity);
+        }
+    }
+
+    // 6. render enemy healthbar
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_ENEMY | COMPONENT_SPRITE))
+        {
+            RenderEnemyLife(entity);
         }
     }
 }

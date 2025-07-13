@@ -1,11 +1,11 @@
-#include "enemy_movement_system.h"
+#include "enemy_system.h"
 #include "game.h"
 
-void enemy_movement_system::Init()
+void enemy_system::Init()
 {
 }
 
-void enemy_movement_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
+void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
 {
     
     // find all entities with transform + enemy
@@ -28,10 +28,16 @@ void enemy_movement_system::Update(float deltaTime, std::vector<EntityID> entiti
                 g_Engine.entityManager.DestroyEntity(entity);
                 printf("killing entity %d because note alive\n",entity);
             }
+
+            // check if enemy health is above zero, if not, destroy him
+            if (enemy && enemy->currHealth <= 0)
+            {
+                g_Engine.entityManager.DestroyEntity(entity);
+            }
         }
     }
 }
 
-void enemy_movement_system::Destroy()
+void enemy_system::Destroy()
 {
 }

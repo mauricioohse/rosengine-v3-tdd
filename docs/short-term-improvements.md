@@ -1,4 +1,10 @@
-- [ ] do LifeTimeSystem
+- [x] do LifeTimeSystem
+- [x] Implement enemy health + enemy life bar, and projectile damage
+- [ ] Implement earth (pelets) tower
+- [ ] implement air (hitscan CC) tower
+- [ ] implement water (jet, sniper, range)
+- [ ] implement tower range on hover
+- [ ] implement circular collision for tower range instead of AABB 
 - [ ] do DamageSystem and component?
 - [ ] create ecs_for_each
 - [ ] remove init and destroy functions from components

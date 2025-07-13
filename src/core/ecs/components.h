@@ -350,10 +350,10 @@ struct ProjectileComponent : Component {
     int shouldExplode;
     int explosionRadius;
     int damage;
-    int explosionDamage;
 
-    void Init(float lifeTime, int _targetX, int _targetY, int _speed, int _shouldExplode, int _explosionRadius){
+    void Init(float lifeTime, int _targetX, int _targetY, int _speed, int dmg, int _shouldExplode, int _explosionRadius){
         currLifetime = lifeTime;
+        damage = dmg;
         targetX = _targetX;
         targetY = _targetY;
         speed = _speed;
@@ -427,9 +427,13 @@ struct ExplosionComponent : Component {
 
 struct EnemyComponent : Component {
     int alive;
+    int currHealth;
+    int maxHealth;
 
-    void Init() {
+    void Init(int health) {
         alive = 1;
+        currHealth = health;
+        maxHealth = health; 
     }
 
     void Destroy()

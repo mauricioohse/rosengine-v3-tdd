@@ -123,7 +123,7 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     case 3: // DEBUG: PLACES ENEMIES
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY); 
         g_Engine.componentArrays.Transforms[tower].scale=0.1f;
-        ADD_ENEMY(tower);
+        ADD_ENEMY(tower, 100);
 
     }
     ADD_SPRITE(tower, tex);
