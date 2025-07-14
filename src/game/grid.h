@@ -29,4 +29,10 @@ namespace Grid {
     Point GetNearestGridPoint(int x, int y); // aligned on the top left
     Point GetNearestGridPointCenter(int x, int y); // center aligned
     bool IsInsideGrid(int x, int y);
+    bool LoadLevel(const char * filename);
+    Point GridToScreenPosition(int grid_x, int grid_y);
+    
+    // monster path access functions
+    Point GetMonsterPathPoint(int index);
+    int GetMonsterPathSize();
 }

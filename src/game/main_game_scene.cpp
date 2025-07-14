@@ -23,6 +23,8 @@ void MainGameScene::OnLoad()
     // initialize tower placement system
     TowerPlacement::Init();
 
+    Grid::LoadLevel("lvl1.csv");
+
     state = SceneState::INACTIVE;
 }
 

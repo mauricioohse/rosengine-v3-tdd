@@ -471,11 +471,13 @@ struct EnemyComponent : Component {
     int alive;
     int currHealth;
     int maxHealth;
+    int currPathIdx;
 
     void Init(int health) {
         alive = 1;
         currHealth = health;
         maxHealth = health; 
+        currPathIdx = 0;
     }
 
     void Destroy()
