@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "math.h"
 #include "main_game_scene.h"
+#include "utils.h"
 
 void projectile_system::Init()
 {
@@ -87,8 +88,8 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 continue; // continue the for loop
             }
 
-            // update lifetime
-            if (hasReachedTarget )
+
+            if (hasReachedTarget && projectile->type == PROJECTILE_BOMB)
             {
                 // create explosion component if projectile should explode
                 if (projectile->shouldExplode) {
@@ -112,6 +113,49 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
 
                 g_mainGame.DeleteEntity(entity);
             }
+
+            if (projectile->type == PROJECTILE_PELLET)
+            {
+                // check collision with enemies
+                ColliderComponent* projectileCollider = (ColliderComponent*)components->GetComponentData(entity, COMPONENT_COLLIDER);
+                if (!projectileCollider) {
+                    static bool errorPrinted = false;
+                    if (!errorPrinted) {
+                        printf("ERROR: pellet projectile missing collider component\n");
+                        errorPrinted = true;
+                    }
+                    continue;
+                }
+                
+                for (EntityID otherEntity : entities) {
+                    if (otherEntity == entity) continue;
+                    
+                    if (g_Engine.entityManager.HasComponent(otherEntity, COMPONENT_ENEMY | COMPONENT_COLLIDER | COMPONENT_TRANSFORM)) {
+                        ColliderComponent* enemyCollider = (ColliderComponent*)components->GetComponentData(otherEntity, COMPONENT_COLLIDER);
+                        TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(otherEntity, COMPONENT_TRANSFORM);
+                        
+                        if (!enemyCollider) {
+                            static bool enemyErrorPrinted = false;
+                            if (!enemyErrorPrinted) {
+                                printf("ERROR: enemy missing collider component\n");
+                                enemyErrorPrinted = true;
+                            }
+                            continue;
+                        }
+                        
+                        float penX, penY;
+                        if (CheckCollisionCentered(transform, projectileCollider, enemyTransform, enemyCollider, penX, penY)) {
+                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(otherEntity, COMPONENT_ENEMY);
+                            if (enemy) {
+                                enemy->currHealth -= projectile->damage;
+                            }
+                            g_mainGame.DeleteEntity(entity);
+                            break;
+                        }
+                    }
+                }
+            }
+            
         }
     
     
