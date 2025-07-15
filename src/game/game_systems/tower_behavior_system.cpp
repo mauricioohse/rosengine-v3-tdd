@@ -38,6 +38,7 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
         case TOWER_WATER:
         ADD_PROJECTILE(projectile, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  200, 0, 0);
         ADD_LIFETIME(projectile, 1.0f);
+        break; 
 
         case TOWER_FIREWATER:
         ADD_PROJECTILE(projectile, PROJECTILE_BOMB,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 1, 100);
@@ -48,7 +49,6 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
         ADD_TRANSFORM(jet, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
         ADD_PROJECTILE(jet, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 50, 0, 0);
         ADD_LIFETIME(jet, 1.0f);
-
         break;
     }
 
