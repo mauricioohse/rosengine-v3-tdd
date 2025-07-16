@@ -176,6 +176,95 @@ static void RenderEnemyLife(EntityID entity)
     }
 }
 
+static void RenderChain(EntityID entity){
+    // renders a purple rectange from the currXY to nextXY
+    if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_CHAIN)) {
+        return;
+    }
+    
+    ChainLightningComponent* chain = (ChainLightningComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_CHAIN);
+    if (!chain) {
+        return;
+    }
+    
+    SDL_Renderer* renderer = g_Engine.window->renderer;
+    
+    // set purple color
+    SDL_SetRenderDrawColor(renderer, 128, 0, 255, 255);
+    
+    // calculate rectangle dimensions
+    const int THICKNESS = 4;
+    
+    // calculate vector from curr to next
+    int dx = chain->nextX - chain->currX;
+    int dy = chain->nextY - chain->currY;
+    
+    // calculate length
+    float length = sqrt(dx * dx + dy * dy);
+    
+    if (length > 0) {
+        // normalize direction vector
+        float nx = dx / length;
+        float ny = dy / length;
+        
+        // perpendicular vector for thickness
+        float px = -ny * (THICKNESS / 2);
+        float py = nx * (THICKNESS / 2);
+        
+        // create the four corners of the rotated rectangle
+        SDL_Point points[5];
+        points[0].x = chain->currX + (int)px;
+        points[0].y = chain->currY + (int)py;
+        points[1].x = chain->currX - (int)px;
+        points[1].y = chain->currY - (int)py;
+        points[2].x = chain->nextX - (int)px;
+        points[2].y = chain->nextY - (int)py;
+        points[3].x = chain->nextX + (int)px;
+        points[3].y = chain->nextY + (int)py;
+        points[4] = points[0]; // close the polygon
+        
+        // draw the filled polygon by connecting the lines
+        SDL_RenderDrawLines(renderer, points, 5);
+        
+        // fill the rectangle by drawing horizontal lines between the edges
+        // this is a simple scanline fill for the rotated rectangle
+        int minY = points[0].y;
+        int maxY = points[0].y;
+        for (int i = 1; i < 4; i++) {
+            if (points[i].y < minY) minY = points[i].y;
+            if (points[i].y > maxY) maxY = points[i].y;
+        }
+        
+        for (int y = minY; y <= maxY; y++) {
+            int leftX = INT_MAX, rightX = INT_MIN;
+            
+            // find intersection points with the rectangle edges at this y level
+            for (int i = 0; i < 4; i++) {
+                int j = (i + 1) % 4;
+                int y1 = points[i].y;
+                int y2 = points[j].y;
+                
+                if ((y1 <= y && y <= y2) || (y2 <= y && y <= y1)) {
+                    if (y1 != y2) {
+                        int x = points[i].x + (points[j].x - points[i].x) * (y - y1) / (y2 - y1);
+                        if (x < leftX) leftX = x;
+                        if (x > rightX) rightX = x;
+                    } else {
+                        // horizontal line case
+                        if (points[i].x < leftX) leftX = points[i].x;
+                        if (points[i].x > rightX) rightX = points[i].x;
+                        if (points[j].x < leftX) leftX = points[j].x;
+                        if (points[j].x > rightX) rightX = points[j].x;
+                    }
+                }
+            }
+            
+            if (leftX != INT_MAX && rightX != INT_MIN && leftX <= rightX) {
+                SDL_RenderDrawLine(renderer, leftX, y, rightX, y);
+            }
+        }
+    }
+}
 
 
 static void RenderDebugAOE(EntityID e)
@@ -263,6 +352,17 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
             RenderJet(entity);
         }
     }
+
+    // handle Chain lighning animation logic + render
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CHAIN))
+        {
+            RenderChain(entity);
+        }
+    }
+
+
 
 }
 

@@ -172,6 +172,20 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
 
                 g_mainGame.DeleteEntity(entity);
             }
+
+            if (projectile->type == PROJECTILE_LIGHTNING)
+            {
+                // create a chain entity
+                // chain entity jumps from entity to entity drawing a purple rectangle
+                // starts with tower, first entity, then go to the next
+                // the chain entity also needs to not hit the same entity and destroy itself after x jumps, or if doesnt found enough entities to jump to.
+                EntityID chain = g_mainGame.RegisterEntity();
+                ADD_CHAIN(chain, transform->x, transform->y, projectile->targetX, projectile->targetY, projectile->targetEntity, projectile->damage, 5);
+                ADD_LIFETIME(chain, .3f); // in case we forget to delete
+
+                // deletes the projectile
+                g_mainGame.DeleteEntity(entity);
+            }
         }
     
     
@@ -200,5 +214,91 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 }
             }
         }
+    
+        // deals with the CHAIN entities.  This could be its own system, but it is not for the timebeing.
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CHAIN))
+        {
+            ChainLightningComponent* chain = (ChainLightningComponent*)components->GetComponentData(entity, COMPONENT_CHAIN);
+            if (chain) {
+                
+                // if no jumps left, delete entity
+                if (chain->jumps <= 0) {
+                    g_mainGame.DeleteEntity(entity);
+                    continue;
+                }
+                
+                // increment frame delay counter
+                chain->currFrameDelay++;
+                
+                // only process jump when frame delay is reached
+                if (chain->currFrameDelay >= chain->frameDelay) {
+                    // damage current target if valid and hasn't been damaged yet
+                    if (chain->target != INVALID_ENTITY && !chain->hasDealtDamage) {
+                        if (g_Engine.entityManager.HasComponent(chain->target, COMPONENT_ENEMY)) {
+                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(chain->target, COMPONENT_ENEMY);
+                            if (enemy) {
+                                enemy->currHealth -= chain->damage;
+                            }
+                        }
+                        
+                        // add current target to hit list
+                        for (int i = 0; i < 12; i++) {
+                            if (chain->hits[i] == INVALID_ENTITY) {
+                                chain->hits[i] = chain->target;
+                                break;
+                            }
+                        }
+                        
+                        chain->hasDealtDamage = 1;
+                    }
+                    
+                    // find next enemy to jump to
+                    EntityID nextTarget = INVALID_ENTITY;
+                    float closestDist = 150.0f; // max chain range
+                    
+                    for (EntityID enemy : entities) {
+                        if (g_Engine.entityManager.HasComponent(enemy, COMPONENT_TRANSFORM | COMPONENT_ENEMY)) {
+                            // check if already hit
+                            bool alreadyHit = false;
+                            for (int i = 0; i < 12; i++) {
+                                if (chain->hits[i] == enemy) {
+                                    alreadyHit = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!alreadyHit) {
+                                TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(enemy, COMPONENT_TRANSFORM);
+                                if (enemyTransform) {
+                                    float dist = sqrt(pow(enemyTransform->x - chain->nextX, 2) + pow(enemyTransform->y - chain->nextY, 2));
+                                    if (dist < closestDist) {
+                                        closestDist = dist;
+                                        nextTarget = enemy;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // update chain position and decrement jumps, or delete if no more targets
+                    if (nextTarget != INVALID_ENTITY) {
+                        TransformComponent* nextTransform = (TransformComponent*)components->GetComponentData(nextTarget, COMPONENT_TRANSFORM);
+                        if (nextTransform) {
+                            chain->currX = chain->nextX;
+                            chain->currY = chain->nextY;
+                            chain->nextX = (int)nextTransform->x;
+                            chain->nextY = (int)nextTransform->y;
+                            chain->target = nextTarget;
+                            chain->jumps--; // decrement jumps
+                            chain->currFrameDelay = 0; // reset frame delay for next jump
+                            chain->hasDealtDamage = 0; // reset damage flag for next target
+                        }
+                    } else {
+                        g_mainGame.DeleteEntity(entity);
+                    }
+                }
+            }
+        }
+    
     }
 }

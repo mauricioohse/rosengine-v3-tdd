@@ -3,8 +3,10 @@ Main:
 - [x] Implement enemy health + enemy life bar, and projectile damage
 - [x] implement water (jet, sniper, range)
 - [x] Implement earth (pelets) tower
-- [ ] implement air (hitscan CC) tower
+- [x] implement air (hitscan CC) tower
+- [x] implement electric (chaining) tower
 - [x] implement fire+water tower (AOE jet)
+- [ ] implement test zone to test tower power on enemy packs
 - [ ] implement tower placement system that can merge two towers
 - [ ] implement sounds for basic projectiles
 - [ ] implement 

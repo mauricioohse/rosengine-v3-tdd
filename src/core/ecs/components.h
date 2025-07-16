@@ -379,6 +379,41 @@ struct JetAnimationComponent : Component {
     }
 };
 
+struct ChainLightningComponent : Component {
+    EntityID hits[12]; // considering 12 the maximum amount of jumps possible
+    int jumps; // how many times the chain in will (how many enemies will be hit)
+    // the lighntining will be drawn between the current target and the next target every jump
+    int currX;
+    int currY;
+    int nextX;
+    int nextY;
+    int damage;
+    EntityID target;
+    int frameDelay;
+    int currFrameDelay;
+    int hasDealtDamage;
+
+    void Init(int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps )
+    {
+        currX = _currX;
+        currY = _currY;
+        nextX = _nextX;
+        nextY = _nextY;
+        damage = _damage;
+        target = _target;
+        jumps = _jumps;
+        memset(hits, 0, sizeof(hits));
+        frameDelay = 5;
+        hasDealtDamage = 0;
+        currFrameDelay = 0;
+    }
+
+    void Destroy () override 
+    {
+
+    }
+};
+
 struct CrowdcontrolComponent : Component {
     EntityID target;
     int targetX;

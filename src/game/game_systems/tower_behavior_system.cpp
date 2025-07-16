@@ -26,7 +26,7 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
     switch (tc->type)
     {
         default:
-        printf("No valid Tower selected! Defaulting to fire tower. /n");
+        printf("Tower has no expected projectile type selected! Defaulting to fire tower. \n");
         // no break; on purpose
 
         case TOWER_FIRE:
@@ -49,6 +49,10 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
 
         case TOWER_AIR:
         ADD_PROJECTILE(projectile, PROJECTILE_GUST,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  0, 0, 0);
+        break;
+
+        case TOWER_ELECTRIC:
+        ADD_PROJECTILE(projectile, PROJECTILE_LIGHTNING,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 0, 0);
         break;
 
         case TOWER_FIREWATER:

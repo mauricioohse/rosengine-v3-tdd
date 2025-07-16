@@ -19,4 +19,5 @@ xcomponent(MOVETOXY,MoveToTargetXY, 17, (EntityID entity, int x, int y, int spd)
 xcomponent(LIFETIME,LifeTime, 18, (EntityID entity, float lifeTime), (lifeTime))
 xcomponent(JET,JetAnimation, 19, (EntityID entity, int _srcX, int _srcY, int _destX, int _destY), ( _srcX,  _srcY,  _destX,  _destY))
 xcomponent(CC,Crowdcontrol, 20, (EntityID entity, EntityID tgt, int _targetX, int _targetY), (tgt,  _targetX,  _targetY))
+xcomponent(CHAIN,ChainLightning, 21, (EntityID entity, int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps), ( _currX, _currY, _nextX, _nextY, _target, _damage, _jumps))
 
