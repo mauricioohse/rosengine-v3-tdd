@@ -55,6 +55,8 @@ enum TextureID {
     TEXTURE_BOX,
     TEXTURE_BOX_BLUE,
     TEXTURE_BOX_EARTH,
+    TEXTURE_BOX_AIR,
+    TEXTURE_BOX_ELECTRO,
     TEXTURE_BOX_MIX,
     TEXTURE_BOX_ENEMY,
     TEXTURE_BASIC_PROJECTILE,
@@ -62,6 +64,10 @@ enum TextureID {
     TEXTURE_EXPLOSION_1,
     TEXTURE_EXPLOSION_2,
     TEXTURE_EXPLOSION_3,
+    TEXTURE_GUST_1,
+    TEXTURE_GUST_2,
+    TEXTURE_GUST_3,
+    TEXTURE_GUST_4,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -78,6 +84,8 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/box.png", TEXTURE_BOX},
     {"assets/box_blue.png", TEXTURE_BOX_BLUE},
     {"assets/box_earth.png", TEXTURE_BOX_EARTH},
+    {"assets/box_air.png", TEXTURE_BOX_AIR},
+    {"assets/box_electro.png", TEXTURE_BOX_ELECTRO},
     {"assets/box_mix.png", TEXTURE_BOX_MIX},
     {"assets/box_enemy.png", TEXTURE_BOX_ENEMY},
     {"assets/basic_projectile.png", TEXTURE_BASIC_PROJECTILE},
@@ -85,6 +93,10 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/explosion_1.png", TEXTURE_EXPLOSION_1},
     {"assets/explosion_2.png", TEXTURE_EXPLOSION_2},
     {"assets/explosion_3.png", TEXTURE_EXPLOSION_3},
+    {"assets/sprites/CC/gust_1.png", TEXTURE_GUST_1},
+    {"assets/sprites/CC/gust_2.png", TEXTURE_GUST_2},
+    {"assets/sprites/CC/gust_3.png", TEXTURE_GUST_3},
+    {"assets/sprites/CC/gust_4.png", TEXTURE_GUST_4},
     // Add new textures here
 };
 

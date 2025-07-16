@@ -20,7 +20,8 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
     
     ADD_TRANSFORM(projectile, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
     
-    
+    ADD_LIFETIME(projectile, 2.0f); // by default projectiles expire in two seconds. mostly to ensure no stray projectile!
+
     // add projectile component with enemy position as target
     switch (tc->type)
     {
@@ -39,12 +40,15 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
         ADD_LIFETIME(projectile, 1.0f);
         break; 
 
-
         case TOWER_EARTH:
         ADD_PROJECTILE(projectile, PROJECTILE_PELLET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  25, 0, 0);
         ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
         ADD_COLLIDER(projectile, 27,27,0,0);
         ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 400);
+        break;
+
+        case TOWER_AIR:
+        ADD_PROJECTILE(projectile, PROJECTILE_GUST,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  0, 0, 0);
         break;
 
         case TOWER_FIREWATER:

@@ -379,6 +379,25 @@ struct JetAnimationComponent : Component {
     }
 };
 
+struct CrowdcontrolComponent : Component {
+    EntityID target;
+    int targetX;
+    int targetY;
+
+    void Init(EntityID tgt, int _targetX, int _targetY)
+    {
+        target = tgt;
+        targetX = _targetX; 
+        targetY = _targetY;
+    
+    }
+
+    void Destroy() override
+    {
+        target = 0;
+    }
+};
+
 enum PROJECTILE_TYPE {
     PROJECTILE_NONE,
     PROJECTILE_BOMB,

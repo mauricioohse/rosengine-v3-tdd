@@ -58,6 +58,16 @@ void TowerPlacement::Update() {
         isPlacementMode = true;
         printf("earth tower selected\n");
     }
+    if (Input::IsKeyPressed(SDL_SCANCODE_W)) {
+        selectedTowerType = TOWER_AIR;
+        isPlacementMode = true;
+        printf("air tower selected\n");
+    }
+    if (Input::IsKeyPressed(SDL_SCANCODE_E)) {
+        selectedTowerType = TOWER_ELECTRIC;
+        isPlacementMode = true;
+        printf("electric tower selected\n");
+    }
     if (Input::IsKeyPressed(SDL_SCANCODE_ESCAPE)) {
         isPlacementMode = false;
         printf("placement mode cancelled\n");
@@ -123,6 +133,16 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     case TOWER_EARTH:
         ADD_TOWER(tower, selectedTowerType, 150, .33f);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
+        break;
+
+    case TOWER_AIR:
+        ADD_TOWER(tower, selectedTowerType, 150, 1.5);
+        tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
+        break;
+
+    case TOWER_ELECTRIC:
+        ADD_TOWER(tower, selectedTowerType, 150, 3);
+        tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
         break;
 
     case TOWER_FIREWATER: // water + fire

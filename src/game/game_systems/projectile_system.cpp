@@ -155,10 +155,50 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                     }
                 }
             }
-            
+
+            if (projectile->type == PROJECTILE_GUST)
+            {
+                // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
+                EntityID ccEntity = g_mainGame.RegisterEntity();
+                
+                ADD_TRANSFORM(ccEntity, projectile->targetX, projectile->targetY, 0.0f, 1.0f);
+                ADD_CC(ccEntity, projectile->targetEntity, projectile->targetX, projectile->targetY);
+                ADD_LIFETIME(ccEntity, 1.0f);
+                ADD_TIMEDSPRITE(ccEntity, .8f, .2f, 1, 4);
+                g_Engine.componentArrays.TimedSprites[ccEntity].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
+                g_Engine.componentArrays.TimedSprites[ccEntity].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
+                g_Engine.componentArrays.TimedSprites[ccEntity].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
+                g_Engine.componentArrays.TimedSprites[ccEntity].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
+
+                g_mainGame.DeleteEntity(entity);
+            }
         }
     
     
     
+        // deals with the CC entities. This could be its own system, but it is not for the timebeing.
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CC))
+        {
+            CrowdcontrolComponent* cc = (CrowdcontrolComponent*)components->GetComponentData(entity, COMPONENT_CC);
+            if (cc && cc->target != INVALID_ENTITY) {
+                // check if cc entity has lifetime component
+                if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_LIFETIME)) {
+                    static bool ccLifetimeErrorPrinted = false;
+                    if (!ccLifetimeErrorPrinted) {
+                        printf("ERROR: cc entity missing lifetime component\n");
+                        ccLifetimeErrorPrinted = true;
+                    }
+                }
+                
+                // freeze enemy at its position by removing movement components
+                if (g_Engine.entityManager.HasComponent(cc->target, COMPONENT_TRANSFORM)) {
+                    TransformComponent* targetTransform = (TransformComponent*)components->GetComponentData(cc->target, COMPONENT_TRANSFORM);
+                    if (targetTransform) {
+                        targetTransform->x = cc->targetX;
+                        targetTransform->y = cc->targetY;
+                    }
+                }
+            }
+        }
     }
 }

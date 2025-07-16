@@ -4,6 +4,9 @@
 #include "input.h"
 #include <stdio.h>
 
+#define TARGET_FPS 60
+#define FRAME_TIME (1000.0f / TARGET_FPS)
+
 // Global engine instance
 Engine g_Engine;
 

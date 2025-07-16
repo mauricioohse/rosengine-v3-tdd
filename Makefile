@@ -1,7 +1,8 @@
 # Common variables
+MAKEFLAGS += -j4
 CXX_WINDOWS = g++
 CXX_WEB = emcc
-CXXFLAGS = -Wall -MD -MP
+CXXFLAGS = -w -MD -MP
 
 #includes all folders, make it easier to #include headers
 INCLUDES = -I./include/SDL2 -I./src $(shell find src -type d -exec echo -I./{} \;)
