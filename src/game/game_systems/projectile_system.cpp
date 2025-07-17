@@ -3,6 +3,7 @@
 #include "math.h"
 #include "main_game_scene.h"
 #include "utils.h"
+#include "play_sound.h"
 
 void projectile_system::Init()
 {
@@ -39,6 +40,8 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
             }
         }
     }
+
+    PlaySound::PlaySound(SOUND_BOOM_LOW);
 }
 
 void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
@@ -78,6 +81,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 // insta cast the JET, deal damage to the enemy, and delete the projectile entity
 
                 CastJetAtTarget(transform->x, transform->y, projectile->targetX, projectile->targetY);
+                PlaySound::PlaySound(SOUND_SHOOT_LOW1);
 
                 EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, COMPONENT_ENEMY);
                 if (enemy)
@@ -149,6 +153,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                             if (enemy) {
                                 enemy->currHealth -= projectile->damage;
                             }
+                            PlaySound::PlaySound(SOUND_HIT_NOISE);
                             g_mainGame.DeleteEntity(entity);
                             break;
                         }
@@ -171,6 +176,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 g_Engine.componentArrays.TimedSprites[ccEntity].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
 
                 g_mainGame.DeleteEntity(entity);
+                PlaySound::PlaySound(SOUND_BLIP_HIGH);
             }
 
             if (projectile->type == PROJECTILE_LIGHTNING)
@@ -185,6 +191,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
 
                 // deletes the projectile
                 g_mainGame.DeleteEntity(entity);
+                PlaySound::PlaySound(SOUND_SHOOT_LOW);
             }
         }
     

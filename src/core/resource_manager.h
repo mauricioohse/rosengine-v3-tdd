@@ -23,10 +23,21 @@ struct Sound {
 
 
 // Define sound IDs
-enum SoundID {
+enum SoundID
+{
     SOUND_NONE = 0,
     SOUND_HIT,
     SOUND_BACKGROUND_MUSIC,
+    SOUND_BLIP_HIGH,
+    SOUND_BLIP_MID,
+    SOUND_BOOM,
+    SOUND_BOOM_LOW,
+    SOUND_HIT_HARD,
+    SOUND_HIT_NOISE,
+    SOUND_JUMP,
+    SOUND_SHOOT_HIGH,
+    SOUND_SHOOT_LOW,
+    SOUND_SHOOT_LOW1,
     SOUND_MAX
 };
 
@@ -106,7 +117,16 @@ static const TextureResource GAME_TEXTURES[] = {
 static const SoundResource GAME_SOUNDS[] = {
     {"assets/sounds/hit.wav", SOUND_HIT},
     {"assets/sounds/malformed_loop_1.mpeg", SOUND_BACKGROUND_MUSIC},
-   
+    {"assets/bfxr_sounds/blip_high.wav",SOUND_BLIP_HIGH},
+    {"assets/bfxr_sounds/blip_mid.wav",SOUND_BLIP_MID},
+    {"assets/bfxr_sounds/Boom.wav",SOUND_BOOM},
+    {"assets/bfxr_sounds/Boom_low.wav",SOUND_BOOM_LOW},
+    {"assets/bfxr_sounds/Hit_hard.wav",SOUND_HIT_HARD},
+    {"assets/bfxr_sounds/Hit_noise.wav",SOUND_HIT_NOISE},
+    {"assets/bfxr_sounds/Jump.wav",SOUND_JUMP},
+    {"assets/bfxr_sounds/Shoot_high.wav",SOUND_SHOOT_HIGH},
+    {"assets/bfxr_sounds/Shoot_low.wav",SOUND_SHOOT_LOW},
+    {"assets/bfxr_sounds/Shoot_low1.wav",SOUND_SHOOT_LOW1}
     // Add new sounds here
 };
 
