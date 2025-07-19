@@ -14,7 +14,7 @@ enum struct SceneState {
 struct SceneBase {
     // scene identification
     const char* name;
-    SceneState state;
+    SceneState state = SceneState::INACTIVE;
     
     // EntityID *sceneEntities; // IDs owned by scene
     // uint32_t entityCount;
@@ -33,6 +33,7 @@ struct SceneBase {
     void OnUpdate(float deltaTime);  // called every frame when scene is active
 
     void CleanDeletedEntities();
+    void DeleteAllEntities();
 };
 
 struct SceneManager {

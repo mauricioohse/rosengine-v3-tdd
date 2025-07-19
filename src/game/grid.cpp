@@ -151,8 +151,8 @@ static bool CreateMonsterPath()
         bool found_next = false;
         
         // check adjacent cells for next value
-        int directions[4][2] = {{-1,0}, {1,0}, {0,-1}, {0,1}};
-        for (int i = 0; i < 4; i++) {
+        int directions[8][2] = {{-1,0}, {1,0}, {0,-1}, {0,1}, {-1,-1}, {-1,+1}, {+1,-1}, {+1,+1}};
+        for (int i = 0; i < 8; i++) {
             int next_row = current_row + directions[i][0];
             int next_col = current_col + directions[i][1];
             
@@ -179,6 +179,7 @@ bool Grid::LoadLevel(const char *filename)
     path[0] = '\0';
     strncat(path, "assets/levels/", sizeof(path) - 1);
     strncat(path, filename, sizeof(path) - strlen(path) - 1);
+    memset(currLevel.LoadedGrid, 0, sizeof(currLevel.LoadedGrid));
 
     FILE * fp = fopen(path, "r");
 

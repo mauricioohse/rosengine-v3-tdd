@@ -25,6 +25,8 @@ public:
     EntityID playerEntity;
     GameState gameState;
     MusicSystem musicSystem;
+
+    int debugTowerKills[TOWER_MAX] = {0};
 };
 
 extern Game g_Game;  // Global game instance 

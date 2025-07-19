@@ -50,7 +50,24 @@ static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
       }
    }
 }
-
+static void RenderCollider(EntityID entity)
+{
+    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TRANSFORM);
+    ColliderComponent* collider = (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_COLLIDER);
+    
+    if (!transform || !collider) return;
+    
+    SDL_Renderer* renderer = g_Engine.window->renderer;
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    
+    int x = (int)(transform->x - collider->width / 2);
+    int y = (int)(transform->y - collider->height / 2);
+    int w = (int)collider->width;
+    int h = (int)collider->height;
+    
+    SDL_Rect rect = {x, y, w, h};
+    SDL_RenderDrawRect(renderer, &rect);
+}
 
 static void RenderJet(EntityID entity)
 {
@@ -362,8 +379,14 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-
-
+    // DEBUG: draw all colliders rectangle edges in red
+    for (EntityID entity : entities)
+    {
+        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_COLLIDER))
+        {
+            RenderCollider(entity);
+        }
+    }
 }
 
 void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera, float deltaTime) {

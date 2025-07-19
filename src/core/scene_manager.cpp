@@ -38,6 +38,15 @@ void SceneBase::CleanDeletedEntities(){
 
 }
 
+void SceneBase::DeleteAllEntities()
+{
+    for (EntityID e : entities){
+        if (g_Engine.entityManager.IsEntityValid(e)){
+            DeleteEntity(e);
+        }
+    }
+}
+
 void SceneBase::OnUpdate(float deltaTime) {
     // Call the optional update first
     OptionalUpdate(deltaTime);

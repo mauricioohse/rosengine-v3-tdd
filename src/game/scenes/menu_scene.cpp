@@ -11,6 +11,18 @@ MenuScene g_menu;
 static void StartGameButtonClicked() {
     g_menu.state =  SceneState::INACTIVE;
     g_mainGame.state = SceneState::ACTIVE;
+    snprintf(g_mainGame.levelPath, sizeof(g_mainGame.levelPath), "lvl1.csv");
+    g_mainGame.OnLoad();
+}
+
+static void StartDebugLevelCallback()
+{
+    printf("StartDebugLevelCallback called \n");
+    g_menu.state =  SceneState::INACTIVE;
+    g_mainGame.state = SceneState::ACTIVE;
+    snprintf(g_mainGame.levelPath, sizeof(g_mainGame.levelPath), "lvl2.csv");
+
+    g_mainGame.OnLoad();
 }
 
 static void ToggleMusicButtonClicked() {
@@ -53,6 +65,19 @@ void MenuScene::OnLoad()
         2.0f,                            // Border width
         StartGameButtonClicked           // Click callback
     );
+
+    EntityID debugLevelButton = RegisterEntity();
+    ADD_TRANSFORM(debugLevelButton, g_Engine.window->width*.8f - buttonWidth/2, g_Engine.window->height / 2, 0, 1.0f);
+    ADD_UIBOX(debugLevelButton,50,50);
+    g_Engine.componentArrays.UIBoxs[debugLevelButton].Init(
+        50, 
+        50,
+        SDL_Color{50, 50, 50, 255},      // Dark gray background
+        SDL_Color{200, 200, 200, 255},   // Light gray border
+        2.0f,                            // Border width
+        StartDebugLevelCallback          // Click callback
+    );
+    ADD_TEXT(debugLevelButton, ResourceManager::GetFont(FONT_FPS), "DEBUG LEVEL");
     
     // Setup text
     g_Engine.componentArrays.Texts[startButton].Init(

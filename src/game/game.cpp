@@ -43,7 +43,6 @@ bool Game::Init() {
     g_Engine.sceneManager.PushScene(&g_pauseScene);
 
     g_menu.OnLoad();
-    g_mainGame.OnLoad();
     g_pauseScene.OnLoad();
     
 

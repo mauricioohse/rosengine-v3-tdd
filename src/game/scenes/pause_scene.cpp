@@ -19,6 +19,8 @@ static void MainMenuButtonClicked() {
     g_pauseScene.state = SceneState::INACTIVE;
     g_menu.state = SceneState::ACTIVE;
     g_pauseScene.escapeReleased = false;
+    g_mainGame.DeleteAllEntities();
+
 }
 
 static void ToggleMusicButtonClicked() {

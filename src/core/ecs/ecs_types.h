@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include "macro_utils.h"
 
 
 // Common type definitions

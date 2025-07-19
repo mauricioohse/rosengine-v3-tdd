@@ -28,6 +28,9 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
 void ComponentArrays::RemoveComponent(EntityID entity, ComponentType type) {
     Component* component = (Component*)GetComponentData(entity, type);
     if (component) {
+        // TODO: we actually never use this function. We just remove the bitmask in the entity manager. this can maybe cause issues in the future
+        // of deleted entities and a new entity getting it. ideally, before initializing any component, we should always zero out all data inside it.
+        // but so far havent caused any issues!
         component->Destroy();
     }
 }

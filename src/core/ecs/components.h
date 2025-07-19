@@ -316,6 +316,7 @@ enum TOWER_TYPE{
     TOWER_EARTH,
     TOWER_AIR,
     TOWER_ELECTRIC,
+    TOWER_MAX,
     TOWER_DEBUG
 };
 
@@ -522,6 +523,25 @@ struct TimedSpriteComponent : Component {
 
 struct ExplosionComponent : Component {
     int timeToExplode;
+};
+
+// a TAG used to know if the transform + collider is used to destroy the entity 
+struct EnemyExitComponent : Component
+{
+    void Init(){}
+    void Destroy() override {}
+};
+
+struct EnemyDebugComponent : Component 
+{
+    TOWER_TYPE tower;
+
+    void Init(TOWER_TYPE t)
+    {
+        tower = t;
+    }
+
+    void Destroy() override {}
 };
 
 struct EnemyComponent : Component {
