@@ -1,19 +1,4 @@
-Main:
-- [x] do LifeTimeSystem
-- [x] Implement enemy health + enemy life bar, and projectile damage
-- [x] implement water (jet, sniper, range)
-- [x] Implement earth (pelets) tower
-- [x] implement air (hitscan CC) tower
-- [x] implement electric (chaining) tower
-- [x] implement fire+water tower (AOE jet)
-- [x] implement basic sfx
-- [ ] implement test zone to test tower power on enemy packs
-- [ ] implement tower placement system that can merge two towers
-- [ ] implement sounds for basic projectiles
-- [ ] implement 
-- [ ] change the ECS implementation to be world-based instead of a single instance of entityManager.
-    Notes on this:
-    - Currently, we have one g_engine which has global entityManager, componentArray, SceneManager and systemManager
+ Currently, we have one g_engine which has global entityManager, componentArray, SceneManager and systemManager
         - each scene then has a vector of which entities it actually contains, which is duplicated info from the entityManager
         - and each scene calls ALL registered systems in its update
         - this causes a couple of issues:
@@ -59,18 +44,3 @@ Main:
         - EnemyStats:: -> a system to count how much damage and kills a specific tower has gotten.
 
         note: we should add a EXIT component that decreases player life when enemy collides there.  
-
-
-
-Mid
-- [ ] implement tower range on hover
-- [ ] when placing tower, it should appear transparent what kind of tower and the range of placement
-
-
-last:
-- [ ] clean projectile component data
-- [ ] implement circular collision for tower range instead of AABB 
-- [ ] do DamageSystem and component?
-- [ ] create ecs_for_each
-- [ ] remove init and destroy functions from components
-
