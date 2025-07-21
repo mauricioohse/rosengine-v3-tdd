@@ -22,6 +22,10 @@ include/
     ├── SDL_image.h
     ├── SDL_ttf.h
     └── SDL_mixer.h
+lib/
+    ├── libSDL2_image.a
+    ├── libSDL2_image.dll.a
+    ├── ... etc
 ```
 
 ## Links
