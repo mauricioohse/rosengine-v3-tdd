@@ -8,7 +8,7 @@ Main:
 - [x] implement fire+water tower (AOE jet)
 - [x] implement basic sfx
 - [x] implement test zone to test tower power on enemy packs
-- [m] implement tower placement system that can merge two towers
+> - [m] implement tower placement system that can merge two towers
 - [x] implement sounds for basic projectiles
 - [ ] implement different enemy types -> create namespace for enemy creation
 - [ ] add to the debug level selection of different enemy types and spawn rate
@@ -23,14 +23,21 @@ Main:
 Mid
 - [ ] implement tower range on hover
 - [ ] when placing tower, it should appear transparent what kind of tower and the range of placement
-
-
-last:
-- [ ] clean projectile component data
+- [ ] tilemap loading with dynamic dual-grid tilemap see https://www.reddit.com/r/gamemaker/comments/1fifser/autotile_system_with_dual_grid/
+- [ ] implement CLI input for debug options and logs, and a logconfig.txt file to load specific types of logging. implement a CLI log command for inspecting entity components mask, data, etc
 - [ ] implement circular collision for tower range instead of AABB 
+- [m] create ecs_for_each
+- [m] remove init and destroy functions from components
+- [ ] add a linter
+- [ ] add measurement of system execution time
+- [ ] separate the render system in smaller systems (needed for when ECS world separation happens)
+
+
+
+last (debatable if needed):
+- [ ] implement tower data loading from data files instead of hardcoded
 - [ ] do DamageSystem and component?
-- [ ] create ecs_for_each
-- [ ] remove init and destroy functions from components
+
 
 
 

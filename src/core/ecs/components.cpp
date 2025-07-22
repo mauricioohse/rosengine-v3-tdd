@@ -8,6 +8,8 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
         return nullptr;
     }
 
+    if (!g_Engine.entityManager.HasComponent(entity, type)) return nullptr;
+
     switch (type) {
 #define xcomponent(enum, type, id, ...) case COMPONENT_##enum: return &type##s[entity];
 #include "components/components.def"

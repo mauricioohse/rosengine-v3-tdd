@@ -22,4 +22,4 @@ xcomponent(CC,Crowdcontrol, 20, (EntityID entity, EntityID tgt, int _targetX, in
 xcomponent(CHAIN,ChainLightning, 21, (EntityID entity, int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps), ( _currX, _currY, _nextX, _nextY, _target, _damage, _jumps))
 xcomponent(DEBUGPATH,EnemyDebug,22, (EntityID entity, TOWER_TYPE t), ( t))
 xcomponent(ENEMYEXIT,EnemyExit,23, (EntityID entity), ( ))
-
+xcomponent(TARGET,Target,24, (EntityID entity, EntityID _target), (_target))

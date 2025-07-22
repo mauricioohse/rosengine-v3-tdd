@@ -339,6 +339,27 @@ struct TowerComponent : Component {
     }
 };
 
+// only base elements
+enum ELEMENT {
+    ELE_NONE,
+    ELE_FIRE,
+    ELE_WIND,
+    ELE_WATER,
+    ELE_EARTH,
+    ELE_ELECTRIC,
+    // fill above
+    ELE_MAX // should always be last
+};
+struct ElementTowerComponent  {
+    ELEMENT elements[3];
+};
+
+struct TargetComponent {
+    EntityID target = 0;
+
+    void Init(EntityID _target) { target = _target; }
+};
+
 struct LifeTimeComponent : Component {
     float remaininglifeTime; // in seconds
 
@@ -443,6 +464,30 @@ enum PROJECTILE_TYPE {
     PROJECTILE_PELLET
 };
 
+struct ProjectileSpawnerComponent : Component {
+    PROJECTILE_TYPE type;
+};
+
+struct CooldownComponent : Component{
+    float remainingCD;
+    float CD;
+};
+
+struct RangeComponent : Component {
+    int range;
+};
+
+struct ExplodeOnXYComponent : Component {
+    int x;
+    int y;
+};
+
+struct DamageOnCollisionTagComponent : Component {};
+
+struct DamageComponent : Component {
+    int damage;
+};
+
 struct ProjectileComponent : Component {
 
     PROJECTILE_TYPE type;
@@ -535,10 +580,12 @@ struct EnemyExitComponent : Component
 struct EnemyDebugComponent : Component 
 {
     TOWER_TYPE tower;
+    bool debug;
 
     void Init(TOWER_TYPE t)
     {
         tower = t;
+        debug = 0;
     }
 
     void Destroy() override {}

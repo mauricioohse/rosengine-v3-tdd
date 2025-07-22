@@ -6,6 +6,7 @@
 #include "../core/input.h"
 #include "grid.h"
 #include "tower_placement.h"
+#include "general_systems.h"
 
 
 MainGameScene g_mainGame;
@@ -77,6 +78,7 @@ void MainGameScene::OnLoad()
     g_Engine.componentArrays.Transforms[box].Init(300, 300);
     g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
     g_Engine.componentArrays.wasdControllers[box].Init(600);
+    ADD_NEW_TARGET(box, 0);
 
     // initialize tower placement system
     TowerPlacement::Init();
@@ -213,6 +215,8 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     TowerPlacement::Update();
 
     Grid::DrawGrid();
+
+    TargetingSystem(&g_mainGame);
 
     if (!strcmp(levelPath, "lvl2.csv"))
     {
