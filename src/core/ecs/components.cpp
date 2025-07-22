@@ -11,14 +11,14 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
     if (!g_Engine.entityManager.HasComponent(entity, type)) return nullptr;
 
     switch (type) {
-#define xcomponent(enum, type, id, ...) case COMPONENT_##enum: return &type##s[entity];
+#define xcomponent(type, id, ...) case C_##type: return &type##s[entity];
 #include "components/components.def"
 #undef xcomponent
-        case COMPONENT_WASD_CONTROLLER: return &wasdControllers[entity];
-        case COMPONENT_COLLIDER:  return &colliders[entity];
-        case COMPONENT_ANIMATION:  return &animations[entity];
-        case COMPONENT_CAMERA:  return &cameras[entity];
-        case COMPONENT_BACKGROUND: return &backgrounds[entity];
+        case C_WASD_CONTROLLER: return &wasdControllers[entity];
+        case C_COLLIDER:  return &colliders[entity];
+        case C_ANIMATION:  return &animations[entity];
+        case C_CAMERA:  return &cameras[entity];
+        case C_BACKGROUND: return &backgrounds[entity];
 
 
         default:
@@ -40,7 +40,7 @@ void ComponentArrays::RemoveComponent(EntityID entity, ComponentType type) {
 
 void InitSprite(EntityID entity, Texture* texture) {
     SpriteComponent* sprite = 
-        (SpriteComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_SPRITE);
+        (SpriteComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Sprite);
     if (sprite) {
         sprite->Init(texture);
     }
@@ -48,7 +48,7 @@ void InitSprite(EntityID entity, Texture* texture) {
 
 void InitWASDController(EntityID entity, float moveSpeed, bool canMove) {
     WASDControllerComponent* controller = 
-        (WASDControllerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_WASD_CONTROLLER);
+        (WASDControllerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_WASD_CONTROLLER);
     if (controller) {
         controller->Init(moveSpeed, canMove);
     }
@@ -56,7 +56,7 @@ void InitWASDController(EntityID entity, float moveSpeed, bool canMove) {
 
 void InitCollider(EntityID entity, float width, float height, bool isStatic, bool isTrigger) {
     ColliderComponent* collider = 
-        (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_COLLIDER);
+        (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_COLLIDER);
     if (collider) {
         collider->Init(width, height, isStatic, isTrigger);
     }
@@ -65,7 +65,7 @@ void InitCollider(EntityID entity, float width, float height, bool isStatic, boo
 void InitCamera(EntityID entity, float viewportWidth, float viewportHeight, EntityID target) {
     if (entity >= MAX_ENTITIES) return;
     
-    CameraComponent* camera = (CameraComponent*) g_Engine.componentArrays.GetComponentData(entity, COMPONENT_CAMERA);
+    CameraComponent* camera = (CameraComponent*) g_Engine.componentArrays.GetComponentData(entity, C_CAMERA);
     if(camera) {
         camera->Init(viewportWidth, viewportHeight, target);
         printf("Camera component initialized for entity %d\n", entity);

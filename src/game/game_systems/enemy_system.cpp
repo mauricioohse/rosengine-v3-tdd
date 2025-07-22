@@ -13,18 +13,18 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
     
     // find all entities with transform + enemy
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_ENEMY | COMPONENT_COLLIDER)) {
+        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Enemy | C_COLLIDER)) {
             TransformComponent* transform = 
-                (TransformComponent*)components->GetComponentData(entity, COMPONENT_TRANSFORM);
+                (TransformComponent*)components->GetComponentData(entity, C_Transform);
 
             EnemyComponent *enemy =
-                (EnemyComponent *)components->GetComponentData(entity, COMPONENT_ENEMY);
+                (EnemyComponent *)components->GetComponentData(entity, C_Enemy);
 
             ColliderComponent *coll =
-                (ColliderComponent *)components->GetComponentData(entity, COMPONENT_COLLIDER);
+                (ColliderComponent *)components->GetComponentData(entity, C_COLLIDER);
 
             EnemyDebugComponent * debug = 
-                (EnemyDebugComponent*)components->GetComponentData(entity, COMPONENT_DEBUGPATH);    
+                (EnemyDebugComponent*)components->GetComponentData(entity, C_EnemyDebug);    
 
             float speed = 50.0f;
             
@@ -82,7 +82,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
             {
 
                 EnemyDebugComponent *debug =
-                (EnemyDebugComponent *)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_DEBUGPATH);
+                (EnemyDebugComponent *)g_Engine.componentArrays.GetComponentData(entity, C_EnemyDebug);
 
                 if (debug)
                 {
@@ -96,12 +96,12 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
             // Check if enemy hit any of the exit collider entities
             for (EntityID exit : entities)
             {
-                if (g_Engine.entityManager.HasComponent(exit, COMPONENT_ENEMYEXIT | COMPONENT_TRANSFORM | COMPONENT_COLLIDER))
+                if (g_Engine.entityManager.HasComponent(exit, C_EnemyExit | C_Transform | C_COLLIDER))
                 {
                     TransformComponent* exitTransform = 
-                        (TransformComponent*)components->GetComponentData(exit, COMPONENT_TRANSFORM);
+                        (TransformComponent*)components->GetComponentData(exit, C_Transform);
                     ColliderComponent* exitCollider = 
-                        (ColliderComponent*)components->GetComponentData(exit, COMPONENT_COLLIDER);
+                        (ColliderComponent*)components->GetComponentData(exit, C_COLLIDER);
                     
                     if (exitTransform && exitCollider) {
                         float penX, penY;

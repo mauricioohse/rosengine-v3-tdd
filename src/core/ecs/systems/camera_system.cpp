@@ -10,14 +10,14 @@ void CameraSystem::Init() {
 
 void CameraSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
     for ( EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CAMERA)) {
+        if (g_Engine.entityManager.HasComponent(entity, C_CAMERA)) {
             CameraComponent* camera = &components->cameras[entity];
             
             if (camera->targetEntity == 0) continue;
             
             // Get target's transform
             TransformComponent* targetTransform = 
-                (TransformComponent*)components->GetComponentData(camera->targetEntity, COMPONENT_TRANSFORM);
+                (TransformComponent*)components->GetComponentData(camera->targetEntity, C_Transform);
             
             if (!targetTransform) continue;
 

@@ -23,7 +23,7 @@
  * @param p_scene       A pointer to the SceneBase object.
  * @param p_entity_var  The name of the variable to hold the current EntityID.
  * @param p_comp_type   The C type of the component struct (e.g., TargetComponent).
- * @param p_comp_enum   The enum value for the component (e.g., COMPONENT_TARGET).
+ * @param p_comp_enum   The enum value for the component (e.g., C_Target.
  * @param p_comp_var    The name of the variable to hold the pointer to the component data.
  */
 #define FOR_EACH_COMPONENT(p_scene, p_entity_var, p_comp_type, p_comp_enum, p_comp_var) \

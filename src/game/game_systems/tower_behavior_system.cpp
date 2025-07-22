@@ -12,15 +12,15 @@ void tower_behavior_system::Init()
 
 static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy)
 {
-    TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_TRANSFORM);
+    TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
     
     EntityID projectile = g_mainGame.RegisterEntity();
     
-    TransformComponent* tower_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(tower, COMPONENT_TRANSFORM);
+    TransformComponent* tower_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Transform);
     
-    ADD_TRANSFORM(projectile, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
+    ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
     
-    ADD_LIFETIME(projectile, 2.0f); // by default projectiles expire in two seconds. mostly to ensure no stray projectile!
+    ADD_LifeTime(projectile, 2.0f); // by default projectiles expire in two seconds. mostly to ensure no stray projectile!
 
     // add projectile component with enemy position as target
     switch (tc->type)
@@ -30,39 +30,39 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
         // no break; on purpose
 
         case TOWER_FIRE:
-        ADD_PROJECTILE(projectile, PROJECTILE_BOMB,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  50, 1, 100);
-        ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
-        ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 200);
+        ADD_Projectile(projectile, PROJECTILE_BOMB,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  50, 1, 100);
+        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
+        ADD_MoveToXY(projectile, enemy_transform->x, enemy_transform->y, 200);
 
         break;
         case TOWER_WATER:
-        ADD_PROJECTILE(projectile, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  200, 0, 0);
-        ADD_LIFETIME(projectile, 1.0f);
+        ADD_Projectile(projectile, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  200, 0, 0);
+        ADD_LifeTime(projectile, 1.0f);
         break; 
 
         case TOWER_EARTH:
-        ADD_PROJECTILE(projectile, PROJECTILE_PELLET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  25, 0, 0);
-        ADD_SPRITE(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
+        ADD_Projectile(projectile, PROJECTILE_PELLET,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  25, 0, 0);
+        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
         ADD_COLLIDER(projectile, 27,27,0,0);
-        ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 400);
+        ADD_MoveToXY(projectile, enemy_transform->x, enemy_transform->y, 400);
         break;
 
         case TOWER_AIR:
-        ADD_PROJECTILE(projectile, PROJECTILE_GUST,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  0, 0, 0);
+        ADD_Projectile(projectile, PROJECTILE_GUST,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  0, 0, 0);
         break;
 
         case TOWER_ELECTRIC:
-        ADD_PROJECTILE(projectile, PROJECTILE_LIGHTNING,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 0, 0);
+        ADD_Projectile(projectile, PROJECTILE_LIGHTNING,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 0, 0);
         break;
 
         case TOWER_FIREWATER:
-        ADD_PROJECTILE(projectile, PROJECTILE_BOMB,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 1, 100);
-        ADD_MOVETOXY(projectile, enemy_transform->x, enemy_transform->y, 2500);
+        ADD_Projectile(projectile, PROJECTILE_BOMB,enemy, (int)enemy_transform->x, (int)enemy_transform->y,  100, 1, 100);
+        ADD_MoveToXY(projectile, enemy_transform->x, enemy_transform->y, 2500);
 
         EntityID jet = g_mainGame.RegisterEntity();
-        ADD_TRANSFORM(jet, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
-        ADD_PROJECTILE(jet, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 50, 0, 0);
-        ADD_LIFETIME(jet, 1.0f);
+        ADD_Transform(jet, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
+        ADD_Projectile(jet, PROJECTILE_JET,enemy, (int)enemy_transform->x, (int)enemy_transform->y, 50, 0, 0);
+        ADD_LifeTime(jet, 1.0f);
         break;
 
     }
@@ -89,11 +89,11 @@ static EntityID CheckEnemyInRange(EntityID tower, TowerComponent * tc, Transform
     // check collision with enemies
     for (EntityID enemy: entities)
     {
-        if(g_Engine.entityManager.HasComponent(enemy, COMPONENT_TRANSFORM | COMPONENT_ENEMY |  COMPONENT_COLLIDER))
+        if(g_Engine.entityManager.HasComponent(enemy, C_Transform | C_Enemy |  C_COLLIDER))
         {
             // TODO: change to circular collision check instead of AABB
-            TransformComponent * enemy_tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_TRANSFORM);
-            ColliderComponent * enemy_cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_COLLIDER);
+            TransformComponent * enemy_tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
+            ColliderComponent * enemy_cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_COLLIDER);
 
             // we create a fake collider based on the tower range
             ColliderComponent cc_range;
@@ -126,12 +126,12 @@ void tower_behavior_system::Update(float deltaTime, std::vector<EntityID> entiti
 {
     for (EntityID e : entities)
     {
-        if (g_Engine.entityManager.HasComponent(e, COMPONENT_TRANSFORM | COMPONENT_TOWER /*| COMPONENT_COLLIDER*/ ) )
+        if (g_Engine.entityManager.HasComponent(e, C_Transform | C_Tower /*| C_COLLIDER*/ ) )
         {
 
-            TowerComponent *tc = (TowerComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_TOWER);
-            TransformComponent *tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_TRANSFORM);
-            // ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, COMPONENT_COLLIDER);
+            TowerComponent *tc = (TowerComponent *)g_Engine.componentArrays.GetComponentData(e, C_Tower);
+            TransformComponent *tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(e, C_Transform);
+            // ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, C_COLLIDER);
 
             // check if there is an enemy in range
             EntityID enemy = CheckEnemyInRange(e, tc, tr, entities);

@@ -12,11 +12,11 @@ void WASDControllerSystem::Update(float deltaTime, std::vector<EntityID> entitie
     // Loop through all entities
     for ( EntityID entity : entities) {
         // Check if entity has both transform and WASD controller components
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_WASD_CONTROLLER )) {
+        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_WASD_CONTROLLER )) {
             TransformComponent* transform = 
-                (TransformComponent*)components->GetComponentData(entity, COMPONENT_TRANSFORM);
+                (TransformComponent*)components->GetComponentData(entity, C_Transform);
             WASDControllerComponent* controller = 
-                (WASDControllerComponent*)components->GetComponentData(entity, COMPONENT_WASD_CONTROLLER);
+                (WASDControllerComponent*)components->GetComponentData(entity, C_WASD_CONTROLLER);
             
             if (!transform || !controller || !controller->canMove) {
                 continue;

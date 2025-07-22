@@ -4,7 +4,7 @@
 
 void TargetingSystem(SceneBase *scene)
 {
-    FOR_EACH_COMPONENT(scene, e, TargetComponent, COMPONENT_TARGET, tar)
+    FOR_EACH_COMPONENT(scene, e, TargetComponent, C_Target, tar)
     {
         // write logic here that uses tar and e data
         // For example:

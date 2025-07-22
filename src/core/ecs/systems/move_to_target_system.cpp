@@ -10,10 +10,10 @@ void move_to_target_system::Update(float deltaTime, std::vector<EntityID> entiti
 {
     for (EntityID e : entities)
     {
-        if (g_Engine.entityManager.HasComponent(e, COMPONENT_TRANSFORM|COMPONENT_MOVETOXY))
+        if (g_Engine.entityManager.HasComponent(e, C_Transform|C_MoveToXY))
         {
             TransformComponent* transform = &components->Transforms[e];
-            MoveToTargetXYComponent* moveTarget = &components->MoveToTargetXYs[e];
+            MoveToXYComponent* moveTarget = &components->MoveToXYs[e];
 
 
             // calculate direction to target

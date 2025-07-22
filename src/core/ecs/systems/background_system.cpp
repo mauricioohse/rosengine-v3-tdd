@@ -20,7 +20,7 @@ void BackgroundSystem::Update(float deltaTime, std::vector<EntityID> entities, C
     // TODO: get camera position directly on init, no sense to iterate here lol
     CameraComponent* camera = nullptr;
     for ( EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CAMERA)) {
+        if (g_Engine.entityManager.HasComponent(entity, C_CAMERA)) {
             camera = &components->cameras[entity];
             break;
         }
@@ -29,7 +29,7 @@ void BackgroundSystem::Update(float deltaTime, std::vector<EntityID> entities, C
     if (!camera) return;
 
     for ( EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_BACKGROUND | COMPONENT_TRANSFORM | COMPONENT_SPRITE)) {
+        if (g_Engine.entityManager.HasComponent(entity, C_BACKGROUND | C_Transform | C_Sprite)) {
             TransformComponent* transform = &components->Transforms[entity];
             SpriteComponent* sprite = &components->Sprites[entity];
             

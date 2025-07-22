@@ -517,7 +517,7 @@ struct ProjectileComponent : Component {
     }
 };
 
-struct MoveToTargetXYComponent : Component {
+struct MoveToXYComponent : Component {
     int targetX;
     int targetY;
     int speed;
@@ -626,7 +626,7 @@ void InitCamera(EntityID entity, float width, float height, EntityID target = 0)
 
 struct ComponentArrays {
     // Component data pools
-#define xcomponent(enum, type, id, ...) type##Component type##s[MAX_ENTITIES];
+#define xcomponent( type, id, ...) type##Component type##s[MAX_ENTITIES];
 #include "components/components.def"
 #undef xcomponent
     WASDControllerComponent wasdControllers[MAX_ENTITIES];

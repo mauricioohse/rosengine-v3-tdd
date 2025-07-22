@@ -24,9 +24,9 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
 {
     // iterate through all entities to find enemies within explosion radius
     for (EntityID enemy : entities) {
-        if (g_Engine.entityManager.HasComponent(enemy, COMPONENT_ENEMY | COMPONENT_TRANSFORM | COMPONENT_COLLIDER)) {
-            TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_TRANSFORM);
-            EnemyComponent* enemy_comp = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_ENEMY);
+        if (g_Engine.entityManager.HasComponent(enemy, C_Enemy | C_Transform | C_COLLIDER)) {
+            TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
+            EnemyComponent* enemy_comp = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(enemy, C_Enemy);
             
             // calculate distance between explosion center and enemy
             float dx = trf->x - enemy_transform->x;
@@ -49,8 +49,8 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 {
     EntityID jet = g_mainGame.RegisterEntity();
 
-    ADD_JET(jet, srcX, srcY, destX, destY);
-    ADD_LIFETIME(jet, .2);
+    ADD_JetAnimation(jet, srcX, srcY, destX, destY);
+    ADD_LifeTime(jet, .2);
 
 }
 
@@ -60,16 +60,16 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
     for (int i = 0; i < entities.size(); i++) {
         EntityID entity = entities[i];
 
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_PROJECTILE | COMPONENT_TRANSFORM))
+        if (g_Engine.entityManager.HasComponent(entity, C_Projectile | C_Transform))
         {
-            ProjectileComponent *projectile = (ProjectileComponent *)components->GetComponentData(entity, COMPONENT_PROJECTILE);
-            TransformComponent *transform = (TransformComponent *)components->GetComponentData(entity, COMPONENT_TRANSFORM);
-            bool hasMoveToTarget = g_Engine.entityManager.HasComponent(entity, COMPONENT_MOVETOXY);
+            ProjectileComponent *projectile = (ProjectileComponent *)components->GetComponentData(entity, C_Projectile);
+            TransformComponent *transform = (TransformComponent *)components->GetComponentData(entity, C_Transform);
+            bool hasMoveToTarget = g_Engine.entityManager.HasComponent(entity, C_MoveToXY);
             bool hasReachedTarget = 0;
 
             if (hasMoveToTarget)
             {
-                MoveToTargetXYComponent *moveToXY = (MoveToTargetXYComponent *)components->GetComponentData(entity, COMPONENT_MOVETOXY);
+                MoveToXYComponent *moveToXY = (MoveToXYComponent *)components->GetComponentData(entity, C_MoveToXY);
                 float dx = transform->x - moveToXY->targetX;
                 float dy = transform->y - moveToXY->targetY;
                 float distance = sqrt(dx * dx + dy * dy);
@@ -84,7 +84,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 CastJetAtTarget(transform->x, transform->y, projectile->targetX, projectile->targetY);
                 PlaySound::PlaySound(SOUND_SHOOT_LOW1);
 
-                EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, COMPONENT_ENEMY);
+                EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, C_Enemy);
                 if (enemy)
                 {
                     enemy->currHealth-=projectile->damage;
@@ -99,12 +99,12 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 // create explosion component if projectile should explode
                 if (projectile->shouldExplode) {
                     // only add timed sprite if it doesn't already exist
-                    if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_TIMEDSPRITE)) {
+                    if (!g_Engine.entityManager.HasComponent(entity, C_TimedSprite)) {
                         EntityID explosion = g_mainGame.RegisterEntity();
-                        ADD_TIMEDSPRITE(explosion, 0, 0.2f , 0, 3);
-                        ADD_LIFETIME(explosion, 0.6f);
-                        ADD_TRANSFORM(explosion, transform->x, transform->y, transform->rotation, 1.0f);
-                        TimedSpriteComponent* timedSprite = (TimedSpriteComponent*)components->GetComponentData(explosion, COMPONENT_TIMEDSPRITE);
+                        ADD_TimedSprite(explosion, 0, 0.2f , 0, 3);
+                        ADD_LifeTime(explosion, 0.6f);
+                        ADD_Transform(explosion, transform->x, transform->y, transform->rotation, 1.0f);
+                        TimedSpriteComponent* timedSprite = (TimedSpriteComponent*)components->GetComponentData(explosion, C_TimedSprite);
                         if (timedSprite) {
                             timedSprite->sprites[0] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_1);
                             timedSprite->sprites[1] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_2);
@@ -122,7 +122,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
             if (projectile->type == PROJECTILE_PELLET)
             {
                 // check collision with enemies
-                ColliderComponent* projectileCollider = (ColliderComponent*)components->GetComponentData(entity, COMPONENT_COLLIDER);
+                ColliderComponent* projectileCollider = (ColliderComponent*)components->GetComponentData(entity, C_COLLIDER);
                 if (!projectileCollider) {
                     static bool errorPrinted = false;
                     if (!errorPrinted) {
@@ -135,9 +135,9 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 for (EntityID otherEntity : entities) {
                     if (otherEntity == entity) continue;
                     
-                    if (g_Engine.entityManager.HasComponent(otherEntity, COMPONENT_ENEMY | COMPONENT_COLLIDER | COMPONENT_TRANSFORM)) {
-                        ColliderComponent* enemyCollider = (ColliderComponent*)components->GetComponentData(otherEntity, COMPONENT_COLLIDER);
-                        TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(otherEntity, COMPONENT_TRANSFORM);
+                    if (g_Engine.entityManager.HasComponent(otherEntity, C_Enemy | C_COLLIDER | C_Transform)) {
+                        ColliderComponent* enemyCollider = (ColliderComponent*)components->GetComponentData(otherEntity, C_COLLIDER);
+                        TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(otherEntity, C_Transform);
                         
                         if (!enemyCollider) {
                             static bool enemyErrorPrinted = false;
@@ -150,7 +150,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                         
                         float penX, penY;
                         if (CheckCollisionCentered(transform, projectileCollider, enemyTransform, enemyCollider, penX, penY)) {
-                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(otherEntity, COMPONENT_ENEMY);
+                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(otherEntity, C_Enemy);
                             if (enemy) {
                                 enemy->currHealth -= projectile->damage;
                             }
@@ -167,10 +167,10 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
                 EntityID ccEntity = g_mainGame.RegisterEntity();
                 
-                ADD_TRANSFORM(ccEntity, projectile->targetX, projectile->targetY, 0.0f, 1.0f);
-                ADD_CC(ccEntity, projectile->targetEntity, projectile->targetX, projectile->targetY);
-                ADD_LIFETIME(ccEntity, 1.0f);
-                ADD_TIMEDSPRITE(ccEntity, .8f, .2f, 1, 4);
+                ADD_Transform(ccEntity, projectile->targetX, projectile->targetY, 0.0f, 1.0f);
+                ADD_Crowdcontrol(ccEntity, projectile->targetEntity, projectile->targetX, projectile->targetY);
+                ADD_LifeTime(ccEntity, 1.0f);
+                ADD_TimedSprite(ccEntity, .8f, .2f, 1, 4);
                 g_Engine.componentArrays.TimedSprites[ccEntity].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
                 g_Engine.componentArrays.TimedSprites[ccEntity].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
                 g_Engine.componentArrays.TimedSprites[ccEntity].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
@@ -187,8 +187,8 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 // starts with tower, first entity, then go to the next
                 // the chain entity also needs to not hit the same entity and destroy itself after x jumps, or if doesnt found enough entities to jump to.
                 EntityID chain = g_mainGame.RegisterEntity();
-                ADD_CHAIN(chain, transform->x, transform->y, projectile->targetX, projectile->targetY, projectile->targetEntity, projectile->damage, 5);
-                ADD_LIFETIME(chain, .3f); // in case we forget to delete
+                ADD_ChainLightning(chain, transform->x, transform->y, projectile->targetX, projectile->targetY, projectile->targetEntity, projectile->damage, 5);
+                ADD_LifeTime(chain, .3f); // in case we forget to delete
 
                 // deletes the projectile
                 g_mainGame.DeleteEntity(entity);
@@ -199,12 +199,12 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
     
     
         // deals with the CC entities. This could be its own system, but it is not for the timebeing.
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CC))
+        if (g_Engine.entityManager.HasComponent(entity, C_Crowdcontrol))
         {
-            CrowdcontrolComponent* cc = (CrowdcontrolComponent*)components->GetComponentData(entity, COMPONENT_CC);
+            CrowdcontrolComponent* cc = (CrowdcontrolComponent*)components->GetComponentData(entity, C_Crowdcontrol);
             if (cc && cc->target != INVALID_ENTITY) {
                 // check if cc entity has lifetime component
-                if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_LIFETIME)) {
+                if (!g_Engine.entityManager.HasComponent(entity, C_LifeTime)) {
                     static bool ccLifetimeErrorPrinted = false;
                     if (!ccLifetimeErrorPrinted) {
                         printf("ERROR: cc entity missing lifetime component\n");
@@ -213,8 +213,8 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 }
                 
                 // freeze enemy at its position by removing movement components
-                if (g_Engine.entityManager.HasComponent(cc->target, COMPONENT_TRANSFORM)) {
-                    TransformComponent* targetTransform = (TransformComponent*)components->GetComponentData(cc->target, COMPONENT_TRANSFORM);
+                if (g_Engine.entityManager.HasComponent(cc->target, C_Transform)) {
+                    TransformComponent* targetTransform = (TransformComponent*)components->GetComponentData(cc->target, C_Transform);
                     if (targetTransform) {
                         targetTransform->x = cc->targetX;
                         targetTransform->y = cc->targetY;
@@ -224,9 +224,9 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
         }
     
         // deals with the CHAIN entities.  This could be its own system, but it is not for the timebeing.
-        if (g_Engine.entityManager.HasComponent(entity, COMPONENT_CHAIN))
+        if (g_Engine.entityManager.HasComponent(entity, C_ChainLightning))
         {
-            ChainLightningComponent* chain = (ChainLightningComponent*)components->GetComponentData(entity, COMPONENT_CHAIN);
+            ChainLightningComponent* chain = (ChainLightningComponent*)components->GetComponentData(entity, C_ChainLightning);
             if (chain) {
                 
                 // if no jumps left, delete entity
@@ -242,8 +242,8 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 if (chain->currFrameDelay >= chain->frameDelay) {
                     // damage current target if valid and hasn't been damaged yet
                     if (chain->target != INVALID_ENTITY && !chain->hasDealtDamage) {
-                        if (g_Engine.entityManager.HasComponent(chain->target, COMPONENT_ENEMY)) {
-                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(chain->target, COMPONENT_ENEMY);
+                        if (g_Engine.entityManager.HasComponent(chain->target, C_Enemy)) {
+                            EnemyComponent* enemy = (EnemyComponent*)components->GetComponentData(chain->target, C_Enemy);
                             if (enemy) {
                                 enemy->currHealth -= chain->damage;
                             }
@@ -265,7 +265,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                     float closestDist = 150.0f; // max chain range
                     
                     for (EntityID enemy : entities) {
-                        if (g_Engine.entityManager.HasComponent(enemy, COMPONENT_TRANSFORM | COMPONENT_ENEMY)) {
+                        if (g_Engine.entityManager.HasComponent(enemy, C_Transform | C_Enemy)) {
                             // check if already hit
                             bool alreadyHit = false;
                             for (int i = 0; i < 12; i++) {
@@ -276,7 +276,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                             }
                             
                             if (!alreadyHit) {
-                                TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(enemy, COMPONENT_TRANSFORM);
+                                TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(enemy, C_Transform);
                                 if (enemyTransform) {
                                     float dist = sqrt(pow(enemyTransform->x - chain->nextX, 2) + pow(enemyTransform->y - chain->nextY, 2));
                                     if (dist < closestDist) {
@@ -290,7 +290,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                     
                     // update chain position and decrement jumps, or delete if no more targets
                     if (nextTarget != INVALID_ENTITY) {
-                        TransformComponent* nextTransform = (TransformComponent*)components->GetComponentData(nextTarget, COMPONENT_TRANSFORM);
+                        TransformComponent* nextTransform = (TransformComponent*)components->GetComponentData(nextTarget, C_Transform);
                         if (nextTransform) {
                             chain->currX = chain->nextX;
                             chain->currY = chain->nextY;

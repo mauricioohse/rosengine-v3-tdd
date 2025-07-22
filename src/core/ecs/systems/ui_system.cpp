@@ -15,14 +15,14 @@ void UISystem::Update(float deltaTime, std::vector<EntityID> entities, Component
 
     // Update UI states
     for (EntityID entity : entities) {
-        if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_UIBOX)) {
+        if (!g_Engine.entityManager.HasComponent(entity, C_Transform | C_UIBox)) {
             continue;
         }
 
         UIBoxComponent* box = 
-            (UIBoxComponent*)components->GetComponentData(entity, COMPONENT_UIBOX);
+            (UIBoxComponent*)components->GetComponentData(entity, C_UIBox);
         TransformComponent* transform = 
-            (TransformComponent*)components->GetComponentData(entity, COMPONENT_TRANSFORM);
+            (TransformComponent*)components->GetComponentData(entity, C_Transform);
 
         if (!box || !transform) continue;
 

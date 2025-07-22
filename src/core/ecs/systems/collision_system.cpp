@@ -71,26 +71,26 @@ void CollisionSystem::Update(float deltaTime, std::vector<EntityID> entities, Co
     
     // Check collisions between all entities with colliders
     for (EntityID entityA : entities) {
-        if (!g_Engine.entityManager.HasComponent(entityA, COMPONENT_TRANSFORM | COMPONENT_COLLIDER)) {
+        if (!g_Engine.entityManager.HasComponent(entityA, C_Transform | C_COLLIDER)) {
             continue;
         }
         
         TransformComponent* transformA = 
-            (TransformComponent*)components->GetComponentData(entityA, COMPONENT_TRANSFORM);
+            (TransformComponent*)components->GetComponentData(entityA, C_Transform);
         ColliderComponent* colliderA = 
-            (ColliderComponent*)components->GetComponentData(entityA, COMPONENT_COLLIDER);
+            (ColliderComponent*)components->GetComponentData(entityA, C_COLLIDER);
             
         auto it = std::find(entities.begin(), entities.end(), entityA);
         for (auto it2 = std::next(it); it2 != entities.end(); ++it2) {
             EntityID entityB = *it2;
-            if (!g_Engine.entityManager.HasComponent(entityB, COMPONENT_TRANSFORM | COMPONENT_COLLIDER)) {
+            if (!g_Engine.entityManager.HasComponent(entityB, C_Transform | C_COLLIDER)) {
                 continue;
             }
             
             TransformComponent* transformB = 
-                (TransformComponent*)components->GetComponentData(entityB, COMPONENT_TRANSFORM);
+                (TransformComponent*)components->GetComponentData(entityB, C_Transform);
             ColliderComponent* colliderB = 
-                (ColliderComponent*)components->GetComponentData(entityB, COMPONENT_COLLIDER);
+                (ColliderComponent*)components->GetComponentData(entityB, C_COLLIDER);
                 
             float penetrationX, penetrationY;
             if (CheckCollision(transformA, colliderA, transformB, colliderB, 

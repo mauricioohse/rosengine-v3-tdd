@@ -1,25 +1,25 @@
 /* 
 - every component needs to be defined here
-- the xcomponent() macro will be called by 
+- the xcomponent( macro will be called by 
 component_enums.h       - defines the enum types 
 component_storage.h     - add to the component data structure
 component_manager.h     - add the functions to add and get component
 component_macros.h      - makes it easier to ADD_COMPONENT() 
 */
 
-xcomponent(TRANSFORM, Transform, 0, (EntityID entity, float x, float y, float rotation, float scale), (x, y, rotation, scale))
-xcomponent(SPRITE, Sprite, 1, (EntityID entity, Texture* texture), (texture))
-xcomponent(TEXT, Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
-xcomponent(UIBOX, UIBox, 12, (EntityID entity, float width, float height), (width, height))
-xcomponent(ENEMY, Enemy, 13, (EntityID entity, int health), (health))
-xcomponent(TOWER, Tower, 14, (EntityID entity, TOWER_TYPE t, int r, float CD), (t, r, CD))
-xcomponent(PROJECTILE, Projectile, 15, (EntityID entity,PROJECTILE_TYPE _type , EntityID target,  int _targetX, int _targetY, int dmg, int _shouldExplode, int _explosionRadius), ( _type,  target, _targetX, _targetY,  dmg, _shouldExplode,  _explosionRadius))
-xcomponent(TIMEDSPRITE,TimedSprite, 16, (EntityID entity,float currTime_, float animTime_,  int loop_, int maxSprites_), ( currTime_,  animTime_ ,  loop_,  maxSprites_))
-xcomponent(MOVETOXY,MoveToTargetXY, 17, (EntityID entity, int x, int y, int spd), ( x,  y, spd))
-xcomponent(LIFETIME,LifeTime, 18, (EntityID entity, float lifeTime), (lifeTime))
-xcomponent(JET,JetAnimation, 19, (EntityID entity, int _srcX, int _srcY, int _destX, int _destY), ( _srcX,  _srcY,  _destX,  _destY))
-xcomponent(CC,Crowdcontrol, 20, (EntityID entity, EntityID tgt, int _targetX, int _targetY), (tgt,  _targetX,  _targetY))
-xcomponent(CHAIN,ChainLightning, 21, (EntityID entity, int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps), ( _currX, _currY, _nextX, _nextY, _target, _damage, _jumps))
-xcomponent(DEBUGPATH,EnemyDebug,22, (EntityID entity, TOWER_TYPE t), ( t))
-xcomponent(ENEMYEXIT,EnemyExit,23, (EntityID entity), ( ))
-xcomponent(TARGET,Target,24, (EntityID entity, EntityID _target), (_target))
+xcomponent( Transform, 0, (EntityID entity, float x, float y, float rotation, float scale), (x, y, rotation, scale))
+xcomponent( Sprite, 1, (EntityID entity, Texture* texture), (texture))
+xcomponent( Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
+xcomponent( UIBox, 12, (EntityID entity, float width, float height), (width, height))
+xcomponent( Enemy, 13, (EntityID entity, int health), (health))
+xcomponent( Tower, 14, (EntityID entity, TOWER_TYPE t, int r, float CD), (t, r, CD))
+xcomponent( Projectile, 15, (EntityID entity,PROJECTILE_TYPE _type , EntityID target,  int _targetX, int _targetY, int dmg, int _shouldExplode, int _explosionRadius), ( _type,  target, _targetX, _targetY,  dmg, _shouldExplode,  _explosionRadius))
+xcomponent( TimedSprite, 16, (EntityID entity,float currTime_, float animTime_,  int loop_, int maxSprites_), ( currTime_,  animTime_ ,  loop_,  maxSprites_))
+xcomponent( MoveToXY, 17, (EntityID entity, int x, int y, int spd), ( x,  y, spd))
+xcomponent( LifeTime, 18, (EntityID entity, float lifeTime), (lifeTime))
+xcomponent( JetAnimation, 19, (EntityID entity, int _srcX, int _srcY, int _destX, int _destY), ( _srcX,  _srcY,  _destX,  _destY))
+xcomponent( Crowdcontrol, 20, (EntityID entity, EntityID tgt, int _targetX, int _targetY), (tgt,  _targetX,  _targetY))
+xcomponent( ChainLightning, 21, (EntityID entity, int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps), ( _currX, _currY, _nextX, _nextY, _target, _damage, _jumps))
+xcomponent( EnemyDebug,22, (EntityID entity, TOWER_TYPE t), ( t))
+xcomponent( EnemyExit,23, (EntityID entity), ( ))
+xcomponent( Target,24, (EntityID entity, EntityID _target), (_target))

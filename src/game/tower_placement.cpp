@@ -107,7 +107,7 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     
     // add basic components
     ADD_COLLIDER(tower, 48, 48, 1, 0);
-    ADD_TRANSFORM(tower,
+    ADD_Transform(tower,
         (float)gridPoint.x + Grid::GRID_SQUARE_LENGTH/2, 
         (float)gridPoint.y + Grid::GRID_SQUARE_LENGTH/2,
         0.0F,
@@ -121,32 +121,32 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     {
     default:
     case TOWER_FIRE: // fire
-        ADD_TOWER(tower, selectedTowerType, 125, 2);
+        ADD_Tower(tower, selectedTowerType, 125, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
         break;
 
     case TOWER_WATER: // water
-        ADD_TOWER(tower, selectedTowerType, 250, 2);
+        ADD_Tower(tower, selectedTowerType, 250, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
         break;
 
     case TOWER_EARTH:
-        ADD_TOWER(tower, selectedTowerType, 150, .33f);
+        ADD_Tower(tower, selectedTowerType, 150, .33f);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
         break;
 
     case TOWER_AIR:
-        ADD_TOWER(tower, selectedTowerType, 150, 1.5);
+        ADD_Tower(tower, selectedTowerType, 150, 1.5);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
         break;
 
     case TOWER_ELECTRIC:
-        ADD_TOWER(tower, selectedTowerType, 150, 3);
+        ADD_Tower(tower, selectedTowerType, 150, 3);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
         break;
 
     case TOWER_FIREWATER: // water + fire
-        ADD_TOWER(tower, selectedTowerType, 200, 2);
+        ADD_Tower(tower, selectedTowerType, 200, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
 
@@ -156,9 +156,9 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
         ADD_COLLIDER(tower, 1, 1, 0 ,0);
         g_Engine.componentArrays.colliders[tower].height=g_Engine.componentArrays.Sprites[tower].height; // copy the collider size from the sprite size
         g_Engine.componentArrays.colliders[tower].width=g_Engine.componentArrays.Sprites[tower].width;
-        ADD_ENEMY(tower, 100);
+        ADD_Enemy(tower, 100);
     }
-    ADD_SPRITE(tower, tex);
+    ADD_Sprite(tower, tex);
     
     // initialize collider (static, not trigger)
     g_Engine.componentArrays.colliders[tower].Init(48, 48, true, false);

@@ -26,9 +26,9 @@ static void loadDebugLevelTowers()
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
-        ADD_TRANSFORM(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
+        ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
         ADD_COLLIDER(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
-        g_Engine.entityManager.AddComponentToEntity(exitCollider, COMPONENT_ENEMYEXIT);
+        g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
 
         // move to next horizontal position based on current tower's range
         currentX += 250;
@@ -51,11 +51,11 @@ static void spawnDebugEnemies()
         {
             EntityID enemy = g_mainGame.RegisterEntity();
             Texture *tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY);
-            ADD_SPRITE(enemy, tex);
-            ADD_TRANSFORM(enemy, currentX, startY, 0, 0.1f);
+            ADD_Sprite(enemy, tex);
+            ADD_Transform(enemy, currentX, startY, 0, 0.1f);
             ADD_COLLIDER(enemy, 1, 1, 0, 0);
-            ADD_ENEMY(enemy, 100);
-            ADD_DEBUGPATH(enemy, towerType);
+            ADD_Enemy(enemy, 100);
+            ADD_EnemyDebug(enemy, towerType);
 
             // move to next horizontal position based on current tower's range
             currentX += 250;
@@ -74,11 +74,11 @@ void MainGameScene::OnLoad()
     EntityManager* EM = &g_Engine.entityManager;
     
     EntityID box = RegisterEntity();
-    EM->AddComponentToEntity(box, COMPONENT_TRANSFORM | COMPONENT_SPRITE | COMPONENT_WASD_CONTROLLER);
+    EM->AddComponentToEntity(box, C_Transform | C_Sprite | C_WASD_CONTROLLER);
     g_Engine.componentArrays.Transforms[box].Init(300, 300);
     g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
     g_Engine.componentArrays.wasdControllers[box].Init(600);
-    ADD_NEW_TARGET(box, 0);
+    ADD_Target(box, 0);
 
     // initialize tower placement system
     TowerPlacement::Init();
@@ -161,16 +161,16 @@ static void PrintDebugTowerStats()
         if (statTextEntities[towerType] == 0)
         {
             statTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_TRANSFORM(statTextEntities[towerType], currentX, textY, 0, 0.5f);
-            ADD_TEXT(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            ADD_Transform(statTextEntities[towerType], currentX, textY, 0, 0.5f);
+            ADD_Text(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // create or update kills text entity (below KPS text)
         if (killsTextEntities[towerType] == 0)
         {
             killsTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_TRANSFORM(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
-            ADD_TEXT(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            ADD_Transform(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
+            ADD_Text(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // update KPS text content
@@ -180,7 +180,7 @@ static void PrintDebugTowerStats()
         
         // update KPS text component
         TextComponent* textComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
-            statTextEntities[towerType], COMPONENT_TEXT);
+            statTextEntities[towerType], C_Text);
         if (textComp)
         {
             strncpy(textComp->text, statText, sizeof(textComp->text) - 1);
@@ -194,7 +194,7 @@ static void PrintDebugTowerStats()
         
         // update kills text component
         TextComponent* killsTextComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
-            killsTextEntities[towerType], COMPONENT_TEXT);
+            killsTextEntities[towerType], C_Text);
         if (killsTextComp)
         {
             strncpy(killsTextComp->text, killsText, sizeof(killsTextComp->text) - 1);
