@@ -26,13 +26,39 @@
  * @param p_comp_enum   The enum value for the component (e.g., C_Target.
  * @param p_comp_var    The name of the variable to hold the pointer to the component data.
  */
-#define FOR_EACH_COMPONENT(p_scene, p_entity_var, p_comp_type, p_comp_enum, p_comp_var) \
+#define FOR_EACH_COMPONENT(p_scene, p_entity_var, p_comp_type, p_comp_var) \
     for (EntityID p_entity_var : p_scene->entities) \
     { \
-        p_comp_type* p_comp_var = (p_comp_type*)g_Engine.componentArrays.GetComponentData(p_entity_var, p_comp_enum); \
+        p_comp_type##Component* p_comp_var = (p_comp_type##Component*)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type); \
         if (p_comp_var) \
         {
 
+#define FOR_EACH_COMPONENT_2(p_scene, p_entity_var, p_comp_type_1, p_comp_var_1, p_comp_type_2, p_comp_var_2)                                            \
+    for (EntityID p_entity_var : p_scene->entities)                                                                                                      \
+    {                                                                                                                                                    \
+        p_comp_type_1##Component *p_comp_var_1 = (p_comp_type_1##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_1); \
+        p_comp_type_2##Component *p_comp_var_2 = (p_comp_type_2##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_2); \
+        if (p_comp_var_1 && p_comp_var_2)                                                                                                                \
+        {
+
+#define FOR_EACH_COMPONENT_3(p_scene, p_entity_var, p_comp_type_1, p_comp_var_1, p_comp_type_2, p_comp_var_2, p_comp_type_3, p_comp_var_3)                                            \
+    for (EntityID p_entity_var : p_scene->entities)                                                                                                      \
+    {                                                                                                                                                    \
+        p_comp_type_1##Component *p_comp_var_1 = (p_comp_type_1##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_1); \
+        p_comp_type_2##Component *p_comp_var_2 = (p_comp_type_2##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_2); \
+        p_comp_type_3##Component *p_comp_var_3 = (p_comp_type_3##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_3); \
+        if (p_comp_var_1 && p_comp_var_2 && p_comp_var_3)                                                                                                                \
+        {
+
+#define FOR_EACH_COMPONENT_4(p_scene, p_entity_var, p_comp_type_1, p_comp_var_1, p_comp_type_2, p_comp_var_2, p_comp_type_3, p_comp_var_3, p_comp_type_4, p_comp_var_4 )               \
+    for (EntityID p_entity_var : p_scene->entities)                                                                                                      \
+    {                                                                                                                                                    \
+        p_comp_type_1##Component *p_comp_var_1 = (p_comp_type_1##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_1); \
+        p_comp_type_2##Component *p_comp_var_2 = (p_comp_type_2##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_2); \
+        p_comp_type_3##Component *p_comp_var_3 = (p_comp_type_3##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_3); \
+        p_comp_type_4##Component *p_comp_var_4 = (p_comp_type_4##Component *)g_Engine.componentArrays.GetComponentData(p_entity_var, C_##p_comp_type_4); \
+        if (p_comp_var_1 && p_comp_var_2 && p_comp_var_3 && p_comp_var_4)                                                                                                \
+        {
 // Note: The macro intentionally leaves the block open.
 // You close it with two '}' in your system function.
 #define END_FOR_EACH }}
