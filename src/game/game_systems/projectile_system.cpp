@@ -24,7 +24,7 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
 {
     // iterate through all entities to find enemies within explosion radius
     for (EntityID enemy : entities) {
-        if (g_Engine.entityManager.HasComponent(enemy, C_Enemy | C_Transform | C_COLLIDER)) {
+        if (g_Engine.entityManager.HasComponent(enemy, C_Enemy | C_Transform | C_Collider)) {
             TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
             EnemyComponent* enemy_comp = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(enemy, C_Enemy);
             
@@ -122,7 +122,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
             if (projectile->type == PROJECTILE_PELLET)
             {
                 // check collision with enemies
-                ColliderComponent* projectileCollider = (ColliderComponent*)components->GetComponentData(entity, C_COLLIDER);
+                ColliderComponent* projectileCollider = (ColliderComponent*)components->GetComponentData(entity, C_Collider);
                 if (!projectileCollider) {
                     static bool errorPrinted = false;
                     if (!errorPrinted) {
@@ -135,8 +135,8 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 for (EntityID otherEntity : entities) {
                     if (otherEntity == entity) continue;
                     
-                    if (g_Engine.entityManager.HasComponent(otherEntity, C_Enemy | C_COLLIDER | C_Transform)) {
-                        ColliderComponent* enemyCollider = (ColliderComponent*)components->GetComponentData(otherEntity, C_COLLIDER);
+                    if (g_Engine.entityManager.HasComponent(otherEntity, C_Enemy | C_Collider | C_Transform)) {
+                        ColliderComponent* enemyCollider = (ColliderComponent*)components->GetComponentData(otherEntity, C_Collider);
                         TransformComponent* enemyTransform = (TransformComponent*)components->GetComponentData(otherEntity, C_Transform);
                         
                         if (!enemyCollider) {

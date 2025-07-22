@@ -89,11 +89,11 @@ static EntityID CheckEnemyInRange(EntityID tower, TowerComponent * tc, Transform
     // check collision with enemies
     for (EntityID enemy: entities)
     {
-        if(g_Engine.entityManager.HasComponent(enemy, C_Transform | C_Enemy |  C_COLLIDER))
+        if(g_Engine.entityManager.HasComponent(enemy, C_Transform | C_Enemy |  C_Collider))
         {
             // TODO: change to circular collision check instead of AABB
             TransformComponent * enemy_tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
-            ColliderComponent * enemy_cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_COLLIDER);
+            ColliderComponent * enemy_cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_Collider);
 
             // we create a fake collider based on the tower range
             ColliderComponent cc_range;
@@ -126,12 +126,12 @@ void tower_behavior_system::Update(float deltaTime, std::vector<EntityID> entiti
 {
     for (EntityID e : entities)
     {
-        if (g_Engine.entityManager.HasComponent(e, C_Transform | C_Tower /*| C_COLLIDER*/ ) )
+        if (g_Engine.entityManager.HasComponent(e, C_Transform | C_Tower /*| C_Collider*/ ) )
         {
 
             TowerComponent *tc = (TowerComponent *)g_Engine.componentArrays.GetComponentData(e, C_Tower);
             TransformComponent *tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(e, C_Transform);
-            // ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, C_COLLIDER);
+            // ColliderComponent * cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(e, C_Collider);
 
             // check if there is an enemy in range
             EntityID enemy = CheckEnemyInRange(e, tc, tr, entities);

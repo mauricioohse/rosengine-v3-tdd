@@ -53,7 +53,7 @@ static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
 static void RenderCollider(EntityID entity)
 {
     TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Transform);
-    ColliderComponent* collider = (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_COLLIDER);
+    ColliderComponent* collider = (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Collider);
     
     if (!transform || !collider) return;
     
@@ -379,10 +379,10 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // DEBUG: draw all colliders rectangle edges in red
+    // DEBUG: draw all Colliders rectangle edges in red
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_COLLIDER))
+        if (g_Engine.entityManager.HasComponent(entity, C_Collider))
         {
             RenderCollider(entity);
         }

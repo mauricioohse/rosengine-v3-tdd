@@ -154,14 +154,14 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY); 
         g_Engine.componentArrays.Transforms[tower].scale=0.1f;
         ADD_COLLIDER(tower, 1, 1, 0 ,0);
-        g_Engine.componentArrays.colliders[tower].height=g_Engine.componentArrays.Sprites[tower].height; // copy the collider size from the sprite size
-        g_Engine.componentArrays.colliders[tower].width=g_Engine.componentArrays.Sprites[tower].width;
+        g_Engine.componentArrays.Colliders[tower].height=g_Engine.componentArrays.Sprites[tower].height; // copy the collider size from the sprite size
+        g_Engine.componentArrays.Colliders[tower].width=g_Engine.componentArrays.Sprites[tower].width;
         ADD_Enemy(tower, 100);
     }
     ADD_Sprite(tower, tex);
     
     // initialize collider (static, not trigger)
-    g_Engine.componentArrays.colliders[tower].Init(48, 48, true, false);
+    g_Engine.componentArrays.Colliders[tower].Init(48, 48, true, false);
 
     return tower;
 } 

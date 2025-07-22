@@ -17,7 +17,7 @@ enum ComponentTypes {
     C_NONE = 0,
 #include "components/components.def"
     C_WASD_CONTROLLER = 1 << 2,
-    C_COLLIDER = 1 << 3,
+    C_Collider = 1 << 3,
     C_ANIMATION = 1 << 4,
     C_GRAVITY = 1 << 5,
     C_SQUIRREL = 1 << 6,
@@ -37,7 +37,7 @@ enum ComponentTypes {
 
 #define ADD_COLLIDER(entity, width, height, isStatic, isTrigger) \
     do { \
-        g_Engine.entityManager.AddComponentToEntity(entity, C_COLLIDER); \
+        g_Engine.entityManager.AddComponentToEntity(entity, C_Collider); \
         InitCollider(entity, width, height, isStatic, isTrigger); \
     } while(0)
 

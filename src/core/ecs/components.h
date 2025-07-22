@@ -630,7 +630,7 @@ struct ComponentArrays {
 #include "components/components.def"
 #undef xcomponent
     WASDControllerComponent wasdControllers[MAX_ENTITIES];
-    ColliderComponent colliders[MAX_ENTITIES];
+    ColliderComponent Colliders[MAX_ENTITIES];
     AnimationComponent animations[MAX_ENTITIES];
     GravityComponent gravities[MAX_ENTITIES];
     CameraComponent cameras[MAX_ENTITIES];

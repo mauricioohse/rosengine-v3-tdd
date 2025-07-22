@@ -15,7 +15,7 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
 #include "components/components.def"
 #undef xcomponent
         case C_WASD_CONTROLLER: return &wasdControllers[entity];
-        case C_COLLIDER:  return &colliders[entity];
+        case C_Collider:  return &Colliders[entity];
         case C_ANIMATION:  return &animations[entity];
         case C_CAMERA:  return &cameras[entity];
         case C_BACKGROUND: return &backgrounds[entity];
@@ -56,7 +56,7 @@ void InitWASDController(EntityID entity, float moveSpeed, bool canMove) {
 
 void InitCollider(EntityID entity, float width, float height, bool isStatic, bool isTrigger) {
     ColliderComponent* collider = 
-        (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_COLLIDER);
+        (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Collider);
     if (collider) {
         collider->Init(width, height, isStatic, isTrigger);
     }
