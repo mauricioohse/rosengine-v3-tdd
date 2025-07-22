@@ -19,3 +19,5 @@ void DeletionSystem(SceneBase *scene);
 // deletes all entities with DeleteTagComponent
 
 void CollisionSystem(SceneBase *scene);
+
+void ExplodeOnXYSystem(SceneBase *scene);

@@ -84,6 +84,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 CastJetAtTarget(transform->x, transform->y, projectile->targetX, projectile->targetY);
                 PlaySound::PlaySound(SOUND_SHOOT_LOW1);
 
+                
                 EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, C_Enemy);
                 if (enemy)
                 {

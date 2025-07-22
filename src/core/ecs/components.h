@@ -466,26 +466,42 @@ enum PROJECTILE_TYPE {
 
 struct ProjectileSpawnerComponent : Component {
     PROJECTILE_TYPE type;
+
+    void Init(PROJECTILE_TYPE _type)
+    {
+        type = _type;
+    }
 };
 
 struct CooldownComponent : Component{
     float remainingCD;
     float CD;
+
+    void Init(float _CD) { CD = _CD;}
 };
 
 struct RangeComponent : Component {
     int range;
 };
 
-struct ExplodeOnXYComponent : Component {
-    int x;
-    int y;
-};
 
 struct DamageOnCollisionTagComponent : Component {};
 
 struct DamageComponent : Component {
     int damage;
+
+    void Init( int _damage) {damage = _damage;}
+};
+
+struct ExplodeOnXYComponent : Component
+{
+    int x, y;
+
+    void Init(int _x, int _y)
+    {
+        x = _x;
+        y = _y;
+    }
 };
 
 struct ProjectileComponent : Component {

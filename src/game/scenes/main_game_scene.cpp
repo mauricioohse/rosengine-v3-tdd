@@ -219,6 +219,12 @@ void MainGameScene::OptionalUpdate(float deltaTime)
 
     TargetingSystem(&g_mainGame);
 
+    ProjectileSpawningSystem(&g_mainGame);
+
+    AttackCDSystem(&g_mainGame, deltaTime);
+
+    ExplodeOnXYSystem(&g_mainGame);
+
     if (!strcmp(levelPath, "lvl2.csv"))
     {
         spawnDebugEnemies();

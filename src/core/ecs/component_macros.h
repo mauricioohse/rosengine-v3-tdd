@@ -15,7 +15,15 @@ inline void ADD_##TYPE_NAME PARAMS                              \
     } else {                                                                     \
         printf("failed to retrieve %s component for entity %u\n", #TYPE_NAME, entity); \
     }                                                                            \
-} 
+} \
+\
+\
+inline TYPE_NAME##Component* GET_##TYPE_NAME(EntityID entity) \
+{       \
+    return (TYPE_NAME##Component*)                          \
+    g_Engine.componentArrays.GetComponentData(entity, C_##TYPE_NAME);   \
+}       \
+
 
 #include "components/components.def"
 #undef xcomponent 
