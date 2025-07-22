@@ -2,17 +2,21 @@
 #include "engine.h"
 #include "macro_utils.h"
 #include "utils.h"
+#include "main_game_scene.h"
 
-static EntityID CheckEnemyInRange(EntityID tower, TowerComponent * tc, TransformComponent * tr,  std::vector<EntityID> entities){
+static EntityID CheckEnemyInRange(EntityID tower){
+
+    SceneBase * scene = &g_mainGame;
+
+    TowerComponent* tc = (TowerComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Tower); 
+    TransformComponent* tr = (TransformComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Transform); 
 
     // check collision with enemies
-    for (EntityID enemy: entities)
+    FOR_EACH_COMPONENT_3(scene, enemy, 
+                        Transform, enemy_tr,
+                        Enemy, en,
+                        Collider, enemy_cc)
     {
-        if(g_Engine.entityManager.HasComponent(enemy, C_Transform | C_Enemy |  C_COLLIDER))
-        {
-            // TODO: change to circular collision check instead of AABB
-            TransformComponent * enemy_tr = (TransformComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_Transform);
-            ColliderComponent * enemy_cc = (ColliderComponent *)g_Engine.componentArrays.GetComponentData(enemy, C_COLLIDER);
 
             // we create a fake collider based on the tower range
             ColliderComponent cc_range;
@@ -32,22 +36,22 @@ static EntityID CheckEnemyInRange(EntityID tower, TowerComponent * tc, Transform
             }
             
 
-        }
-        
-    }
+                
+    } END_FOR_EACH
 
-    return 0xFFFFFFFFu;
+    return 0; // zero -> didnt find any valid enemy 
 
 }
 
 void TargetingSystem(SceneBase *scene)
 {
-    FOR_EACH_COMPONENT(scene, e, Target, tar)
+    FOR_EACH_COMPONENT_2(scene, tower, Target, tar, Tower, tc)
     {
         // write logic here that uses tar and e data
         // For example:
         if (tar->target == 0) {
-            printf("Entity %u needs a new target!\n", e);
+            tar->target= CheckEnemyInRange(tower);
+            if (tar->target) printf("Tower %d found target tar->target %d!\n", tower, tar->target);
         }
     } END_FOR_EACH
 }

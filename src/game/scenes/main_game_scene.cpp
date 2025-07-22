@@ -21,8 +21,7 @@ static void loadDebugLevelTowers()
 
     for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType=TOWER_TYPE((int)towerType+1))
     {
-        TowerPlacement::selectedTowerType = towerType;
-        TowerPlacement::CreateTowerAt(Point{currentX,startY});
+        TowerPlacement::CreateTowerAt(towerType,Point{currentX,startY});
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
@@ -79,6 +78,8 @@ void MainGameScene::OnLoad()
     g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
     g_Engine.componentArrays.wasdControllers[box].Init(600);
     ADD_Target(box, 0);
+
+    // initialize a fire tower
 
     // initialize tower placement system
     TowerPlacement::Init();

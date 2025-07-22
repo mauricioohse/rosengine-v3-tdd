@@ -8,12 +8,14 @@ struct TowerPlacement {
     static void Init();
     static void Update();
     static void Destroy();
-    
-    static bool TryPlaceTower(int mouseX, int mouseY);
-    static EntityID CreateTowerAt(Point gridPoint);
-  
+
+    static bool TryPlaceTower(TOWER_TYPE type, int mouseX, int mouseY);
+    static EntityID CreateTowerAt(TOWER_TYPE type, Point gridPoint);
+
     static bool isPlacementMode;
     static TOWER_TYPE selectedTowerType; // 0 = fire, 1 = water, etc.
 
+    // archetypes
+    static void CreateFireTower(EntityID tower);
 
 }; 

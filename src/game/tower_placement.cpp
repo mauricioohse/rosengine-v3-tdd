@@ -24,7 +24,7 @@ void TowerPlacement::Update() {
             int mouseX, mouseY;
             Input::GetMousePosition(mouseX, mouseY);
             
-            if (TryPlaceTower(mouseX, mouseY)) {
+            if (TryPlaceTower(selectedTowerType, mouseX, mouseY)) {
                 printf("tower placed successfully\n");
             }
         }
@@ -79,13 +79,13 @@ void TowerPlacement::Destroy() {
     selectedTowerType = TOWER_NONE;
 }
 
-bool TowerPlacement::TryPlaceTower(int mouseX, int mouseY) {
+bool TowerPlacement::TryPlaceTower(TOWER_TYPE type, int mouseX, int mouseY) {
     if (!isPlacementMode) return false;
     
     if (!Grid::IsInsideGrid(mouseX, mouseY)) return false;
     
     Point gridPoint = Grid::GetNearestGridPoint(mouseX, mouseY);
-    EntityID tower = CreateTowerAt(gridPoint);
+    EntityID tower = CreateTowerAt(type,gridPoint);
     
     if (tower != INVALID_ENTITY) {
         isPlacementMode = true; // exit placement mode after successful placement
@@ -95,7 +95,8 @@ bool TowerPlacement::TryPlaceTower(int mouseX, int mouseY) {
     return false;
 }
 
-EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
+
+EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
     // create tower entity
     EntityID tower = g_mainGame.RegisterEntity();
     
@@ -117,36 +118,38 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     // for now using the box texture as placeholder
 
     Texture * tex;
-    switch (selectedTowerType)
+    switch (type)
     {
     default:
     case TOWER_FIRE: // fire
-        ADD_Tower(tower, selectedTowerType, 125, 2);
+        ADD_Tower(tower, type, 125, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
+        ADD_Target(tower, 0);
+
         break;
 
     case TOWER_WATER: // water
-        ADD_Tower(tower, selectedTowerType, 250, 2);
+        ADD_Tower(tower, type, 250, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
         break;
 
     case TOWER_EARTH:
-        ADD_Tower(tower, selectedTowerType, 150, .33f);
+        ADD_Tower(tower, type, 150, .33f);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
         break;
 
     case TOWER_AIR:
-        ADD_Tower(tower, selectedTowerType, 150, 1.5);
+        ADD_Tower(tower, type, 150, 1.5);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
         break;
 
     case TOWER_ELECTRIC:
-        ADD_Tower(tower, selectedTowerType, 150, 3);
+        ADD_Tower(tower, type, 150, 3);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
         break;
 
     case TOWER_FIREWATER: // water + fire
-        ADD_Tower(tower, selectedTowerType, 200, 2);
+        ADD_Tower(tower, type, 200, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
 
@@ -160,8 +163,7 @@ EntityID TowerPlacement::CreateTowerAt(Point gridPoint) {
     }
     ADD_Sprite(tower, tex);
     
-    // initialize collider (static, not trigger)
-    g_Engine.componentArrays.Colliders[tower].Init(48, 48, true, false);
 
     return tower;
-} 
+}
+
