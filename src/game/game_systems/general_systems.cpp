@@ -43,15 +43,22 @@ static EntityID CheckEnemyInRange(EntityID tower){
 
 }
 
+// TODO: this targeting system sucks and needs to be better thought out. sometimes towers shoots entities outside their range if the target is aquired while CD > 0
 void TargetingSystem(SceneBase *scene)
 {
     FOR_EACH_COMPONENT_2(scene, tower, Target, tar, Tower, tc)
     {
 
-        if (tar->target == 0) {
+        if (tar->target == 0 && tc->currCD<=0) { // TODO: create a INVALID_ENTITY constant instead of magic 0
             tar->target= CheckEnemyInRange(tower);
             if (tar->target) printf("Tower %d found target tar->target %d!\n", tower, tar->target);
         }
+        else
+        {
+            if (!g_Engine.entityManager.IsEntityValid(tar->target))
+                tar->target = 0;
+        }
+        
     } END_FOR_EACH
 }
 
@@ -117,7 +124,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     TargetComponent *tc = GET_Target(tower);
     TransformComponent *target_transform = nullptr;
     EntityID target = tc->target; // store target
-    if (tc->target!=0)
+    if (target!=0 && g_Engine.entityManager.IsEntityValid(target))
     {
         target_transform = GET_Transform(tc->target);
         tc->target = 0; // resets target
@@ -143,6 +150,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
         ADD_Damage(projectile, 50);
         ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y);
+        break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
         PlaySound::PlaySound(SOUND_SHOOT_LOW1);
