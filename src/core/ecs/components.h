@@ -374,6 +374,10 @@ struct LifeTimeComponent : Component {
     }
 };
 
+struct DamageOnCollisionComponent : Component {
+
+};
+
 struct JetAnimationComponent : Component {
     int srcX;
     int srcY;

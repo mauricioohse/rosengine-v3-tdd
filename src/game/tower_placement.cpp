@@ -142,6 +142,10 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
 
     case TOWER_EARTH:
         ADD_Tower(tower, type, 150, .33f);
+        ADD_Target(tower, 0);
+        ADD_Damage(tower, 150);
+        ADD_Cooldown(tower, .33f);
+        ADD_ProjectileSpawner(tower,PROJECTILE_PELLET);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
         break;
 

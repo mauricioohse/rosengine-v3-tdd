@@ -115,9 +115,12 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 
     ADD_JetAnimation(jet, srcX, srcY, destX, destY);
     ADD_LifeTime(jet, .2);
+    PlaySound::PlaySound(SOUND_SHOOT_LOW1);
+
 
 }
 
+// TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 #include "play_sound.h"
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
@@ -153,15 +156,23 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
-        PlaySound::PlaySound(SOUND_SHOOT_LOW1);
-
         
         if (enemy)
         {
             enemy->currHealth -= tower_damage->damage;
         }
+
         break;
 
+    case PROJECTILE_PELLET:
+        ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
+        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
+        ADD_COLLIDER(projectile, 27,27,0,0);
+        ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
+        ADD_Damage(projectile, 25);
+        ADD_DamageOnCollision(projectile);
+
+    break;
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
         break;
