@@ -21,7 +21,8 @@ Main:
 
 
 Mid
-- [ ] implement tower range on hover
+- [x] implement tower range on hover
+- [x] implement tower range when holding left shift
 - [ ] when placing tower, it should appear transparent what kind of tower and the range of placement
 
 
