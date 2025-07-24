@@ -131,6 +131,8 @@ static void RenderTowerRange(EntityID entity)
         return;
     }
 
+    bool leftShiftPressed = Input::IsKeyDown(SDL_SCANCODE_LSHIFT);
+
     int mouseX, mouseY;
     Input::GetMousePosition(mouseX, mouseY);
     Point mousePoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
@@ -138,7 +140,12 @@ static void RenderTowerRange(EntityID entity)
     TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TRANSFORM);
     Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
-    if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
+    if (true == leftShiftPressed)
+    {
+        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TOWER);
+        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+    }
+    else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
     {
         TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TOWER);
         DrawCircle(towerPoint.x, towerPoint.y, tower->range);
@@ -356,8 +363,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // draw tower range - in the future we should add a button (like shift) to draw all when pressed
-    // range of a is being drawn only when mouse hovers over that tower
+    // 7. render tower range with left shift or on mouse hovering over tower
     for (EntityID entity : entities)
     {
         if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_TOWER))
