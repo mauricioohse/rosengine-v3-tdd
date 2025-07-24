@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "grid.h"
 #include "math.h"
+#include "core/input.h"
 
 void RenderSystem::Init() {
     printf("RenderSystem initialized\n");
@@ -124,21 +125,24 @@ static void RenderJet(EntityID entity)
     }
 }
 
-
-
 static void RenderTowerRange(EntityID entity)
 {
     if (!g_Engine.entityManager.HasComponent(entity, COMPONENT_TOWER | COMPONENT_TRANSFORM)) {
         return;
     }
-    
-    TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TOWER);
+
+    int mouseX, mouseY;
+    Input::GetMousePosition(mouseX, mouseY);
+    Point mousePoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
+
     TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TRANSFORM);
+    Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
-    Point p = Grid::GetNearestGridPointCenter(transform->x,transform->y);
-
-    DrawCircle(p.x, p.y, tower->range);
-
+    if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
+    {
+        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, COMPONENT_TOWER);
+        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+    }
 }
 
 static void RenderEnemyLife(EntityID entity)
@@ -352,7 +356,8 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // draw tower range - in the future we should add a button (like shift) to only draw all when pressed
+    // draw tower range - in the future we should add a button (like shift) to draw all when pressed
+    // range of a is being drawn only when mouse hovers over that tower
     for (EntityID entity : entities)
     {
         if (g_Engine.entityManager.HasComponent(entity, COMPONENT_TRANSFORM | COMPONENT_TOWER))
