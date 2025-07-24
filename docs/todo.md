@@ -21,7 +21,7 @@ Main:
 
 
 Mid
-- [ ] implement tower range on hover
+- [x] implement tower range on hover
 - [ ] when placing tower, it should appear transparent what kind of tower and the range of placement
 - [ ] tilemap loading with dynamic dual-grid tilemap see https://www.reddit.com/r/gamemaker/comments/1fifser/autotile_system_with_dual_grid/
 - [ ] implement CLI input for debug options and logs, and a logconfig.txt file to load specific types of logging. implement a CLI log command for inspecting entity components mask, data, etc
