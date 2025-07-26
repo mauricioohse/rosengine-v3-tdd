@@ -21,3 +21,5 @@ void DeletionSystem(SceneBase *scene);
 void DamageOnCollisionSystem(SceneBase *scene);
 
 void ExplodeOnXYSystem(SceneBase *scene);
+void new_CrowdcontrolSystem(SceneBase * scene);
+

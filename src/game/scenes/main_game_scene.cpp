@@ -221,6 +221,8 @@ void MainGameScene::OptionalUpdate(float deltaTime)
 
     ProjectileSpawningSystem(&g_mainGame);
 
+    new_CrowdcontrolSystem(&g_mainGame);
+
     DamageOnCollisionSystem(&g_mainGame);
 
     AttackCDSystem(&g_mainGame, deltaTime);

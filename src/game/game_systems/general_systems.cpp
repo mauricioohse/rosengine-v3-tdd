@@ -141,6 +141,20 @@ void DamageOnCollisionSystem(SceneBase * scene)
 
 }
 
+void new_CrowdcontrolSystem(SceneBase * scene)
+{
+
+    FOR_EACH_COMPONENT_2(scene, entity,
+                         Transform, tc,
+                         Crowdcontrol, CC)
+    {
+        TransformComponent * enemy_tr = GET_Transform(CC->target);
+        // this locks the enemy_tr x and y to the data saved in the CC component
+        enemy_tr->x = CC->targetX;
+        enemy_tr->y = CC->targetY;
+    } END_FOR_EACH
+}
+
 void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 {
     EntityID jet = g_mainGame.RegisterEntity();
@@ -205,6 +219,24 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_DamageOnCollision(projectile,0);
     }
     break;
+
+    case  PROJECTILE_GUST:
+        // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
+        printf("gust projectile created!\n");
+
+        ADD_Transform(projectile, target_transform->x, target_transform->y, 0.0f, 1.0f);
+        ADD_Crowdcontrol(projectile, target, target_transform->x, target_transform->y);
+        ADD_LifeTime(projectile, 1.0f);
+        ADD_TimedSprite(projectile, .8f, .2f, 1, 4);
+        g_Engine.componentArrays.TimedSprites[projectile].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
+        g_Engine.componentArrays.TimedSprites[projectile].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
+        g_Engine.componentArrays.TimedSprites[projectile].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
+        g_Engine.componentArrays.TimedSprites[projectile].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
+
+
+
+        PlaySound::PlaySound(SOUND_BLIP_HIGH);
+        break;
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
         break;
@@ -220,14 +252,6 @@ void ProjectileSpawningSystem(SceneBase *scene)
                          Cooldown, cd,
                          Transform, tr )
     {
-        // Do some checks once: all entities that have projectile spawner are required to also have:
-        // tranform, cooldown, tower and damage components
-        if( !g_Engine.entityManager.HasComponent(tower ,C_Damage))
-        {
-            DO_ONCE(printf("Entity %d has projectile spawner but does not have damage!\n", tower));
-            return;
-        }
-        
 
         if(cd->remainingCD<0)
         {

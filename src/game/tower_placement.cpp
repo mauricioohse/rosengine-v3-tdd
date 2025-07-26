@@ -151,6 +151,9 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
 
     case TOWER_AIR:
         ADD_Tower(tower, type, 150, 1.5);
+        ADD_Target(tower, 0);
+        ADD_Cooldown(tower, 2);
+        ADD_ProjectileSpawner(tower, PROJECTILE_GUST);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
         break;
 
