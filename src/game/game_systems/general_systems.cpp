@@ -297,7 +297,6 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
-        
         if (enemy)
         {
             enemy->currHealth -= tower_damage->damage;
@@ -341,6 +340,17 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
 
         break;
+
+    case PROJECTILE_JET_BOMB:
+        {
+            // jet bomb is actually two entities: one jet with 0 damage, and a exploding bomb
+            CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y); // this it just the animation
+
+            EntityID bomb = projectile;
+            ADD_Transform(bomb, target_transform->x, target_transform->y, 0, 1);
+            ADD_Damage(bomb, tower_damage->damage);
+            ADD_ExplodeOnXY(bomb, target_transform->x, target_transform->y); // note: explosion radius is hardcoded for now
+        }
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
         break;

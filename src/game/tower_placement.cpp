@@ -168,6 +168,11 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
 
     case TOWER_FIREWATER: // water + fire
         ADD_Tower(tower, type, 200, 2);
+        ADD_ProjectileSpawner(tower, PROJECTILE_JET_BOMB);
+        ADD_Damage(tower, 100);
+        ADD_Target(tower, 0);
+        ADD_Cooldown(tower, 2);
+
         tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
         break;
 
