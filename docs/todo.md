@@ -22,15 +22,16 @@ Main:
 
 Mid
 - [x] implement tower range on hover
+- [m] create ecs_for_each
+- [m] remove init and destroy functions from inside the components to use less memory on components and solve tag components (components taht does not need initialization because has no data)
 - [ ] when placing tower, it should appear transparent what kind of tower and the range of placement
 - [ ] tilemap loading with dynamic dual-grid tilemap see https://www.reddit.com/r/gamemaker/comments/1fifser/autotile_system_with_dual_grid/
 - [ ] implement CLI input for debug options and logs, and a logconfig.txt file to load specific types of logging. implement a CLI log command for inspecting entity components mask, data, etc
 - [ ] implement circular collision for tower range instead of AABB 
-- [m] create ecs_for_each
-- [m] remove init and destroy functions from components
 - [ ] add a linter
 - [ ] add measurement of system execution time
 - [ ] separate the render system in smaller systems (needed for when ECS world separation happens)
+- [ ] make a proper targeting system, where the tower can: target the first enemy, the last enemy, the strongest (highest health) or the weakest enemy
 
 
 

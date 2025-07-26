@@ -375,7 +375,16 @@ struct LifeTimeComponent : Component {
 };
 
 struct DamageOnCollisionComponent : Component {
-
+    int unused; // TODO: currently, when initializing the componentsarray, we set all data to 0 with memset(). 
+    // for structs that inherit from the base Component, this causes the vtable of the virtual function to also be cleaned
+    // so, the real fix is to change how the ADD_Component functions is being done. that said, a dirty fix for tag components
+    // is to simply add a unused variable and initialize is on the init function
+    void Init( int _unused) {
+        unused = 0;
+    }
+    void Destroy() override {
+        // empty tag component - nothing to destroy
+    }
 };
 
 struct JetAnimationComponent : Component {
@@ -487,9 +496,6 @@ struct CooldownComponent : Component{
 struct RangeComponent : Component {
     int range;
 };
-
-
-struct DamageOnCollisionTagComponent : Component {};
 
 struct DamageComponent : Component {
     int damage;

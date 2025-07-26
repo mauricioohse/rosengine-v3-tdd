@@ -16,7 +16,7 @@ static void CreateProjectile(EntityID tower, TowerComponent * tc, EntityID enemy
     
     EntityID projectile = g_mainGame.RegisterEntity();
     
-    TransformComponent* tower_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Transform);
+    auto tower_transform = GET_Transform(tower);
     
     ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0.0f, 1.0f);
     

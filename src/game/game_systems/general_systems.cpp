@@ -3,6 +3,8 @@
 #include "macro_utils.h"
 #include "utils.h"
 #include "main_game_scene.h"
+#include "play_sound.h"
+
 
 static EntityID CheckEnemyInRange(EntityID tower){
 
@@ -109,6 +111,36 @@ void ExplodeOnXYSystem(SceneBase *scene)
     END_FOR_EACH
 }
 
+void DamageOnCollisionSystem(SceneBase * scene)
+{
+    FOR_EACH_COMPONENT_4(scene, damage_entity,
+                         DamageOnCollision, unused,
+                         Damage, entity_dmg,
+                         Collider, entity_col,
+                         Transform, entity_tr)
+    {
+        // look for enemies that collide with the entity
+        FOR_EACH_COMPONENT_3(scene, enemy,
+                             Enemy, enemy_component,
+                             Transform,
+                             enemy_tr,
+                             Collider, enemy_col)
+        {
+            float penX, penY;
+            if (CheckCollisionCentered(entity_tr, entity_col, enemy_tr, enemy_col, penX, penY))
+            {
+
+                enemy_component->currHealth -= entity_dmg->damage;
+
+                PlaySound::PlaySound(SOUND_HIT_NOISE);
+                g_mainGame.DeleteEntity(damage_entity);
+                break;
+            }
+        } END_FOR_EACH
+    } END_FOR_EACH
+
+}
+
 void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 {
     EntityID jet = g_mainGame.RegisterEntity();
@@ -121,7 +153,6 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 }
 
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
-#include "play_sound.h"
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
     TargetComponent *tc = GET_Target(tower);
@@ -165,13 +196,14 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         break;
 
     case PROJECTILE_PELLET:
+    {
         ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
         ADD_COLLIDER(projectile, 27,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
         ADD_Damage(projectile, 25);
-        ADD_DamageOnCollision(projectile);
-
+        ADD_DamageOnCollision(projectile,0);
+    }
     break;
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
@@ -227,6 +259,4 @@ void DeletionSystem(SceneBase *scene)
 {
 }
 
-void CollisionSystem(SceneBase *scene)
-{
-}
+
