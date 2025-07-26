@@ -17,8 +17,6 @@
 #include "main_game_scene.h"
 #include "pause_scene.h"
 #include "enemy_system.h"
-#include "tower_behavior_system.h"
-#include "projectile_system.h"
 #include "move_to_target_system.h"
 #include "life_time_system.h"
 
@@ -31,8 +29,6 @@ bool Game::Init() {
     g_Engine.systemManager.RegisterSystem(new UISystem());
     g_Engine.systemManager.RegisterSystem(&musicSystem);
     g_Engine.systemManager.RegisterSystem(new enemy_system());
-    //g_Engine.systemManager.RegisterSystem(new tower_behavior_system());
-    // g_Engine.systemManager.RegisterSystem(new projectile_system());
     g_Engine.systemManager.RegisterSystem(new move_to_target_system());
     g_Engine.systemManager.RegisterSystem(new life_time_system());
     

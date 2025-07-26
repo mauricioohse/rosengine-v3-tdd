@@ -150,8 +150,11 @@ void new_CrowdcontrolSystem(SceneBase * scene)
     {
         TransformComponent * enemy_tr = GET_Transform(CC->target);
         // this locks the enemy_tr x and y to the data saved in the CC component
-        enemy_tr->x = CC->targetX;
-        enemy_tr->y = CC->targetY;
+        if(enemy_tr)
+        {
+            enemy_tr->x = CC->targetX;
+            enemy_tr->y = CC->targetY;
+        }
     } END_FOR_EACH
 }
 
