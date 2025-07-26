@@ -228,6 +228,8 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     AttackCDSystem(&g_mainGame, deltaTime);
 
     ExplodeOnXYSystem(&g_mainGame);
+    ChainLightningSystem(&g_mainGame);
+
 
     if (!strcmp(levelPath, "lvl2.csv"))
     {

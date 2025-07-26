@@ -166,6 +166,102 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 
 }
 
+// TODO: think of a better way to separate the chainlightning into smaller components
+void ChainLightningSystem(SceneBase * scene)
+{
+    FOR_EACH_COMPONENT(scene, entity,
+                       ChainLightning, CL)
+    {
+        // if no jumps left, delete entity
+        if (CL->jumps <= 0)
+        {
+            g_mainGame.DeleteEntity(entity);
+            continue;
+        }
+
+        // increment frame delay counter
+        CL->currFrameDelay++;
+
+        // only process jump when frame delay is reached
+        if (CL->currFrameDelay >= CL->frameDelay)
+        {
+            // damage current target if valid and hasn't been damaged yet
+            if (CL->target != INVALID_ENTITY && !CL->hasDealtDamage)
+            {
+                if (g_Engine.entityManager.HasComponent(CL->target, C_Enemy))
+                {
+                    EnemyComponent *enemy = GET_Enemy(CL->target);
+                    if (enemy)
+                    {
+                        enemy->currHealth -= CL->damage;
+                    }
+                }
+
+                // add current target to hit list
+                for (int i = 0; i < 12; i++)
+                {
+                    if (CL->hits[i] == INVALID_ENTITY)
+                    {
+                        CL->hits[i] = CL->target;
+                        break;
+                    }
+                }
+
+                CL->hasDealtDamage = 1;
+            }
+
+            // find next enemy to jump to
+            EntityID nextTarget = INVALID_ENTITY;
+            float closestDist = 150.0f; // max chain range
+
+            FOR_EACH_COMPONENT_2(scene, enemy,
+                                Transform, enemy_tr,
+                                Enemy, enemy_c)
+            {
+                // check if already hit
+                bool alreadyHit = false;
+                for (int i = 0; i < 12; i++)
+                {
+                    if (CL->hits[i] == enemy)
+                    {
+                        alreadyHit = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyHit)
+                {
+                    // NOTE: this should probably use the already existing target system instead of doing it again here. or create a component "TargetAndRemember"
+                    float dist = sqrt(pow(enemy_tr->x - CL->nextX, 2) + pow(enemy_tr->y - CL->nextY, 2));
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        nextTarget = enemy;
+                    }
+                }
+            }
+            END_FOR_EACH
+
+            // update chain position and decrement jumps, or delete if no more targets
+            if (nextTarget != INVALID_ENTITY)
+            {
+                TransformComponent *nextTransform = GET_Transform(nextTarget);
+                if (nextTransform)
+                {
+                    CL->currX = CL->nextX;
+                    CL->currY = CL->nextY;
+                    CL->nextX = (int)nextTransform->x;
+                    CL->nextY = (int)nextTransform->y;
+                    CL->target = nextTarget;
+                    CL->jumps--;            // decrement jumps
+                    CL->currFrameDelay = 0; // reset frame delay for next jump
+                    CL->hasDealtDamage = 0; // reset damage flag for next target
+                }
+            }
+        }
+    } END_FOR_EACH
+}
+
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
@@ -236,6 +332,14 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
 
         PlaySound::PlaySound(SOUND_BLIP_HIGH);
+        break;
+
+    case PROJECTILE_LIGHTNING:
+        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y, 
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 5);
+        ADD_LifeTime(projectile, .3f); // in case we forget to delete
+        PlaySound::PlaySound(SOUND_SHOOT_LOW);
+
         break;
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););

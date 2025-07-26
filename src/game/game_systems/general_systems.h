@@ -22,4 +22,5 @@ void DamageOnCollisionSystem(SceneBase *scene);
 
 void ExplodeOnXYSystem(SceneBase *scene);
 void new_CrowdcontrolSystem(SceneBase * scene);
+void ChainLightningSystem(SceneBase * scene);
 

@@ -490,7 +490,11 @@ struct CooldownComponent : Component{
     float remainingCD;
     float CD;
 
-    void Init(float _CD) { CD = _CD;}
+    void Init(float _CD)
+    {
+        CD = _CD;
+        remainingCD = 0;
+    }
 };
 
 struct RangeComponent : Component {

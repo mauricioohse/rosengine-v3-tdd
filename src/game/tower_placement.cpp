@@ -159,6 +159,10 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
 
     case TOWER_ELECTRIC:
         ADD_Tower(tower, type, 150, 3);
+        ADD_Cooldown(tower, 3);
+        ADD_Target(tower, 0);
+        ADD_Damage(tower, 150);
+        ADD_ProjectileSpawner(tower, PROJECTILE_LIGHTNING);
         tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
         break;
 
