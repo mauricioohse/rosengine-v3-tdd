@@ -7,6 +7,7 @@
 #include "grid.h"
 #include "tower_placement.h"
 #include "general_systems.h"
+#include "resolve_elements_system.h"
 
 
 MainGameScene g_mainGame;
@@ -229,6 +230,8 @@ void MainGameScene::OptionalUpdate(float deltaTime)
 
     ExplodeOnXYSystem(&g_mainGame);
     ChainLightningSystem(&g_mainGame);
+
+    ResolveElementSystem(&g_mainGame);
 
 
     if (!strcmp(levelPath, "lvl2.csv"))

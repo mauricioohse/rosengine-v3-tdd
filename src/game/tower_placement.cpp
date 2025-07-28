@@ -27,6 +27,11 @@ void TowerPlacement::Update() {
             if (TryPlaceTower(selectedTowerType, mouseX, mouseY)) {
                 printf("tower placed successfully\n");
             }
+            else
+            {
+                printf("tower not placed!\n");
+            }
+            
         }
     } else {
         mousePressed = false;
@@ -79,15 +84,67 @@ void TowerPlacement::Destroy() {
     selectedTowerType = TOWER_NONE;
 }
 
+static bool AddElementToExistingTower(EntityID e, ELEMENT element)
+{
+    // check the existing elements, only add a new element if it is available
+    ElementComponent * container = GET_Element(e);
+    if(!container) {
+        printf("Existing tower has no element! invalid!\n");
+        return false;
+    }
+    int idx=0;
+    while(container->elements[idx]!=ELE_NONE)
+    {
+        idx++;
+    }
+    
+    if (idx >= MAX_ELEMENTS)
+    {
+        printf("Max element achieved! cant add anymore!\n");
+        return false;
+    }
+    else
+    {
+        ADD_Element(e, element);
+        ADD_ResolveElement(e);
+        return true;
+    }
+}
+
 bool TowerPlacement::TryPlaceTower(TOWER_TYPE type, int mouseX, int mouseY) {
     if (!isPlacementMode) return false;
     
     if (!Grid::IsInsideGrid(mouseX, mouseY)) return false;
     
-    Point gridPoint = Grid::GetNearestGridPoint(mouseX, mouseY);
-    EntityID tower = CreateTowerAt(type,gridPoint);
-    
-    if (tower != INVALID_ENTITY) {
+    Point gridPoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
+
+    // TODO: check if tower has elements slot available, if not return
+    SceneBase * scene = &g_mainGame;
+    EntityID existingTower = 0;
+    FOR_EACH_COMPONENT_2(scene, tower,
+                          Transform, TR,
+                          Tower, TC
+                          )
+    {
+        if (TR->x == gridPoint.x && TR->y == gridPoint.y)
+        {
+            existingTower = tower;
+        }
+    }
+    END_FOR_EACH
+
+    EntityID new_tower = 0;
+    if (existingTower != INVALID_ENTITY)
+    {
+        if (!AddElementToExistingTower(existingTower, (ELEMENT)selectedTowerType))
+            return false; // TODO: needs to change this to be element instead of tower type lol
+    }
+    else
+    {
+        new_tower = CreateTowerAt(type, gridPoint);
+    }
+
+    if (existingTower != INVALID_ENTITY || new_tower != INVALID_ENTITY) {
         isPlacementMode = true; // exit placement mode after successful placement
         return true;
     }
@@ -95,10 +152,11 @@ bool TowerPlacement::TryPlaceTower(TOWER_TYPE type, int mouseX, int mouseY) {
     return false;
 }
 
-
 EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
     // create tower entity
     EntityID tower = g_mainGame.RegisterEntity();
+
+    Point center = Grid::GetNearestGridPointCenter(gridPoint.x, gridPoint.y); 
     
     printf("attempting to create tower entityId %d\n" , tower);
     if (tower == INVALID_ENTITY) {
@@ -109,8 +167,8 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
     // add basic components
     ADD_COLLIDER(tower, 48, 48, 1, 0);
     ADD_Transform(tower,
-        (float)gridPoint.x + Grid::GRID_SQUARE_LENGTH/2, 
-        (float)gridPoint.y + Grid::GRID_SQUARE_LENGTH/2,
+        (float)center.x, 
+        (float)center.y,
         0.0F,
         0.5F );
 
@@ -124,10 +182,12 @@ EntityID TowerPlacement::CreateTowerAt(TOWER_TYPE type, Point gridPoint) {
     case TOWER_FIRE: // fire
         ADD_Tower(tower, type, 125, 2);
         tex = ResourceManager::GetTexture(TEXTURE_BOX);
-        ADD_Target(tower, 0);
-        ADD_Damage(tower,50);
-        ADD_Cooldown(tower, 2);
-        ADD_ProjectileSpawner(tower, PROJECTILE_BOMB);
+        ADD_Element(tower, ELE_FIRE);
+        ADD_ResolveElement(tower);
+        // ADD_Target(tower, 0);
+        // ADD_Damage(tower,50);
+        // ADD_Cooldown(tower, 2);
+        // ADD_ProjectileSpawner(tower, PROJECTILE_BOMB);
 
         break;
 

@@ -350,8 +350,33 @@ enum ELEMENT {
     // fill above
     ELE_MAX // should always be last
 };
-struct ElementTowerComponent  {
-    ELEMENT elements[3];
+
+#define MAX_ELEMENTS 3
+struct ElementComponent  {
+    ELEMENT elements[MAX_ELEMENTS] = {};
+
+    void Init(ELEMENT new_ele)
+    {
+        int idx = 0;
+        while (elements[idx]!=ELE_NONE)
+        {
+            idx++;
+        }
+
+        // now idx is the next idx that is not filled with ELE_NONE
+        if(idx >= MAX_ELEMENTS)
+        {
+            DO_ONCE(printf("ATTEMPTED ADDING EXTRA ELEMENT ON TOWER WITH 3 ELEMENTS!\n"));
+            return;
+        }
+
+        elements[idx] = new_ele;
+    }
+};
+
+// tag component
+struct ResolveElementComponent: Component {
+    
 };
 
 struct TargetComponent {
@@ -476,6 +501,11 @@ enum PROJECTILE_TYPE {
     PROJECTILE_LIGHTNING,
     PROJECTILE_JET_BOMB,
     PROJECTILE_PELLET
+};
+
+struct GridIndexComponent : Component {
+    int index; // index goes from 0 to grid::max_index, see grid.cpp
+
 };
 
 struct ProjectileSpawnerComponent : Component {

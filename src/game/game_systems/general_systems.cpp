@@ -270,7 +270,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 {
     TargetComponent *tc = GET_Target(tower);
     TransformComponent *target_transform = nullptr;
-    EntityID target = tc->target; // store target
+    EntityID target = tc ? tc->target : INVALID_ENTITY; // store target
     if (target!=0 && g_Engine.entityManager.IsEntityValid(target))
     {
         target_transform = GET_Transform(tc->target);
@@ -391,6 +391,7 @@ void AttackCDSystem(SceneBase *scene, float deltaTime)
     }
     END_FOR_EACH
 }
+
 
 void DamageSystem(SceneBase *scene)
 {
