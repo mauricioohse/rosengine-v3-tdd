@@ -22,7 +22,7 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
 
 
         default:
-            printf("Warning: Unknown component type %u\n", type);
+            printf("Warning: Unknown component type %llu\n", type);
             return nullptr;
     }
 }

@@ -5,26 +5,26 @@
 
 // Common type definitions
 typedef uint32_t EntityID;
-typedef uint32_t ComponentType;
+typedef uint64_t ComponentType;
 
 // Constants
 #define MAX_ENTITIES 1000
 #define INVALID_ENTITY 0
 
-#define xcomponent( component, id, ...) C_##component = 1 << id,
+#define xcomponent( component, id, ...) C_##component = 1ULL << id,
 // Component type identifiers
-enum ComponentTypes {
+enum ComponentTypes : uint64_t {
     C_NONE = 0,
 #include "components/components.def"
-    C_WASD_CONTROLLER = 1 << 2,
-    C_Collider = 1 << 3,
-    C_ANIMATION = 1 << 4,
-    C_GRAVITY = 1 << 5,
-    C_SQUIRREL = 1 << 6,
-    C_CAMERA = 1 << 7,
-    C_CLOUD = 1 << 8,
-    C_BACKGROUND = 1 << 9,
-    C_PEANUT = 1 << 10,
+    C_WASD_CONTROLLER = 1ULL << 2,
+    C_Collider = 1ULL << 3,
+    C_ANIMATION = 1ULL << 4,
+    C_GRAVITY = 1ULL << 5,
+    C_SQUIRREL = 1ULL << 6,
+    C_CAMERA = 1ULL << 7,
+    C_CLOUD = 1ULL << 8,
+    C_BACKGROUND = 1ULL << 9,
+    C_PEANUT = 1ULL << 10,
     // Add more component types here
 }; 
 #undef xcomponent

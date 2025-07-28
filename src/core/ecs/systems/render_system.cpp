@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "grid.h"
 #include "math.h"
+#include <climits>
 
 void RenderSystem::Init() {
     printf("RenderSystem initialized\n");
