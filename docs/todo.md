@@ -34,6 +34,7 @@ Mid
 - [ ] add measurement of system execution time
 - [ ] separate the render system in smaller systems (needed for when ECS world separation happens)
 - [ ] make a proper targeting system, where the tower can: target the first enemy, the last enemy, the strongest (highest health) or the weakest enemy
+- [ ] create sprites of individual elements instead of specific per tower combo
 
 
 

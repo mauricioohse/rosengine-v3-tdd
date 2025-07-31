@@ -252,7 +252,7 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     //     ADD_Target(tower, 0);
     //     ADD_Cooldown(tower, 2);
 
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
+    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_FIRE_WATER);
     //     break;
 
     // case TOWER_DEBUG: // DEBUG: PLACES ENEMIES

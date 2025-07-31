@@ -298,7 +298,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 200);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
-        ADD_Damage(projectile, 50);
+        ADD_Damage(projectile, tower_damage->damage);
         ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y);
         break; 
     case PROJECTILE_JET:
@@ -316,7 +316,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
         ADD_Collider(projectile, 27,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
-        ADD_Damage(projectile, 25);
+        ADD_Damage(projectile, tower_damage->damage);
         ADD_DamageOnCollision(projectile);
     }
     break;

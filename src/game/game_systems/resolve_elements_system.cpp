@@ -2,22 +2,6 @@
 #include "engine.h"
 
 
-
-static void SortDescendingElementsInPlace(ELEMENT*elements)
-{
-    // bubble sort
-    for (int i = 0; i < MAX_ELEMENTS - 1; i++) {
-        for (int j = 0; j < MAX_ELEMENTS - 1 - i; j++) {
-            if (elements[j] < elements[j + 1]) {
-                ELEMENT temp = elements[j];
-                elements[j] = elements[j + 1];
-                elements[j + 1] = temp;
-            }
-        }
-    }
-}
-// ... existing code ...
-
 // tower data lookup table
 struct TowerData {
     PROJECTILE_TYPE projectile_type;
@@ -39,12 +23,13 @@ static ElementCombo g_element_combinations[] = {
     // single elements
     {{ELE_FIRE, ELE_NONE, ELE_NONE}, {PROJECTILE_BOMB, 125, 2.0f, 50, TEXTURE_BOX}},
     {{ELE_WATER, ELE_NONE, ELE_NONE}, {PROJECTILE_JET, 250, 2.0f, 200, TEXTURE_BOX_BLUE}},
-    {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.33f, 150, TEXTURE_BOX_EARTH}},
+    {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.33f, 10, TEXTURE_BOX_EARTH}},
     {{ELE_WIND, ELE_NONE, ELE_NONE}, {PROJECTILE_GUST, 150, 1.5f, 0, TEXTURE_BOX_AIR}},
     {{ELE_ELECTRIC, ELE_NONE, ELE_NONE}, {PROJECTILE_LIGHTNING, 150, 3.0f, 150, TEXTURE_BOX_ELECTRO}},
     
     // dual combinations
-    {{ELE_WATER, ELE_FIRE, ELE_NONE}, {PROJECTILE_JET_BOMB, 200, 2.0f, 100, TEXTURE_BOX_MIX}},
+    {{ELE_WATER, ELE_FIRE, ELE_NONE}, {PROJECTILE_JET_BOMB, 200, 2.0f, 100, TEXTURE_BOX_FIRE_WATER}},
+    {{ELE_EARTH, ELE_FIRE, ELE_NONE}, {PROJECTILE_BOMB, 200, .25f, 10, TEXTURE_BOX_FIRE_EARTH}},
     
     // add more combinations here...
     // {{ELE_FIRE, ELE_EARTH, ELE_NONE}, {PROJECTILE_MAGMA, 175, 1.5f, 125}},
@@ -53,6 +38,25 @@ static ElementCombo g_element_combinations[] = {
 };
 
 static const int g_num_combinations = sizeof(g_element_combinations) / sizeof(ElementCombo);
+
+static void SortDescendingElementsInPlace(ELEMENT*elements)
+{
+    // bubble sort
+    for (int i = 0; i < MAX_ELEMENTS - 1; i++) {
+        for (int j = 0; j < MAX_ELEMENTS - 1 - i; j++) {
+            if (elements[j] < elements[j + 1]) {
+                ELEMENT temp = elements[j];
+                elements[j] = elements[j + 1];
+                elements[j + 1] = temp;
+            }
+        }
+    }
+}
+
+
+
+
+
 
 static bool ElementsMatch(const ELEMENT* a, const ELEMENT* b) {
     for (int i = 0; i < MAX_ELEMENTS; i++) {
