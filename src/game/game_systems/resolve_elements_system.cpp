@@ -24,6 +24,8 @@ struct TowerData {
     int range;
     float cooldown;
     int damage;
+    TextureID tex = TEXTURE_BOX_MISSING;
+
 };
 
 // element combination lookup
@@ -32,17 +34,17 @@ struct ElementCombo {
     TowerData tower_data;
 };
 
-// the dictionary - add more combinations as needed
+// the element combination dictionary
 static ElementCombo g_element_combinations[] = {
     // single elements
-    {{ELE_FIRE, ELE_NONE, ELE_NONE}, {PROJECTILE_BOMB, 125, 2.0f, 50}},
-    {{ELE_WATER, ELE_NONE, ELE_NONE}, {PROJECTILE_JET, 250, 2.0f, 200}},
-    {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.33f, 150}},
-    {{ELE_WIND, ELE_NONE, ELE_NONE}, {PROJECTILE_GUST, 150, 1.5f, 0}},
-    {{ELE_ELECTRIC, ELE_NONE, ELE_NONE}, {PROJECTILE_LIGHTNING, 150, 3.0f, 150}},
+    {{ELE_FIRE, ELE_NONE, ELE_NONE}, {PROJECTILE_BOMB, 125, 2.0f, 50, TEXTURE_BOX}},
+    {{ELE_WATER, ELE_NONE, ELE_NONE}, {PROJECTILE_JET, 250, 2.0f, 200, TEXTURE_BOX_BLUE}},
+    {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.33f, 150, TEXTURE_BOX_EARTH}},
+    {{ELE_WIND, ELE_NONE, ELE_NONE}, {PROJECTILE_GUST, 150, 1.5f, 0, TEXTURE_BOX_AIR}},
+    {{ELE_ELECTRIC, ELE_NONE, ELE_NONE}, {PROJECTILE_LIGHTNING, 150, 3.0f, 150, TEXTURE_BOX_ELECTRO}},
     
     // dual combinations
-    {{ELE_FIRE, ELE_WATER, ELE_NONE}, {PROJECTILE_JET_BOMB, 200, 2.0f, 100}},
+    {{ELE_WATER, ELE_FIRE, ELE_NONE}, {PROJECTILE_JET_BOMB, 200, 2.0f, 100, TEXTURE_BOX_MIX}},
     
     // add more combinations here...
     // {{ELE_FIRE, ELE_EARTH, ELE_NONE}, {PROJECTILE_MAGMA, 175, 1.5f, 125}},
@@ -84,7 +86,8 @@ void ResolveElementSystem(SceneBase * scene)
             ADD_Target(entity, 0);
             ADD_Cooldown(entity, tower_data->cooldown);
             ADD_Tower(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
-            
+            ADD_Sprite(entity, ResourceManager::GetTexture(tower_data->tex));
+
             printf("configured tower with projectile type %d\n", tower_data->projectile_type);
         } else {
             printf("no tower configuration found for element combination\n");

@@ -20,9 +20,9 @@ static void loadDebugLevelTowers()
     int startY = Grid::GRID_START_POINT.y + Grid::GRID_SQUARE_LENGTH;
     int currentX = startX;
 
-    for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType=TOWER_TYPE((int)towerType+1))
+    for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element=ELEMENT((int)element+1))
     {
-        TowerPlacement::CreateTowerAt(towerType,Point{currentX,startY});
+        TowerPlacement::CreateTowerAt(element,Point{currentX,startY});
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
@@ -71,18 +71,7 @@ static void spawnDebugEnemies()
 
 void MainGameScene::OnLoad() 
 {
-    EntityManager* EM = &g_Engine.entityManager;
-    
-    EntityID box = RegisterEntity();
-    EM->AddComponentToEntity(box, C_Transform | C_Sprite | C_WASD_CONTROLLER);
-    g_Engine.componentArrays.Transforms[box].Init(300, 300);
-    g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
-    g_Engine.componentArrays.wasdControllers[box].Init(600);
-    ADD_Target(box, 0);
 
-    // initialize a fire tower
-
-    // initialize tower placement system
     TowerPlacement::Init();
 
     Grid::LoadLevel(levelPath);

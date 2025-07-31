@@ -347,9 +347,23 @@ enum ELEMENT {
     ELE_WATER,
     ELE_EARTH,
     ELE_ELECTRIC,
-    // fill above
+    // fill above and the g_element_names[] below
     ELE_MAX // should always be last
 };
+
+static const char* g_element_names[] = {
+    "none",
+    "fire", 
+    "wind",
+    "water",
+    "earth",
+    "electric"
+};
+
+inline const char* GetElementName(ELEMENT element) {
+    if (element >= ELE_MAX) return "unknown";
+    return g_element_names[element];
+}
 
 #define MAX_ELEMENTS 3
 struct ElementComponent  {

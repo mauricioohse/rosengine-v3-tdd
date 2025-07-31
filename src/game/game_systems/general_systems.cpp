@@ -79,6 +79,7 @@ void ExplodeOnXYSystem(SceneBase *scene)
             ADD_Transform(explosion, tr->x, tr->y, 0.0f, 1.0f);
             ADD_TimedSprite(explosion, 0, 0.2f, 0, 3);
             ADD_LifeTime(explosion, 0.6f);
+            PlaySound::PlaySound(SOUND_BOOM_LOW);
             
             TimedSpriteComponent* timedSprite = GET_TimedSprite(explosion);
             if (timedSprite) {
@@ -102,7 +103,9 @@ void ExplodeOnXYSystem(SceneBase *scene)
                     if (distance <= 100) { // explosion radius hardcoded for now
                         en->currHealth -= dmg->damage;
                     }
+
                 } END_FOR_EACH
+
             }
             
             scene->DeleteEntity(entity);
@@ -330,10 +333,8 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         g_Engine.componentArrays.TimedSprites[projectile].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
         g_Engine.componentArrays.TimedSprites[projectile].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
         g_Engine.componentArrays.TimedSprites[projectile].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
-
-
-
         PlaySound::PlaySound(SOUND_BLIP_HIGH);
+        
         break;
 
     case PROJECTILE_LIGHTNING:

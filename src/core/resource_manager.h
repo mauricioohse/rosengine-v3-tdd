@@ -64,6 +64,7 @@ struct FontResource {
 enum TextureID {
     TEXTURE_NONE = 0,
     TEXTURE_BOX,
+    TEXTURE_BOX_MISSING,
     TEXTURE_BOX_BLUE,
     TEXTURE_BOX_EARTH,
     TEXTURE_BOX_AIR,
@@ -93,6 +94,7 @@ struct TextureResource {
 // Global resource definitions
 static const TextureResource GAME_TEXTURES[] = {
     {"assets/box.png", TEXTURE_BOX},
+    {"assets/box_missing.png", TEXTURE_BOX_MISSING},
     {"assets/box_blue.png", TEXTURE_BOX_BLUE},
     {"assets/box_earth.png", TEXTURE_BOX_EARTH},
     {"assets/box_air.png", TEXTURE_BOX_AIR},
