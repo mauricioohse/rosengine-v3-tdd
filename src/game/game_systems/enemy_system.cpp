@@ -82,7 +82,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
             {
 
                 EnemyDebugComponent *debug =
-                (EnemyDebugComponent *)g_Engine.componentArrays.GetComponentData(entity, C_EnemyDebug);
+                (EnemyDebugComponent *)GET_COMPONENT(entity, C_EnemyDebug);
 
                 if (debug)
                 {

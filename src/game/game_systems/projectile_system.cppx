@@ -25,8 +25,8 @@ static void CauseExplosionDamage(TransformComponent * trf, ProjectileComponent *
     // iterate through all entities to find enemies within explosion radius
     for (EntityID enemy : entities) {
         if (HAS_COMPONENT(enemy, COMPONENT_ENEMY | COMPONENT_TRANSFORM | COMPONENT_COLLIDER)) {
-            TransformComponent* enemy_transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_TRANSFORM);
-            EnemyComponent* enemy_comp = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(enemy, COMPONENT_ENEMY);
+            TransformComponent* enemy_transform = (TransformComponent*)GET_COMPONENT(enemy, COMPONENT_TRANSFORM);
+            EnemyComponent* enemy_comp = (EnemyComponent*)GET_COMPONENT(enemy, COMPONENT_ENEMY);
             
             // calculate distance between explosion center and enemy
             float dx = trf->x - enemy_transform->x;
@@ -84,7 +84,7 @@ void projectile_system::Update(float deltaTime, std::vector<EntityID> entities, 
                 CastJetAtTarget(transform->x, transform->y, projectile->targetX, projectile->targetY);
                 PlaySound::PlaySound(SOUND_SHOOT_LOW1);
 
-                EnemyComponent * enemy = (EnemyComponent *) g_Engine.componentArrays.GetComponentData(projectile->targetEntity, COMPONENT_ENEMY);
+                EnemyComponent * enemy = (EnemyComponent *) GET_COMPONENT(projectile->targetEntity, COMPONENT_ENEMY);
                 if (enemy)
                 {
                     enemy->currHealth-=projectile->damage;

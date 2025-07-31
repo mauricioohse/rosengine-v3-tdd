@@ -12,8 +12,7 @@ void life_time_system::Update(float deltaTime, std::vector<EntityID> entities, C
     {
         if ( HAS_COMPONENT(e, C_LifeTime) )
         {
-            LifeTimeComponent * lt = (LifeTimeComponent *)g_Engine.componentArrays.GetComponentData(e, C_LifeTime);
-            
+            LifeTimeComponent * lt = (LifeTimeComponent *)GET_COMPONENT(e, C_LifeTime);
             lt->remaininglifeTime -= deltaTime;
             
             if (lt->remaininglifeTime < 0 )

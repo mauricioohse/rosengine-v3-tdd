@@ -10,8 +10,8 @@ static EntityID CheckEnemyInRange(EntityID tower){
 
     SceneBase * scene = &g_mainGame;
 
-    TowerComponent* tc = (TowerComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Tower); 
-    TransformComponent* tr = (TransformComponent*)g_Engine.componentArrays.GetComponentData(tower, C_Transform); 
+    TowerComponent* tc = (TowerComponent*)GET_COMPONENT(tower, C_Tower); 
+    TransformComponent* tr = (TransformComponent*)GET_COMPONENT(tower, C_Transform); 
 
     // check collision with enemies
     FOR_EACH_COMPONENT_3(scene, enemy, 

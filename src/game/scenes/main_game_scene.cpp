@@ -170,7 +170,7 @@ static void PrintDebugTowerStats()
                 TowerTypeToString(towerType), kpsValues[towerType]);
         
         // update KPS text component
-        TextComponent* textComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
+        TextComponent* textComp = (TextComponent*)GET_COMPONENT(
             statTextEntities[towerType], C_Text);
         if (textComp)
         {
@@ -184,7 +184,7 @@ static void PrintDebugTowerStats()
         snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[towerType]);
         
         // update kills text component
-        TextComponent* killsTextComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
+        TextComponent* killsTextComp = (TextComponent*)GET_COMPONENT(
             killsTextEntities[towerType], C_Text);
         if (killsTextComp)
         {

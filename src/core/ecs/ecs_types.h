@@ -36,7 +36,7 @@ enum ComponentTypes : uint64_t {
 
 #define ADD_ANIMATION(entity, sheet, frameW, frameH, cols, frames, time, shouldLoop) \
     do { \
-        AnimationComponent* anim = (AnimationComponent*)g_Engine.componentArrays.GetComponentData(entity, C_ANIMATION); \
+        AnimationComponent* anim = (AnimationComponent*)GET_COMPONENT(entity, C_ANIMATION); \
         if (anim) { \
             anim->Init(sheet, frameW, frameH, cols, frames, time, shouldLoop); \
         } \
@@ -51,7 +51,7 @@ enum ComponentTypes : uint64_t {
 #define ADD_BACKGROUND(entity, parallax) \
     do { \
         g_Engine.entityManager.AddComponentToEntity(entity, C_BACKGROUND); \
-        BackgroundComponent* background = (BackgroundComponent*)g_Engine.componentArrays.GetComponentData(entity, C_BACKGROUND); \
+        BackgroundComponent* background = (BackgroundComponent*)GET_COMPONENT(entity, C_BACKGROUND); \
         if (background) { \
             background->Init(parallax); \
         } \
