@@ -17,7 +17,6 @@ enum ComponentTypes : uint64_t {
     C_NONE = 0,
 #include "components/components.def"
     C_WASD_CONTROLLER = 1ULL << 2,
-    C_Collider = 1ULL << 3,
     C_ANIMATION = 1ULL << 4,
     C_GRAVITY = 1ULL << 5,
     C_SQUIRREL = 1ULL << 6,
@@ -33,12 +32,6 @@ enum ComponentTypes : uint64_t {
     do { \
         g_Engine.entityManager.AddComponentToEntity(entity, C_WASD_CONTROLLER); \
         InitWASDController(entity, speed, enabled); \
-    } while(0)
-
-#define ADD_COLLIDER(entity, width, height, isStatic, isTrigger) \
-    do { \
-        g_Engine.entityManager.AddComponentToEntity(entity, C_Collider); \
-        InitCollider(entity, width, height, isStatic, isTrigger); \
     } while(0)
 
 #define ADD_ANIMATION(entity, sheet, frameW, frameH, cols, frames, time, shouldLoop) \

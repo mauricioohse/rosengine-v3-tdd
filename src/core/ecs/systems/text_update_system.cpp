@@ -7,7 +7,7 @@ void TextUpdateSystem::Init() {
 
 void TextUpdateSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Text)) {
+        if (HAS_COMPONENT(entity, C_Text)) {
             TextComponent* text = 
                 (TextComponent*)components->GetComponentData(entity, C_Text);
             

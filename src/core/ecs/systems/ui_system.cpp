@@ -15,7 +15,7 @@ void UISystem::Update(float deltaTime, std::vector<EntityID> entities, Component
 
     // Update UI states
     for (EntityID entity : entities) {
-        if (!g_Engine.entityManager.HasComponent(entity, C_Transform | C_UIBox)) {
+        if (!HAS_COMPONENT(entity, C_Transform | C_UIBox)) {
             continue;
         }
 

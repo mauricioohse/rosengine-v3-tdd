@@ -10,7 +10,7 @@ void CameraSystem::Init() {
 
 void CameraSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
     for ( EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_CAMERA)) {
+        if (HAS_COMPONENT(entity, C_CAMERA)) {
             CameraComponent* camera = &components->cameras[entity];
             
             if (camera->targetEntity == 0) continue;

@@ -27,7 +27,7 @@ static void loadDebugLevelTowers()
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
         ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_COLLIDER(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
+        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
         g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
 
         // move to next horizontal position based on current tower's range
@@ -53,7 +53,7 @@ static void spawnDebugEnemies()
             Texture *tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY);
             ADD_Sprite(enemy, tex);
             ADD_Transform(enemy, currentX, startY, 0, 0.1f);
-            ADD_COLLIDER(enemy, 1, 1, 0, 0);
+            ADD_Collider(enemy, 1, 1, 0, 0);
             ADD_Enemy(enemy, 100);
             ADD_EnemyDebug(enemy, towerType);
 

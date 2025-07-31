@@ -8,14 +8,13 @@ void* ComponentArrays::GetComponentData(EntityID entity, ComponentType type) {
         return nullptr;
     }
 
-    if (!g_Engine.entityManager.HasComponent(entity, type)) return nullptr;
+    if (!HAS_COMPONENT(entity, type)) return nullptr;
 
     switch (type) {
 #define xcomponent(type, id, ...) case C_##type: return &type##s[entity];
 #include "components/components.def"
 #undef xcomponent
         case C_WASD_CONTROLLER: return &wasdControllers[entity];
-        case C_Collider:  return &Colliders[entity];
         case C_ANIMATION:  return &animations[entity];
         case C_CAMERA:  return &cameras[entity];
         case C_BACKGROUND: return &backgrounds[entity];

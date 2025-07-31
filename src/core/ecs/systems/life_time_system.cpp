@@ -10,7 +10,7 @@ void life_time_system::Update(float deltaTime, std::vector<EntityID> entities, C
 
     for (EntityID e : entities)
     {
-        if ( g_Engine.entityManager.HasComponent(e, C_LifeTime) )
+        if ( HAS_COMPONENT(e, C_LifeTime) )
         {
             LifeTimeComponent * lt = (LifeTimeComponent *)g_Engine.componentArrays.GetComponentData(e, C_LifeTime);
             
@@ -18,8 +18,6 @@ void life_time_system::Update(float deltaTime, std::vector<EntityID> entities, C
             
             if (lt->remaininglifeTime < 0 )
                 g_Engine.entityManager.DestroyEntity(e);
-
-            
 
         }
     }

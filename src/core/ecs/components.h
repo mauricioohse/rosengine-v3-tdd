@@ -649,7 +649,6 @@ struct EnemyComponent : Component {
 void InitTransform(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f);
 void InitSprite(EntityID entity, Texture* texture);
 void InitWASDController(EntityID entity, float moveSpeed = 200.0f, bool canMove = true);
-void InitCollider(EntityID entity, float width, float height, bool isStatic = false, bool isTrigger = false);
 void InitAnimation(EntityID entity, Texture* sheet, int frameW, int frameH, int cols, int frames, 
                    float time = 0.1f, bool shouldLoop = true);
 void InitGravity(EntityID entity, float scale = 1.0f);
@@ -664,7 +663,6 @@ struct ComponentArrays {
 #include "components/components.def"
 #undef xcomponent
     WASDControllerComponent wasdControllers[MAX_ENTITIES];
-    ColliderComponent Colliders[MAX_ENTITIES];
     AnimationComponent animations[MAX_ENTITIES];
     GravityComponent gravities[MAX_ENTITIES];
     CameraComponent cameras[MAX_ENTITIES];

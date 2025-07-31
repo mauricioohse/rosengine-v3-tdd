@@ -194,7 +194,7 @@ void ChainLightningSystem(SceneBase * scene)
             // damage current target if valid and hasn't been damaged yet
             if (CL->target != INVALID_ENTITY && !CL->hasDealtDamage)
             {
-                if (g_Engine.entityManager.HasComponent(CL->target, C_Enemy))
+                if (HAS_COMPONENT(CL->target, C_Enemy))
                 {
                     EnemyComponent *enemy = GET_Enemy(CL->target);
                     if (enemy)
@@ -314,7 +314,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     {
         ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
-        ADD_COLLIDER(projectile, 27,27,0,0);
+        ADD_Collider(projectile, 27,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
         ADD_Damage(projectile, 25);
         ADD_DamageOnCollision(projectile);

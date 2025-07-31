@@ -54,8 +54,8 @@ static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
 }
 static void RenderCollider(EntityID entity)
 {
-    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Transform);
-    ColliderComponent* collider = (ColliderComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Collider);
+    TransformComponent* transform = GET_Transform(entity);
+    ColliderComponent* collider = GET_Collider(entity);
     
     if (!transform || !collider) return;
     
@@ -78,12 +78,12 @@ static void RenderJet(EntityID entity)
     // use the lifetime to change the animation. the jet starts thin, increasis width until .250 seconds, at which point the splash starts and the jet ends
     // the splash is the remaining .25 seconds 
 
-    if (!g_Engine.entityManager.HasComponent(entity, C_JetAnimation | C_LifeTime)) {
+    if (!HAS_COMPONENT(entity, C_JetAnimation | C_LifeTime)) {
         return;
     }
-    
-    JetAnimationComponent* jet = (JetAnimationComponent*)g_Engine.componentArrays.GetComponentData(entity, C_JetAnimation);
-    LifeTimeComponent* lifetime = (LifeTimeComponent*)g_Engine.componentArrays.GetComponentData(entity, C_LifeTime);
+
+    JetAnimationComponent* jet = GET_JetAnimation(entity);
+    LifeTimeComponent* lifetime = GET_LifeTime(entity);
     SDL_Renderer* renderer = g_Engine.window->renderer;
     
     float progress = (0.2f - lifetime->remaininglifeTime) / 0.2f; // 0.0 to 1.0
@@ -128,7 +128,7 @@ static void RenderJet(EntityID entity)
 
 static void RenderTowerRange(EntityID entity)
 {
-    if (!g_Engine.entityManager.HasComponent(entity, C_Tower | C_Transform)) {
+    if (!HAS_COMPONENT(entity, C_Tower | C_Transform)) {
         return;
     }
 
@@ -138,29 +138,29 @@ static void RenderTowerRange(EntityID entity)
     Input::GetMousePosition(mouseX, mouseY);
     Point mousePoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
 
-    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Transform);
+    TransformComponent* transform = GET_Transform(entity);
     Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
     if (true == leftShiftPressed)
     {
-        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Tower);
+        TowerComponent* tower = GET_Tower(entity);
         DrawCircle(towerPoint.x, towerPoint.y, tower->range);
     }
     else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
     {
-        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Tower);
+        TowerComponent* tower = GET_Tower(entity);
         DrawCircle(towerPoint.x, towerPoint.y, tower->range);
     }
 }
 
 static void RenderEnemyLife(EntityID entity)
 {
-    if (!g_Engine.entityManager.HasComponent(entity, C_Enemy | C_Transform)) {
+    if (!HAS_COMPONENT(entity, C_Enemy | C_Transform)) {
         return;
     }
     
-    EnemyComponent* enemy = (EnemyComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Enemy);
-    TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Transform);
+    EnemyComponent* enemy = GET_Enemy(entity);
+    TransformComponent* transform = GET_Transform(entity);
     
     if (!enemy->alive || enemy->maxHealth <= 0) {
         return;
@@ -174,8 +174,8 @@ static void RenderEnemyLife(EntityID entity)
     int BAR_OFFSET_Y = -8; // default offset above enemy
     
     // adjust offset if sprite component exists
-    if (g_Engine.entityManager.HasComponent(entity, C_Sprite)) {
-        SpriteComponent* sprite = (SpriteComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Sprite);
+    if (HAS_COMPONENT(entity, C_Sprite)) {
+        SpriteComponent* sprite = GET_Sprite(entity);
         if (sprite->texture) {
             BAR_OFFSET_Y = -(sprite->texture->height / 2) + 15; // above sprite bounds
         }
@@ -207,11 +207,11 @@ static void RenderEnemyLife(EntityID entity)
 
 static void RenderChain(EntityID entity){
     // renders a purple rectange from the currXY to nextXY
-    if (!g_Engine.entityManager.HasComponent(entity, C_ChainLightning)) {
+    if (!HAS_COMPONENT(entity, C_ChainLightning)) {
         return;
     }
     
-    ChainLightningComponent* chain = (ChainLightningComponent*)g_Engine.componentArrays.GetComponentData(entity, C_ChainLightning);
+    ChainLightningComponent* chain = GET_ChainLightning(entity);
     if (!chain) {
         return;
     }
@@ -298,7 +298,7 @@ static void RenderChain(EntityID entity){
 
 static void RenderDebugAOE(EntityID e)
 {
-    if (g_Engine.entityManager.HasComponent(e, C_Transform | C_ExplodeOnXY)) {
+    if (HAS_COMPONENT(e, C_Transform | C_ExplodeOnXY)) {
         TransformComponent* transform = GET_Transform(e);
         
         // draw red circle at transform position with projectile explosion radius 
@@ -310,7 +310,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // Find the active camera (assuming only one camera for now)
     CameraComponent* camera = nullptr;
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_CAMERA)) {
+        if (HAS_COMPONENT(entity, C_CAMERA)) {
             camera = &components->cameras[entity];
             break;
         }
@@ -318,29 +318,29 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
 
     // 1. First pass: Render all regular sprite entities
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Sprite) &&
-            !g_Engine.entityManager.HasComponent(entity, C_UIBox)) {
+        if (HAS_COMPONENT(entity, C_Transform | C_Sprite) &&
+            !HAS_COMPONENT(entity, C_UIBox)) {
             RenderSpriteEntity(entity, components, camera);
         }
     }
 
     // 2. Second pass: Render UI boxes WITHOUT transparency
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Text) &&
-            !g_Engine.entityManager.HasComponent(entity, C_UIBox)) {  // Exclude UI elements
+        if (HAS_COMPONENT(entity, C_Transform | C_Text) &&
+            !HAS_COMPONENT(entity, C_UIBox)) {  // Exclude UI elements
             RenderTextEntity(entity, components, camera);
         }
     }
 
     // 3. Third pass: Render UI boxes with their text
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_UIBox)) {
+        if (HAS_COMPONENT(entity, C_Transform | C_UIBox)) {
             RenderUIEntity(entity, components, camera);
         }
     }
     // 4. render TIMEDSPRITEENTITY
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_TimedSprite)) {
+        if (HAS_COMPONENT(entity, C_Transform | C_TimedSprite)) {
             RenderTimedSpriteEntity(entity, components, camera, deltaTime);
         }
     }
@@ -348,7 +348,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // 5. render debug explosion area
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_ExplodeOnXY))
+        if (HAS_COMPONENT(entity, C_Transform | C_ExplodeOnXY))
         {
             RenderDebugAOE(entity);
         }
@@ -357,7 +357,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // 6. render enemy healthbar
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Enemy | C_Sprite))
+        if (HAS_COMPONENT(entity, C_Transform | C_Enemy | C_Sprite))
         {
             RenderEnemyLife(entity);
         }
@@ -366,7 +366,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // 7. render tower range with left shift or on mouse hovering over tower
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Tower))
+        if (HAS_COMPONENT(entity, C_Transform | C_Tower))
         {
             RenderTowerRange(entity);
         }
@@ -375,7 +375,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // handle Jet animation logic + render
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_JetAnimation | C_LifeTime))
+        if (HAS_COMPONENT(entity, C_JetAnimation | C_LifeTime))
         {
             RenderJet(entity);
         }
@@ -384,7 +384,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // handle Chain lighning animation logic + render
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_ChainLightning))
+        if (HAS_COMPONENT(entity, C_ChainLightning))
         {
             RenderChain(entity);
         }
@@ -393,7 +393,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // DEBUG: draw all Colliders rectangle edges in red
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_Collider))
+        if (HAS_COMPONENT(entity, C_Collider))
         {
             RenderCollider(entity);
         }

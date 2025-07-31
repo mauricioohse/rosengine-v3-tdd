@@ -13,7 +13,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
     
     // find all entities with transform + enemy
     for (EntityID entity : entities) {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Enemy | C_Collider)) {
+        if (HAS_COMPONENT(entity, C_Transform | C_Enemy | C_Collider)) {
             TransformComponent* transform = 
                 (TransformComponent*)components->GetComponentData(entity, C_Transform);
 
@@ -96,7 +96,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
             // Check if enemy hit any of the exit collider entities
             for (EntityID exit : entities)
             {
-                if (g_Engine.entityManager.HasComponent(exit, C_EnemyExit | C_Transform | C_Collider))
+                if (HAS_COMPONENT(exit, C_EnemyExit | C_Transform | C_Collider))
                 {
                     TransformComponent* exitTransform = 
                         (TransformComponent*)components->GetComponentData(exit, C_Transform);

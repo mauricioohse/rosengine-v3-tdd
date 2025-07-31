@@ -10,7 +10,7 @@ void move_to_target_system::Update(float deltaTime, std::vector<EntityID> entiti
 {
     for (EntityID e : entities)
     {
-        if (g_Engine.entityManager.HasComponent(e, C_Transform|C_MoveToXY))
+        if (HAS_COMPONENT(e, C_Transform|C_MoveToXY))
         {
             TransformComponent* transform = &components->Transforms[e];
             MoveToXYComponent* moveTarget = &components->MoveToXYs[e];

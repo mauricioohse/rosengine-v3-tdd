@@ -20,9 +20,11 @@ inline void ADD_##TYPE_NAME PARAMS                              \
 \
 inline TYPE_NAME##Component* GET_##TYPE_NAME(EntityID entity) \
 {       \
-    return (TYPE_NAME##Component*)                          \
-    g_Engine.componentArrays.GetComponentData(entity, C_##TYPE_NAME);   \
+    return (TYPE_NAME##Component*)  g_Engine.componentArrays.GetComponentData(entity, C_##TYPE_NAME);   \
 }       \
+\
+
+#define HAS_COMPONENT( entity, COMPONENTS_MASK)     (g_Engine.entityManager.HasComponent(entity, COMPONENTS_MASK))
 
 
 #include "components/components.def"
