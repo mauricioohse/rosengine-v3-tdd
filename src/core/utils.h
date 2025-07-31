@@ -1,6 +1,9 @@
 #pragma once
 #include "ecs/components.h"
 
+#define RED_BEGIN "\x1B[31m"
+#define RED_END  "\x1B[0m"
+
 // Collision utility functions
 inline bool CheckCollisionCentered(
     TransformComponent* transformA, ColliderComponent* colliderA,

@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 # Common variables
 MAKEFLAGS += -j4
 CXX_WINDOWS = g++

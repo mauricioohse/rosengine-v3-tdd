@@ -8,13 +8,14 @@
 
 #define DEBUG_DRAW_HOVERED_SQUARE 1
 
+using namespace Grid;
 
 // constants - change here to resize the grid and the squares
 static int GRID_MAX_WIDTH = (int) (WINDOW_WIDTH*0.80); // in fraction of screen
 static int GRID_MAX_HEIGHT = (int) (WINDOW_HEIGHT*0.80);
 int Grid::GRID_SQUARE_LENGTH = 48;
-static int GRID_HORIZONTAL_SQUARE_COUNT =  (int) GRID_MAX_WIDTH/Grid::GRID_SQUARE_LENGTH;
-static int GRID_VERTICAL_SQUARE_COUNT = (int)  GRID_MAX_HEIGHT/Grid::GRID_SQUARE_LENGTH;
+int Grid::GRID_HORIZONTAL_SQUARE_COUNT =  (int) GRID_MAX_WIDTH/Grid::GRID_SQUARE_LENGTH;
+int Grid::GRID_VERTICAL_SQUARE_COUNT = (int)  GRID_MAX_HEIGHT/Grid::GRID_SQUARE_LENGTH;
 static int GRID_CLAMPED_WIDTH = Grid::GRID_SQUARE_LENGTH*GRID_HORIZONTAL_SQUARE_COUNT;
 static int GRID_CLAPMED_HEIGHT = Grid::GRID_SQUARE_LENGTH*GRID_VERTICAL_SQUARE_COUNT;
 
@@ -248,6 +249,14 @@ bool Grid::LoadLevel(const char *filename)
     
 
     return false;
+}
+
+// transforms any XY coord to the data index
+int Grid::CoordToIndex(int x, int y)
+{
+    int grid_x = (x - GRID_START_POINT.x) / GRID_SQUARE_LENGTH;
+    int grid_y = (y - GRID_START_POINT.y) / GRID_SQUARE_LENGTH;
+    return grid_x + grid_y*GRID_HORIZONTAL_SQUARE_COUNT;
 }
 
 // aligned on the top left of the square that contains x and y

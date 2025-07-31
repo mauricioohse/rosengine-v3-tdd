@@ -24,6 +24,8 @@ namespace Grid {
     extern Point GRID_START_POINT;
     extern Point GRID_END_POINT;
     extern int GRID_SQUARE_LENGTH;
+    extern int GRID_HORIZONTAL_SQUARE_COUNT;
+    extern int GRID_VERTICAL_SQUARE_COUNT;
 
     void DrawGrid();
     Point GetNearestGridPoint(int x, int y); // aligned on the top left
@@ -31,6 +33,7 @@ namespace Grid {
     bool IsInsideGrid(int x, int y);
     bool LoadLevel(const char * filename);
     Point GridToScreenPosition(int grid_x, int grid_y);
+    int CoordToIndex(int x, int y);
     
     // monster path access functions
     Point GetMonsterPathPoint(int index);

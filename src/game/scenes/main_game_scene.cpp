@@ -6,6 +6,8 @@
 #include "../core/input.h"
 #include "grid.h"
 #include "tower_placement.h"
+#include "general_systems.h"
+#include "resolve_elements_system.h"
 
 
 MainGameScene g_mainGame;
@@ -18,16 +20,15 @@ static void loadDebugLevelTowers()
     int startY = Grid::GRID_START_POINT.y + Grid::GRID_SQUARE_LENGTH;
     int currentX = startX;
 
-    for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType=TOWER_TYPE((int)towerType+1))
+    for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element=ELEMENT((int)element+1))
     {
-        TowerPlacement::selectedTowerType = towerType;
-        TowerPlacement::CreateTowerAt(Point{currentX,startY});
+        TowerPlacement::CreateTowerAt(element,Point{currentX,startY});
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
-        ADD_TRANSFORM(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_COLLIDER(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
-        g_Engine.entityManager.AddComponentToEntity(exitCollider, COMPONENT_ENEMYEXIT);
+        ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
+        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
+        g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
 
         // move to next horizontal position based on current tower's range
         currentX += 250;
@@ -40,7 +41,7 @@ static void spawnDebugEnemies()
     static int everyXframes = 10;
 
     int startX = Grid::GRID_START_POINT.x + Grid::GRID_SQUARE_LENGTH;
-    int startY = Grid::GRID_END_POINT.y - Grid::GRID_SQUARE_LENGTH;
+    int startY = Grid::GRID_END_POINT.y - Grid::GRID_SQUARE_LENGTH - 200;
     int currentX = startX;
     // create enemy every 250 horizontal until TOWER_MAX
 
@@ -50,11 +51,11 @@ static void spawnDebugEnemies()
         {
             EntityID enemy = g_mainGame.RegisterEntity();
             Texture *tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY);
-            ADD_SPRITE(enemy, tex);
-            ADD_TRANSFORM(enemy, currentX, startY, 0, 0.1f);
-            ADD_COLLIDER(enemy, 1, 1, 0, 0);
-            ADD_ENEMY(enemy, 100);
-            ADD_DEBUGPATH(enemy, towerType);
+            ADD_Sprite(enemy, tex);
+            ADD_Transform(enemy, currentX, startY, 0, 0.1f);
+            ADD_Collider(enemy, 1, 1, 0, 0);
+            ADD_Enemy(enemy, 100);
+            ADD_EnemyDebug(enemy, towerType);
 
             // move to next horizontal position based on current tower's range
             currentX += 250;
@@ -70,15 +71,7 @@ static void spawnDebugEnemies()
 
 void MainGameScene::OnLoad() 
 {
-    EntityManager* EM = &g_Engine.entityManager;
-    
-    EntityID box = RegisterEntity();
-    EM->AddComponentToEntity(box, COMPONENT_TRANSFORM | COMPONENT_SPRITE | COMPONENT_WASD_CONTROLLER);
-    g_Engine.componentArrays.Transforms[box].Init(300, 300);
-    g_Engine.componentArrays.Sprites[box].Init(ResourceManager::GetTexture(TEXTURE_BOX));
-    g_Engine.componentArrays.wasdControllers[box].Init(600);
 
-    // initialize tower placement system
     TowerPlacement::Init();
 
     Grid::LoadLevel(levelPath);
@@ -159,16 +152,16 @@ static void PrintDebugTowerStats()
         if (statTextEntities[towerType] == 0)
         {
             statTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_TRANSFORM(statTextEntities[towerType], currentX, textY, 0, 0.5f);
-            ADD_TEXT(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            ADD_Transform(statTextEntities[towerType], currentX, textY, 0, 0.5f);
+            ADD_Text(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // create or update kills text entity (below KPS text)
         if (killsTextEntities[towerType] == 0)
         {
             killsTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_TRANSFORM(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
-            ADD_TEXT(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            ADD_Transform(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
+            ADD_Text(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // update KPS text content
@@ -177,8 +170,8 @@ static void PrintDebugTowerStats()
                 TowerTypeToString(towerType), kpsValues[towerType]);
         
         // update KPS text component
-        TextComponent* textComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
-            statTextEntities[towerType], COMPONENT_TEXT);
+        TextComponent* textComp = (TextComponent*)GET_COMPONENT(
+            statTextEntities[towerType], C_Text);
         if (textComp)
         {
             strncpy(textComp->text, statText, sizeof(textComp->text) - 1);
@@ -191,8 +184,8 @@ static void PrintDebugTowerStats()
         snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[towerType]);
         
         // update kills text component
-        TextComponent* killsTextComp = (TextComponent*)g_Engine.componentArrays.GetComponentData(
-            killsTextEntities[towerType], COMPONENT_TEXT);
+        TextComponent* killsTextComp = (TextComponent*)GET_COMPONENT(
+            killsTextEntities[towerType], C_Text);
         if (killsTextComp)
         {
             strncpy(killsTextComp->text, killsText, sizeof(killsTextComp->text) - 1);
@@ -213,6 +206,22 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     TowerPlacement::Update();
 
     Grid::DrawGrid();
+
+    TargetingSystem(&g_mainGame);
+
+    ProjectileSpawningSystem(&g_mainGame);
+
+    new_CrowdcontrolSystem(&g_mainGame);
+
+    DamageOnCollisionSystem(&g_mainGame);
+
+    AttackCDSystem(&g_mainGame, deltaTime);
+
+    ExplodeOnXYSystem(&g_mainGame);
+    ChainLightningSystem(&g_mainGame);
+
+    ResolveElementSystem(&g_mainGame);
+
 
     if (!strcmp(levelPath, "lvl2.csv"))
     {

@@ -14,6 +14,7 @@ Concepts:
     - repeated elements does not change the tower, but change tower stats
 - Projectile: 
     - entity spawned by towers based on element combination
+    - the projectile is just a combination of components that make it act like a projectile
     - used to kill enemies
 
 
@@ -49,12 +50,46 @@ struct TowerComponent : BaseComponent {
     int enemy_kills;
 }
 
-struct ProjectileComponent : BaseComponent {
-    EntityID originTower; // tags
-    // int damage; // removed damage, to have a specific component for damage
+struct TargetComponent { EntityID target};
+
+// This enum includes the results of elemental combinations.
+typedef enum {
+    PROJECTILE_NONE,
+    // Single Elements
+    PROJECTILE_FIREBALL,
+    PROJECTILE_WATER_JET,
+    // Combo Elements
+    PROJECTILE_STEAM_SHOT,   // Fire + Water
+    PROJECTILE_MAGMA_BALL,   // Fire + Earth
+    PROJECTILE_LIGHTNING_ROD, // Earth + Lightning
+    // ... etc
+} ProjectileType;
+
+// the projectile combination database will be someting of the sort
+struct ElementCombinationDataEntry {
+    ELEMENT element1;
+    ELEMENT element2;
+    ELEMENT element3;
+    PROJECTILE_TYPE projectile_type;
 }
 
-// note: projectile component is just the damage. the behavior, look, when it deals damage is just a combination of other components, like:
+struct ProjectileSpawnerComponent : BaseComponent {
+    PROJECTILE_TYPE projectile_type;
+}
+
+struct CoolDownComponent : BaseComponent {
+    float CD;
+    float remainingCD;
+}
+
+// ----------------- TOWER EXAMPLES ------------------------
+// fire
+    CD
+    TOWER
+    TARGET
+    RANGE
+
+
 // the bomb projectile would be:
     PROJECTILE
     DAMAGE
@@ -73,10 +108,30 @@ struct ProjectileComponent : BaseComponent {
     DAMAGE
     MOVETOXY
     COLLIDER
-    DAMAGE_ON_COLLISION // just tag
+    DAMAGE_ON_COLLISION // just tag, maybe not needed if we consider DAMAGE + collider always does that...
 
 // wind CC
     PROJECTILE
     CC
     TARGET
 
+// systems:
+
+TargetingSystem()
+    // only looks into entities that have towers + range + projectile spawners that dont have TargetComponent yet
+    // adds TargetComponent to that entity
+
+ProjectileSpawningSystem()
+    // Spawns projectile based on tower components: target, CD, ProjectileSpawner, Damage
+
+AttackCDSystem(deltaTime)
+    // reduce CD every frame
+
+DamageSystem()
+    // for collision + damage + damage_on_collision, deals damage on collision
+    // for collision + damage + area_damage, deals damage on area collision 
+
+DeletionSystem()
+    // deletes all entities with DeleteTagComponent
+
+CollisionSystem()

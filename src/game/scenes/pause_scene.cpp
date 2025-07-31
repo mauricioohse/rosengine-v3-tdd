@@ -41,8 +41,8 @@ void PauseScene::OnLoad()
 
     // Create "PAUSED" text
     EntityID pausedText = RegisterEntity();
-    ADD_TRANSFORM(pausedText, g_Engine.window->width / 2, g_Engine.window->height / 4, 0, 1.5f);
-    ADD_TEXT(pausedText, ResourceManager::GetFont(FONT_FPS), "PAUSED");
+    ADD_Transform(pausedText, g_Engine.window->width / 2, g_Engine.window->height / 4, 0, 1.5f);
+    ADD_Text(pausedText, ResourceManager::GetFont(FONT_FPS), "PAUSED");
 
     float buttonWidth = 200;
     float buttonHeight = 50;
@@ -51,9 +51,9 @@ void PauseScene::OnLoad()
 
     // Create Resume button
     EntityID resumeButton = RegisterEntity();
-    EM->AddComponentToEntity(resumeButton,  COMPONENT_UIBOX );
-    ADD_TRANSFORM(resumeButton, buttonX, buttonY, 0, 1.5f);
-    ADD_TEXT(resumeButton, ResourceManager::GetFont(FONT_FPS), "resume");
+    EM->AddComponentToEntity(resumeButton,  C_UIBox );
+    ADD_Transform(resumeButton, buttonX, buttonY, 0, 1.5f);
+    ADD_Text(resumeButton, ResourceManager::GetFont(FONT_FPS), "resume");
     g_Engine.componentArrays.UIBoxs[resumeButton].Init(
         buttonWidth,
         buttonHeight,
@@ -65,9 +65,9 @@ void PauseScene::OnLoad()
 
     // Create Main Menu button
     EntityID mainMenuButton = RegisterEntity();
-    EM->AddComponentToEntity(mainMenuButton, COMPONENT_UIBOX);
-    ADD_TRANSFORM(mainMenuButton, buttonX, buttonY + buttonHeight + 20, 0, 1.5f);
-    ADD_TEXT(mainMenuButton, ResourceManager::GetFont(FONT_FPS), "Main Menu");
+    EM->AddComponentToEntity(mainMenuButton, C_UIBox);
+    ADD_Transform(mainMenuButton, buttonX, buttonY + buttonHeight + 20, 0, 1.5f);
+    ADD_Text(mainMenuButton, ResourceManager::GetFont(FONT_FPS), "Main Menu");
     g_Engine.componentArrays.UIBoxs[mainMenuButton].Init(
         buttonWidth,
         buttonHeight,
@@ -79,9 +79,9 @@ void PauseScene::OnLoad()
 
     // Create Toggle Music button
     EntityID toggleMusicButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleMusicButton, COMPONENT_UIBOX);
-    ADD_TRANSFORM(toggleMusicButton, buttonX, buttonY + 2*buttonHeight + 40, 0, 1.5f);
-    ADD_TEXT(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");    
+    EM->AddComponentToEntity(toggleMusicButton, C_UIBox);
+    ADD_Transform(toggleMusicButton, buttonX, buttonY + 2*buttonHeight + 40, 0, 1.5f);
+    ADD_Text(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");    
     g_Engine.componentArrays.UIBoxs[toggleMusicButton].Init(
         buttonWidth,
         buttonHeight,
@@ -93,9 +93,9 @@ void PauseScene::OnLoad()
 
     // Create Toggle Sound button
     EntityID toggleSoundButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleSoundButton, COMPONENT_UIBOX);
-    ADD_TRANSFORM(toggleSoundButton, buttonX, buttonY + 3*buttonHeight + 60, 0, 1.5f);
-    ADD_TEXT(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
+    EM->AddComponentToEntity(toggleSoundButton, C_UIBox);
+    ADD_Transform(toggleSoundButton, buttonX, buttonY + 3*buttonHeight + 60, 0, 1.5f);
+    ADD_Text(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
     g_Engine.componentArrays.UIBoxs[toggleSoundButton].Init(
         buttonWidth,
         buttonHeight,

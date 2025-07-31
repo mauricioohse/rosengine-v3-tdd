@@ -339,6 +339,66 @@ struct TowerComponent : Component {
     }
 };
 
+// only base elements
+enum ELEMENT {
+    ELE_NONE,
+    ELE_FIRE,
+    ELE_WIND,
+    ELE_WATER,
+    ELE_EARTH,
+    ELE_ELECTRIC,
+    // fill above and the g_element_names[] below
+    ELE_MAX // should always be last
+};
+
+static const char* g_element_names[] = {
+    "none",
+    "fire", 
+    "wind",
+    "water",
+    "earth",
+    "electric"
+};
+
+inline const char* GetElementName(ELEMENT element) {
+    if (element >= ELE_MAX) return "unknown";
+    return g_element_names[element];
+}
+
+#define MAX_ELEMENTS 3
+struct ElementComponent  {
+    ELEMENT elements[MAX_ELEMENTS] = {};
+
+    void Init(ELEMENT new_ele)
+    {
+        int idx = 0;
+        while (elements[idx]!=ELE_NONE)
+        {
+            idx++;
+        }
+
+        // now idx is the next idx that is not filled with ELE_NONE
+        if(idx >= MAX_ELEMENTS)
+        {
+            DO_ONCE(printf("ATTEMPTED ADDING EXTRA ELEMENT ON TOWER WITH 3 ELEMENTS!\n"));
+            return;
+        }
+
+        elements[idx] = new_ele;
+    }
+};
+
+// tag component
+struct ResolveElementComponent: Component {
+    
+};
+
+struct TargetComponent {
+    EntityID target = 0;
+
+    void Init(EntityID _target) { target = _target; }
+};
+
 struct LifeTimeComponent : Component {
     float remaininglifeTime; // in seconds
 
@@ -351,6 +411,11 @@ struct LifeTimeComponent : Component {
     {
         remaininglifeTime = 0;
     }
+};
+
+// tag
+struct DamageOnCollisionComponent : Component {
+
 };
 
 struct JetAnimationComponent : Component {
@@ -440,39 +505,54 @@ enum PROJECTILE_TYPE {
     PROJECTILE_JET,
     PROJECTILE_GUST,
     PROJECTILE_LIGHTNING,
+    PROJECTILE_JET_BOMB,
     PROJECTILE_PELLET
 };
 
-struct ProjectileComponent : Component {
-
+struct ProjectileSpawnerComponent : Component {
     PROJECTILE_TYPE type;
-    int targetX;
-    int targetY;
-    EntityID targetEntity;
-    int shouldExplode;
-    int explosionRadius;
-    int damage;
 
-    void Init(PROJECTILE_TYPE _type , EntityID target, int _targetX, int _targetY, int dmg, int _shouldExplode, int _explosionRadius){
-        damage = dmg;
-        targetX = _targetX;
-        targetY = _targetY;
-        shouldExplode = _shouldExplode;
-        explosionRadius = _explosionRadius;
-        targetEntity = target;
-        type = _type;
-    }
-
-    void Destroy() override
+    void Init(PROJECTILE_TYPE _type)
     {
-        targetX = 0;
-        targetY = 0;
-        shouldExplode = 0;
-        explosionRadius = 0;
+        type = _type;
     }
 };
 
-struct MoveToTargetXYComponent : Component {
+struct CooldownComponent : Component{
+    float remainingCD;
+    float CD;
+
+    void Init(float _CD)
+    {
+        CD = _CD;
+        remainingCD = 0;
+    }
+};
+
+struct RangeComponent : Component {
+    int range;
+};
+
+struct DamageComponent : Component {
+    int damage;
+
+    void Init( int _damage) {damage = _damage;}
+};
+
+struct ExplodeOnXYComponent : Component
+{
+    int x, y;
+
+    void Init(int _x, int _y)
+    {
+        x = _x;
+        y = _y;
+    }
+};
+
+
+
+struct MoveToXYComponent : Component {
     int targetX;
     int targetY;
     int speed;
@@ -528,17 +608,18 @@ struct ExplosionComponent : Component {
 // a TAG used to know if the transform + collider is used to destroy the entity 
 struct EnemyExitComponent : Component
 {
-    void Init(){}
-    void Destroy() override {}
+
 };
 
 struct EnemyDebugComponent : Component 
 {
     TOWER_TYPE tower;
+    bool debug;
 
     void Init(TOWER_TYPE t)
     {
         tower = t;
+        debug = 0;
     }
 
     void Destroy() override {}
@@ -568,7 +649,6 @@ struct EnemyComponent : Component {
 void InitTransform(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f);
 void InitSprite(EntityID entity, Texture* texture);
 void InitWASDController(EntityID entity, float moveSpeed = 200.0f, bool canMove = true);
-void InitCollider(EntityID entity, float width, float height, bool isStatic = false, bool isTrigger = false);
 void InitAnimation(EntityID entity, Texture* sheet, int frameW, int frameH, int cols, int frames, 
                    float time = 0.1f, bool shouldLoop = true);
 void InitGravity(EntityID entity, float scale = 1.0f);
@@ -579,11 +659,10 @@ void InitCamera(EntityID entity, float width, float height, EntityID target = 0)
 
 struct ComponentArrays {
     // Component data pools
-#define xcomponent(enum, type, id, ...) type##Component type##s[MAX_ENTITIES];
+#define xcomponent( type, id, ...) type##Component type##s[MAX_ENTITIES];
 #include "components/components.def"
 #undef xcomponent
     WASDControllerComponent wasdControllers[MAX_ENTITIES];
-    ColliderComponent colliders[MAX_ENTITIES];
     AnimationComponent animations[MAX_ENTITIES];
     GravityComponent gravities[MAX_ENTITIES];
     CameraComponent cameras[MAX_ENTITIES];

@@ -40,12 +40,12 @@ void MenuScene::OnLoad()
 
     // Create centered game title
     EntityID titleText = RegisterEntity();
-    ADD_TRANSFORM(titleText, g_Engine.window->width / 2, g_Engine.window->height / 3, 0, 1);
-    ADD_TEXT(titleText, ResourceManager::GetFont(FONT_FPS), "Game Name");
+    ADD_Transform(titleText, g_Engine.window->width / 2, g_Engine.window->height / 3, 0, 1);
+    ADD_Text(titleText, ResourceManager::GetFont(FONT_FPS), "Game Name");
 
     // Create Start Game button
     EntityID startButton = RegisterEntity();
-    EM->AddComponentToEntity(startButton, COMPONENT_TRANSFORM | COMPONENT_UIBOX | COMPONENT_TEXT);
+    EM->AddComponentToEntity(startButton, C_Transform | C_UIBox | C_Text);
     
     // Initialize button position and size
     float buttonWidth = 200;
@@ -67,8 +67,8 @@ void MenuScene::OnLoad()
     );
 
     EntityID debugLevelButton = RegisterEntity();
-    ADD_TRANSFORM(debugLevelButton, g_Engine.window->width*.8f - buttonWidth/2, g_Engine.window->height / 2, 0, 1.0f);
-    ADD_UIBOX(debugLevelButton,50,50);
+    ADD_Transform(debugLevelButton, g_Engine.window->width*.8f - buttonWidth/2, g_Engine.window->height / 2, 0, 1.0f);
+    ADD_UIBox(debugLevelButton,50,50);
     g_Engine.componentArrays.UIBoxs[debugLevelButton].Init(
         50, 
         50,
@@ -77,7 +77,7 @@ void MenuScene::OnLoad()
         2.0f,                            // Border width
         StartDebugLevelCallback          // Click callback
     );
-    ADD_TEXT(debugLevelButton, ResourceManager::GetFont(FONT_FPS), "DEBUG LEVEL");
+    ADD_Text(debugLevelButton, ResourceManager::GetFont(FONT_FPS), "DEBUG LEVEL");
     
     // Setup text
     g_Engine.componentArrays.Texts[startButton].Init(
@@ -88,9 +88,9 @@ void MenuScene::OnLoad()
 
         // Create Toggle Music button
     EntityID toggleMusicButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleMusicButton, COMPONENT_UIBOX);
-    ADD_TRANSFORM(toggleMusicButton, buttonX, buttonY + 2*buttonHeight + 40, 0, 1.5f);
-    ADD_TEXT(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");    
+    EM->AddComponentToEntity(toggleMusicButton, C_UIBox);
+    ADD_Transform(toggleMusicButton, buttonX, buttonY + 2*buttonHeight + 40, 0, 1.5f);
+    ADD_Text(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");    
     g_Engine.componentArrays.UIBoxs[toggleMusicButton].Init(
         buttonWidth,
         buttonHeight,
@@ -102,9 +102,9 @@ void MenuScene::OnLoad()
 
     // Create Toggle Sound button
     EntityID toggleSoundButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleSoundButton, COMPONENT_UIBOX);
-    ADD_TRANSFORM(toggleSoundButton, buttonX, buttonY + 3*buttonHeight + 60, 0, 1.5f);
-    ADD_TEXT(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
+    EM->AddComponentToEntity(toggleSoundButton, C_UIBox);
+    ADD_Transform(toggleSoundButton, buttonX, buttonY + 3*buttonHeight + 60, 0, 1.5f);
+    ADD_Text(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
     g_Engine.componentArrays.UIBoxs[toggleSoundButton].Init(
         buttonWidth,
         buttonHeight,
