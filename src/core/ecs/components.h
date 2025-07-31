@@ -413,17 +413,9 @@ struct LifeTimeComponent : Component {
     }
 };
 
+// tag
 struct DamageOnCollisionComponent : Component {
-    int unused; // TODO: currently, when initializing the componentsarray, we set all data to 0 with memset(). 
-    // for structs that inherit from the base Component, this causes the vtable of the virtual function to also be cleaned
-    // so, the real fix is to change how the ADD_Component functions is being done. that said, a dirty fix for tag components
-    // is to simply add a unused variable and initialize is on the init function
-    void Init( int _unused) {
-        unused = 0;
-    }
-    void Destroy() override {
-        // empty tag component - nothing to destroy
-    }
+
 };
 
 struct JetAnimationComponent : Component {
@@ -517,11 +509,6 @@ enum PROJECTILE_TYPE {
     PROJECTILE_PELLET
 };
 
-struct GridIndexComponent : Component {
-    int index; // index goes from 0 to grid::max_index, see grid.cpp
-
-};
-
 struct ProjectileSpawnerComponent : Component {
     PROJECTILE_TYPE type;
 
@@ -563,34 +550,7 @@ struct ExplodeOnXYComponent : Component
     }
 };
 
-struct ProjectileComponent : Component {
 
-    PROJECTILE_TYPE type;
-    int targetX;
-    int targetY;
-    EntityID targetEntity;
-    int shouldExplode;
-    int explosionRadius;
-    int damage;
-
-    void Init(PROJECTILE_TYPE _type , EntityID target, int _targetX, int _targetY, int dmg, int _shouldExplode, int _explosionRadius){
-        damage = dmg;
-        targetX = _targetX;
-        targetY = _targetY;
-        shouldExplode = _shouldExplode;
-        explosionRadius = _explosionRadius;
-        targetEntity = target;
-        type = _type;
-    }
-
-    void Destroy() override
-    {
-        targetX = 0;
-        targetY = 0;
-        shouldExplode = 0;
-        explosionRadius = 0;
-    }
-};
 
 struct MoveToXYComponent : Component {
     int targetX;
@@ -648,8 +608,7 @@ struct ExplosionComponent : Component {
 // a TAG used to know if the transform + collider is used to destroy the entity 
 struct EnemyExitComponent : Component
 {
-    void Init(){}
-    void Destroy() override {}
+
 };
 
 struct EnemyDebugComponent : Component 

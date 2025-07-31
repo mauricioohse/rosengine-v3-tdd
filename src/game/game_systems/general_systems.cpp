@@ -317,7 +317,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_COLLIDER(projectile, 27,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
         ADD_Damage(projectile, 25);
-        ADD_DamageOnCollision(projectile,0);
+        ADD_DamageOnCollision(projectile);
     }
     break;
 

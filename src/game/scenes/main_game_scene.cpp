@@ -41,7 +41,7 @@ static void spawnDebugEnemies()
     static int everyXframes = 10;
 
     int startX = Grid::GRID_START_POINT.x + Grid::GRID_SQUARE_LENGTH;
-    int startY = Grid::GRID_END_POINT.y - Grid::GRID_SQUARE_LENGTH;
+    int startY = Grid::GRID_END_POINT.y - Grid::GRID_SQUARE_LENGTH - 200;
     int currentX = startX;
     // create enemy every 250 horizontal until TOWER_MAX
 

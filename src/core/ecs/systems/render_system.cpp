@@ -287,12 +287,11 @@ static void RenderChain(EntityID entity){
 
 static void RenderDebugAOE(EntityID e)
 {
-    if (g_Engine.entityManager.HasComponent(e, C_Transform | C_Projectile)) {
-        TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(e, C_Transform);
-        ProjectileComponent* projectile = (ProjectileComponent*)g_Engine.componentArrays.GetComponentData(e, C_Projectile);
+    if (g_Engine.entityManager.HasComponent(e, C_Transform | C_ExplodeOnXY)) {
+        TransformComponent* transform = GET_Transform(e);
         
-        // draw red circle at transform position with projectile explosion radius
-        DrawCircle(transform->x, transform->y, projectile->explosionRadius);
+        // draw red circle at transform position with projectile explosion radius 
+        DrawCircle(transform->x, transform->y, 100); // TODO: explosion range should not be hardcoded
     }
 }
 
@@ -338,7 +337,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     // 5. render debug explosion area
     for (EntityID entity : entities)
     {
-        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Projectile))
+        if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_ExplodeOnXY))
         {
             RenderDebugAOE(entity);
         }
