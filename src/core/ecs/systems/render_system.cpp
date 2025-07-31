@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "grid.h"
 #include "math.h"
+#include "core/input.h"
 #include <climits>
 
 void RenderSystem::Init() {
@@ -125,21 +126,31 @@ static void RenderJet(EntityID entity)
     }
 }
 
-
-
 static void RenderTowerRange(EntityID entity)
 {
     if (!g_Engine.entityManager.HasComponent(entity, C_Tower | C_Transform)) {
         return;
     }
-    
-    TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Tower);
+
+    bool leftShiftPressed = Input::IsKeyDown(SDL_SCANCODE_LSHIFT);
+
+    int mouseX, mouseY;
+    Input::GetMousePosition(mouseX, mouseY);
+    Point mousePoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
+
     TransformComponent* transform = (TransformComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Transform);
+    Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
-    Point p = Grid::GetNearestGridPointCenter(transform->x,transform->y);
-
-    DrawCircle(p.x, p.y, tower->range);
-
+    if (true == leftShiftPressed)
+    {
+        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Tower);
+        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+    }
+    else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
+    {
+        TowerComponent* tower = (TowerComponent*)g_Engine.componentArrays.GetComponentData(entity, C_Tower);
+        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+    }
 }
 
 static void RenderEnemyLife(EntityID entity)
@@ -352,7 +363,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // draw tower range - in the future we should add a button (like shift) to only draw all when pressed
+    // 7. render tower range with left shift or on mouse hovering over tower
     for (EntityID entity : entities)
     {
         if (g_Engine.entityManager.HasComponent(entity, C_Transform | C_Tower))
