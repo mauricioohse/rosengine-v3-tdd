@@ -9,7 +9,7 @@ component_macros.h      - makes it easier to ADD_COMPONENT()
 
 xcomponent(Transform, 0, (EntityID entity, float x, float y, float rotation, float scale), (x, y, rotation, scale))
 xcomponent(Sprite, 1, (EntityID entity, Texture* texture), (texture))
-xcomponent(Collider, 3, (EntityID entity, float w, float h, bool staticCollider = false, bool triggerCollider = false), ( w, h, staticCollider, triggerCollider))
+xcomponent(Collider, 3, (EntityID entity, float r, bool staticCollider = false, bool triggerCollider = false), ( r, staticCollider, triggerCollider))
 xcomponent(Text, 11, (EntityID entity, Font* font, const char* text), (font, text))
 xcomponent(UIBox, 12, (EntityID entity, float width, float height), (width, height))
 xcomponent(Enemy, 13, (EntityID entity, int health), (health))

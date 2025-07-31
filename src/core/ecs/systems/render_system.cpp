@@ -62,10 +62,10 @@ static void RenderCollider(EntityID entity)
     SDL_Renderer* renderer = g_Engine.window->renderer;
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     
-    int x = (int)(transform->x - collider->width / 2);
-    int y = (int)(transform->y - collider->height / 2);
-    int w = (int)collider->width;
-    int h = (int)collider->height;
+    int x = (int)(transform->x - collider->radius / 2);
+    int y = (int)(transform->y - collider->radius / 2);
+    int w = (int)collider->radius;
+    int h = (int)collider->radius;
     
     SDL_Rect rect = {x, y, w, h};
     SDL_RenderDrawRect(renderer, &rect);

@@ -53,11 +53,11 @@ void InitWASDController(EntityID entity, float moveSpeed, bool canMove) {
     }
 }
 
-void InitCollider(EntityID entity, float width, float height, bool isStatic, bool isTrigger) {
+void InitCollider(EntityID entity, float radius, bool isStatic, bool isTrigger) {
     ColliderComponent* collider = 
         (ColliderComponent*)GET_COMPONENT(entity, C_Collider);
     if (collider) {
-        collider->Init(width, height, isStatic, isTrigger);
+        collider->Init(radius, isStatic, isTrigger);
     }
 } 
 

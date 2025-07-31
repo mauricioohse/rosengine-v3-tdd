@@ -10,9 +10,15 @@ static EntityID CheckEnemyInRange(EntityID tower){
 
     SceneBase * scene = &g_mainGame;
 
-    TowerComponent* tc = (TowerComponent*)GET_COMPONENT(tower, C_Tower); 
-    TransformComponent* tr = (TransformComponent*)GET_COMPONENT(tower, C_Transform); 
-
+    TowerComponent* tower_c      = (TowerComponent*)GET_COMPONENT(tower, C_Tower); 
+    TransformComponent* tower_tr  = (TransformComponent*)GET_COMPONENT(tower, C_Transform); 
+    
+    // we create a fake collider based on the tower range
+    ColliderComponent tower_cc;
+    tower_cc.radius     = tower_c->range;
+    tower_cc.isStatic   = 1;
+    tower_cc.isTrigger  = 0;
+    
     // check collision with enemies
     FOR_EACH_COMPONENT_3(scene, enemy, 
                         Transform, enemy_tr,
@@ -20,15 +26,9 @@ static EntityID CheckEnemyInRange(EntityID tower){
                         Collider, enemy_cc)
     {
 
-            // we create a fake collider based on the tower range
-            ColliderComponent cc_range;
-            cc_range.height= tc->range;
-            cc_range.width= tc->range;
-            cc_range.isStatic= 1;
-            cc_range.isTrigger=0;
 
             float penX,penY; //used to get the penetration of the collision, but we dont care in this case
-            if(CheckCollisionCentered(tr,&cc_range, enemy_tr, enemy_cc, penX, penY))
+            if(CheckCollision(tower_tr, &tower_cc, enemy_tr, enemy_cc, penX, penY))
             {
                 // printf("collision detected! tower pos: (%.2f, %.2f) size: (%.2f, %.2f) enemy pos: (%.2f, %.2f) size: (%.2f, %.2f)\n", 
                 //        tr->x, tr->y, cc_range.width, cc_range.height, 
@@ -130,7 +130,7 @@ void DamageOnCollisionSystem(SceneBase * scene)
                              Collider, enemy_col)
         {
             float penX, penY;
-            if (CheckCollisionCentered(entity_tr, entity_col, enemy_tr, enemy_col, penX, penY))
+            if (CheckCollision(entity_tr, entity_col, enemy_tr, enemy_col, penX, penY))
             {
 
                 enemy_component->currHealth -= entity_dmg->damage;
@@ -314,7 +314,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     {
         ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
-        ADD_Collider(projectile, 27,27,0,0);
+        ADD_Collider(projectile,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
         ADD_Damage(projectile, 25);
         ADD_DamageOnCollision(projectile);

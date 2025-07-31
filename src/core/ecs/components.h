@@ -98,21 +98,18 @@ struct WASDControllerComponent : Component {
 };
 
 struct ColliderComponent : Component {
-    float width;
-    float height;
+    float radius;
     bool isTrigger;  // If true, detects collision but doesn't prevent movement
     bool isStatic;   // If true, this object won't be moved during collision resolution
     
-    void Init(float w, float h, bool staticCollider = false, bool triggerCollider = false) {
-        width = w;
-        height = h;
+    void Init(float r, bool staticCollider = false, bool triggerCollider = false) {
+        radius = r;
         isStatic = staticCollider;
         isTrigger = triggerCollider;
     }
     
     void Destroy() override {
-        width = 0.0f;
-        height = 0.0f;
+        radius = 0.0f;
         isTrigger = false;
         isStatic = false;
     }
