@@ -184,6 +184,14 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 
 }
 
+static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int damage)
+{
+    EntityID bomb = scene->RegisterEntity();
+    ADD_Transform(bomb, x, y, 0, 1);
+    ADD_Damage(bomb, damage);
+    ADD_ExplodeOnXY(bomb, x, y); // note: explosion radius is hardcoded for now
+}
+
 // TODO: think of a better way to separate the chainlightning into smaller components
 void ChainLightningSystem(SceneBase * scene)
 {
@@ -211,7 +219,16 @@ void ChainLightningSystem(SceneBase * scene)
                     EnemyComponent *enemy = GET_Enemy(CL->target);
                     if (enemy)
                     {
-                        enemy->currHealth -= CL->damage;
+                        if (CL->explodes)
+                        {
+                            auto target_transform = GET_Transform(CL->target);
+                            // creates a mini explosion on the target
+                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100, CL->damage);
+                        }
+                        else // individual damage only
+                        {
+                            enemy->currHealth -= CL->damage;
+                        }
                     }
                 }
 
@@ -297,6 +314,8 @@ static void CreateCCGust(SceneBase* scene, EntityID target)
     PlaySound::PlaySound(SOUND_BLIP_HIGH);
 }
 
+
+
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
@@ -358,11 +377,10 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         break;
 
     case PROJECTILE_LIGHTNING:
-        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y, 
-                           target_transform->x, target_transform->y, target, tower_damage->damage, 5);
+        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 0);
         ADD_LifeTime(projectile, .3f); // in case we forget to delete
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
-
         break;
 
     case PROJECTILE_JET_BOMB:
@@ -370,10 +388,9 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
             // jet bomb is actually two entities: one jet with 0 damage, and a exploding bomb
             CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y); // this it just the animation
 
-            EntityID bomb = projectile;
-            ADD_Transform(bomb, target_transform->x, target_transform->y, 0, 1);
-            ADD_Damage(bomb, tower_damage->damage);
-            ADD_ExplodeOnXY(bomb, target_transform->x, target_transform->y); // note: explosion radius is hardcoded for now
+            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100,tower_damage->damage );
+            scene->DeleteEntity(projectile);
+        
         }
     break;
     case PROJECTILE_AREA_GUST:
@@ -393,6 +410,13 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         END_FOR_EACH
 
     break;
+
+    case PROJECTILE_EXPLODING_LIGHTNING:
+        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 1);
+        PlaySound::PlaySound(SOUND_SHOOT_LOW);
+
+        break;
 
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
