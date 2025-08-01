@@ -130,8 +130,7 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
         {
             existingTower = tower;
         }
-    }
-    END_FOR_EACH
+    } END_FOR_EACH
 
     EntityID new_tower = 0;
     if (existingTower != INVALID_ENTITY)

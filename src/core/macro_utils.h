@@ -59,7 +59,8 @@
         p_comp_type_4##Component *p_comp_var_4 = (p_comp_type_4##Component *)GET_COMPONENT(p_entity_var, C_##p_comp_type_4); \
         if (p_comp_var_1 && p_comp_var_2 && p_comp_var_3 && p_comp_var_4)                                                                                                \
         {
-// Note: The macro intentionally leaves the block open.
+
+// Note: The FOR_EACH_COMPONENT_X macros intentionally leaves the block open.
 // You close it with two '}' in your system function.
 #define END_FOR_EACH }}
 

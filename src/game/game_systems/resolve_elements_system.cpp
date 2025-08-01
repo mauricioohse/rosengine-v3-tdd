@@ -30,6 +30,7 @@ static ElementCombo g_element_combinations[] = {
     // dual combinations
     {{ELE_WATER, ELE_FIRE, ELE_NONE}, {PROJECTILE_JET_BOMB, 200, 2.0f, 100, TEXTURE_BOX_FIRE_WATER}},
     {{ELE_EARTH, ELE_FIRE, ELE_NONE}, {PROJECTILE_BOMB, 200, .25f, 10, TEXTURE_BOX_FIRE_EARTH}},
+    {{ELE_WIND, ELE_FIRE, ELE_NONE}, {PROJECTILE_AREA_GUST, 100, 2, 0, TEXTURE_BOX_FIRE_WIND}},
     
     // add more combinations here...
     // {{ELE_FIRE, ELE_EARTH, ELE_NONE}, {PROJECTILE_MAGMA, 175, 1.5f, 125}},
