@@ -153,6 +153,11 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
 }
 
 EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
+    if (selectedElement == TOWER_NONE) {
+        printf("no tower type selected\n");
+        return INVALID_ENTITY;
+    }
+    
     // create tower entity
     EntityID tower = g_mainGame.RegisterEntity();
     Texture * tex;
