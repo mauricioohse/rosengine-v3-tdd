@@ -27,6 +27,13 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                 (EnemyDebugComponent*)components->GetComponentData(entity, C_EnemyDebug);    
 
             float speed = 50.0f;
+
+            auto enemy_slow = GET_Slow(entity);
+            if (enemy_slow)
+            {
+                speed *= enemy_slow->intensity;
+                enemy_slow->duration-=deltaTime;
+            }
             
             if (transform && enemy && !debug)
             {

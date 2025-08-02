@@ -509,6 +509,7 @@ enum PROJECTILE_TYPE {
     PROJECTILE_LIGHTNING,
     PROJECTILE_JET_BOMB,
     PROJECTILE_PELLET,
+    PROJECTILE_ICE_SHARD,
     PROJECTILE_EXPLODING_LIGHTNING,
     PROJECTILE_AREA_GUST
 };
@@ -519,6 +520,28 @@ struct ProjectileSpawnerComponent : Component {
     void Init(PROJECTILE_TYPE _type)
     {
         type = _type;
+    }
+};
+
+struct AddSlowOnCollisionComponent : Component {
+    float duration;
+    float intensity; // from 0 to 1, in %
+
+    void Init(float _duration,float _intensity)
+    {
+        duration = _duration;
+        intensity = _intensity; 
+    }
+};
+
+struct SlowComponent : Component {
+    float duration;
+    float intensity; // from 0 to 1, in %
+
+    void Init(float _duration, float _intensity)
+    {
+        duration = _duration;
+        intensity = _intensity; 
     }
 };
 
