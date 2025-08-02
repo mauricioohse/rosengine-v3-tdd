@@ -130,8 +130,7 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
         {
             existingTower = tower;
         }
-    }
-    END_FOR_EACH
+    } END_FOR_EACH
 
     EntityID new_tower = 0;
     if (existingTower != INVALID_ENTITY)
@@ -257,7 +256,7 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     //     ADD_Target(tower, 0);
     //     ADD_Cooldown(tower, 2);
 
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
+    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_FIRE_WATER);
     //     break;
 
     // case TOWER_DEBUG: // DEBUG: PLACES ENEMIES

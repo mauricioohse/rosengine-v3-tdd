@@ -454,12 +454,13 @@ struct ChainLightningComponent : Component {
     int nextX;
     int nextY;
     int damage;
+    bool explodes;
     EntityID target;
     int frameDelay;
     int currFrameDelay;
     int hasDealtDamage;
 
-    void Init(int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps )
+    void Init(int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes )
     {
         currX = _currX;
         currY = _currY;
@@ -468,6 +469,7 @@ struct ChainLightningComponent : Component {
         damage = _damage;
         target = _target;
         jumps = _jumps;
+        explodes = _explodes;
         memset(hits, 0, sizeof(hits));
         frameDelay = 5;
         hasDealtDamage = 0;
@@ -506,7 +508,10 @@ enum PROJECTILE_TYPE {
     PROJECTILE_GUST,
     PROJECTILE_LIGHTNING,
     PROJECTILE_JET_BOMB,
-    PROJECTILE_PELLET
+    PROJECTILE_PELLET,
+    PROJECTILE_ICE_SHARD,
+    PROJECTILE_EXPLODING_LIGHTNING,
+    PROJECTILE_AREA_GUST
 };
 
 struct ProjectileSpawnerComponent : Component {
@@ -515,6 +520,28 @@ struct ProjectileSpawnerComponent : Component {
     void Init(PROJECTILE_TYPE _type)
     {
         type = _type;
+    }
+};
+
+struct AddSlowOnCollisionComponent : Component {
+    float duration;
+    float intensity; // from 0 to 1, in %
+
+    void Init(float _duration,float _intensity)
+    {
+        duration = _duration;
+        intensity = _intensity; 
+    }
+};
+
+struct SlowComponent : Component {
+    float duration;
+    float intensity; // from 0 to 1, in %
+
+    void Init(float _duration, float _intensity)
+    {
+        duration = _duration;
+        intensity = _intensity; 
     }
 };
 
@@ -599,10 +626,6 @@ struct TimedSpriteComponent : Component {
             sprites[i] = nullptr;
         }
     }
-};
-
-struct ExplosionComponent : Component {
-    int timeToExplode;
 };
 
 // a TAG used to know if the transform + collider is used to destroy the entity 
