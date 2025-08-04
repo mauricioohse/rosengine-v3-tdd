@@ -38,6 +38,7 @@ enum SoundID
     SOUND_SHOOT_HIGH,
     SOUND_SHOOT_LOW,
     SOUND_SHOOT_LOW1,
+    SOUND_ICE_HIT,
     SOUND_MAX
 };
 
@@ -69,10 +70,18 @@ enum TextureID {
     TEXTURE_BOX_EARTH,
     TEXTURE_BOX_AIR,
     TEXTURE_BOX_ELECTRO,
-    TEXTURE_BOX_MIX,
+    TEXTURE_BOX_FIRE_WATER,
+    TEXTURE_BOX_FIRE_EARTH,
+    TEXTURE_BOX_FIRE_WIND,
+    TEXTURE_BOX_FIRE_ELECTRO,
+    TEXTURE_BOX_EARTH_WIND,
+    TEXTURE_BOX_EARTH_WATER,
+    TEXTURE_BOX_WATER_WIND,
     TEXTURE_BOX_ENEMY,
+    TEXTURE_BOX_FAT_ENEMY,
     TEXTURE_BASIC_PROJECTILE,
     TEXTURE_BASIC_PROJECTILE_BROWN,
+    TEXTURE_BASIC_PROJECTILE_ICE_SHARD,
     TEXTURE_EXPLOSION_1,
     TEXTURE_EXPLOSION_2,
     TEXTURE_EXPLOSION_3,
@@ -99,10 +108,18 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/box_earth.png", TEXTURE_BOX_EARTH},
     {"assets/box_air.png", TEXTURE_BOX_AIR},
     {"assets/box_electro.png", TEXTURE_BOX_ELECTRO},
-    {"assets/box_mix.png", TEXTURE_BOX_MIX},
-    {"assets/box_enemy.png", TEXTURE_BOX_ENEMY},
+    {"assets/box_mix.png", TEXTURE_BOX_FIRE_WATER},
+    {"assets/box_fire_earth.png", TEXTURE_BOX_FIRE_EARTH},
+    {"assets/box_fire_air.png", TEXTURE_BOX_FIRE_WIND},
+    {"assets/box_fire_electro.png", TEXTURE_BOX_FIRE_ELECTRO},    
+    {"assets/box_earth_wind.png", TEXTURE_BOX_EARTH_WIND},    
+    {"assets/box_earth_water.png", TEXTURE_BOX_EARTH_WATER},
+    {"assets/box_water_wind.png", TEXTURE_BOX_WATER_WIND},
+    {"assets/sprites/enemies/box_enemy.png", TEXTURE_BOX_ENEMY},
+    {"assets/sprites/enemies/box_fat.png", TEXTURE_BOX_FAT_ENEMY},
     {"assets/basic_projectile.png", TEXTURE_BASIC_PROJECTILE},
     {"assets/basic_projectile_brown.png", TEXTURE_BASIC_PROJECTILE_BROWN},
+    {"assets/basic_ice_shard.png", TEXTURE_BASIC_PROJECTILE_ICE_SHARD},
     {"assets/explosion_1.png", TEXTURE_EXPLOSION_1},
     {"assets/explosion_2.png", TEXTURE_EXPLOSION_2},
     {"assets/explosion_3.png", TEXTURE_EXPLOSION_3},
@@ -128,7 +145,8 @@ static const SoundResource GAME_SOUNDS[] = {
     {"assets/bfxr_sounds/Jump.wav",SOUND_JUMP},
     {"assets/bfxr_sounds/Shoot_high.wav",SOUND_SHOOT_HIGH},
     {"assets/bfxr_sounds/Shoot_low.wav",SOUND_SHOOT_LOW},
-    {"assets/bfxr_sounds/Shoot_low1.wav",SOUND_SHOOT_LOW1}
+    {"assets/bfxr_sounds/Shoot_low1.wav",SOUND_SHOOT_LOW1},
+    {"assets/bfxr_sounds/ice_hit.wav",SOUND_ICE_HIT}
     // Add new sounds here
 };
 

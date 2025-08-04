@@ -4,6 +4,8 @@
 #include "utils.h"
 #include "main_game_scene.h"
 #include "play_sound.h"
+#include "math.h"
+
 
 
 static EntityID CheckEnemyInRange(EntityID tower){
@@ -64,7 +66,21 @@ void TargetingSystem(SceneBase *scene)
     } END_FOR_EACH
 }
 
-#include "math.h"
+static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
+{
+    auto enemy_tr = GET_Transform(enemy);
+
+    float dx = enemy_tr->x - tower_x;
+    float dy = enemy_tr->y - tower_y;
+    float distance = sqrt(dx * dx + dy * dy);
+    
+    if (distance <= range) { // explosion radius hardcoded for now
+        return true;
+    }
+
+    return false;
+}
+
 void ExplodeOnXYSystem(SceneBase *scene)
 {
     FOR_EACH_COMPONENT_2(scene, entity,
@@ -96,15 +112,11 @@ void ExplodeOnXYSystem(SceneBase *scene)
                                    Enemy, en,
                                    Collider, enemy_cc)
                 {
-                    float dx = enemy_tr->x - tr->x;
-                    float dy = enemy_tr->y - tr->y;
-                    float distance = sqrt(dx * dx + dy * dy);
-                    
-                    if (distance <= 100) { // explosion radius hardcoded for now
+                
+                    if (IsEnemyInRange(enemy, exp->x, exp->y, 100))
                         en->currHealth -= dmg->damage;
-                    }
-
-                } END_FOR_EACH
+                
+                    } END_FOR_EACH
 
             }
             
@@ -134,6 +146,13 @@ void DamageOnCollisionSystem(SceneBase * scene)
             {
 
                 enemy_component->currHealth -= entity_dmg->damage;
+
+                // also checks for AddSlowOnCollision
+                auto add_slow = GET_AddSlowOnCollision(damage_entity); 
+                if (add_slow)
+                {
+                    ADD_Slow(enemy, add_slow->intensity, add_slow->duration);
+                }
 
                 PlaySound::PlaySound(SOUND_HIT_NOISE);
                 g_mainGame.DeleteEntity(damage_entity);
@@ -172,6 +191,14 @@ void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 
 }
 
+static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int damage)
+{
+    EntityID bomb = scene->RegisterEntity();
+    ADD_Transform(bomb, x, y, 0, 1);
+    ADD_Damage(bomb, damage);
+    ADD_ExplodeOnXY(bomb, x, y); // note: explosion radius is hardcoded for now
+}
+
 // TODO: think of a better way to separate the chainlightning into smaller components
 void ChainLightningSystem(SceneBase * scene)
 {
@@ -199,7 +226,16 @@ void ChainLightningSystem(SceneBase * scene)
                     EnemyComponent *enemy = GET_Enemy(CL->target);
                     if (enemy)
                     {
-                        enemy->currHealth -= CL->damage;
+                        if (CL->explodes)
+                        {
+                            auto target_transform = GET_Transform(CL->target);
+                            // creates a mini explosion on the target
+                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100, CL->damage);
+                        }
+                        else // individual damage only
+                        {
+                            enemy->currHealth -= CL->damage;
+                        }
                     }
                 }
 
@@ -268,6 +304,25 @@ void ChainLightningSystem(SceneBase * scene)
     } END_FOR_EACH
 }
 
+static void CreateCCGust(SceneBase* scene, EntityID target)
+{
+    // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
+    EntityID gust_entity = scene->RegisterEntity();
+    auto target_transform = GET_Transform(target);
+
+    ADD_Transform(gust_entity, target_transform->x, target_transform->y, 0.0f, 1.0f);
+    ADD_Crowdcontrol(gust_entity, target, target_transform->x, target_transform->y);
+    ADD_LifeTime(gust_entity, 1.0f);
+    ADD_TimedSprite(gust_entity, .8f, .2f, 1, 4);
+    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
+    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
+    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
+    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
+    PlaySound::PlaySound(SOUND_BLIP_HIGH);
+}
+
+
+
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
@@ -298,7 +353,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 200);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
-        ADD_Damage(projectile, 50);
+        ADD_Damage(projectile, tower_damage->damage);
         ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y);
         break; 
     case PROJECTILE_JET:
@@ -316,7 +371,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
         ADD_Collider(projectile,27,0,0);
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
-        ADD_Damage(projectile, 25);
+        ADD_Damage(projectile, tower_damage->damage);
         ADD_DamageOnCollision(projectile);
     }
     break;
@@ -324,25 +379,15 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     case  PROJECTILE_GUST:
         // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
         printf("gust projectile created!\n");
-
-        ADD_Transform(projectile, target_transform->x, target_transform->y, 0.0f, 1.0f);
-        ADD_Crowdcontrol(projectile, target, target_transform->x, target_transform->y);
-        ADD_LifeTime(projectile, 1.0f);
-        ADD_TimedSprite(projectile, .8f, .2f, 1, 4);
-        g_Engine.componentArrays.TimedSprites[projectile].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
-        g_Engine.componentArrays.TimedSprites[projectile].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
-        g_Engine.componentArrays.TimedSprites[projectile].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
-        g_Engine.componentArrays.TimedSprites[projectile].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
-        PlaySound::PlaySound(SOUND_BLIP_HIGH);
+        CreateCCGust(scene, target);
         
         break;
 
     case PROJECTILE_LIGHTNING:
-        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y, 
-                           target_transform->x, target_transform->y, target, tower_damage->damage, 5);
+        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 0);
         ADD_LifeTime(projectile, .3f); // in case we forget to delete
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
-
         break;
 
     case PROJECTILE_JET_BOMB:
@@ -350,11 +395,49 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
             // jet bomb is actually two entities: one jet with 0 damage, and a exploding bomb
             CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y); // this it just the animation
 
-            EntityID bomb = projectile;
-            ADD_Transform(bomb, target_transform->x, target_transform->y, 0, 1);
-            ADD_Damage(bomb, tower_damage->damage);
-            ADD_ExplodeOnXY(bomb, target_transform->x, target_transform->y); // note: explosion radius is hardcoded for now
+            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100,tower_damage->damage );
+            scene->DeleteEntity(projectile);
+        
         }
+    break;
+    case PROJECTILE_AREA_GUST:
+        // area gust queries for all enemies in tower range, then spawn a CC entity for each enemy that will despawn shortly
+        // TODO: in the future we should not do a range check here, I think there should be a "AreaRange" component or something like that
+        FOR_EACH_COMPONENT_2(scene, enemy,
+                             Enemy, enemy_en,
+                             Transform, enemy_tr)
+        {
+            auto tower_c = GET_Tower(tower);
+            if (IsEnemyInRange(enemy, tower_transform->x, tower_transform->y, tower_c->range))
+            {
+                printf("area gust single CC created!\n");
+                CreateCCGust(scene, enemy);
+            }
+        }
+        END_FOR_EACH
+
+    break;
+
+    case PROJECTILE_EXPLODING_LIGHTNING:
+        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 1);
+        PlaySound::PlaySound(SOUND_SHOOT_LOW);
+
+        break;
+
+    case PROJECTILE_ICE_SHARD:
+        // similar to pellet, but adds slow on collision
+        ADD_AddSlowOnCollision(projectile, .5, .2); // Note: hardcoded
+        ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
+        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_ICE_SHARD));
+        ADD_Collider(projectile, 27,27,0,0);
+        ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 500);
+        ADD_Damage(projectile, tower_damage->damage);
+        ADD_DamageOnCollision(projectile);
+        PlaySound::PlaySound(SOUND_SHOOT_LOW);
+
+    break;
+
     default:
         DO_ONCE(printf("forgot to set the projectileSpawner type!\n"););
         break;

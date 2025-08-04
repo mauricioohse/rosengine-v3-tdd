@@ -8,6 +8,10 @@
 #include "tower_placement.h"
 #include "general_systems.h"
 #include "resolve_elements_system.h"
+#include "enemy_spawner.h"
+#include "wave_system.h"
+#include "player_life_system.h"
+#include <cstdlib>
 
 
 MainGameScene g_mainGame;
@@ -49,18 +53,13 @@ static void spawnDebugEnemies()
     {
         for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType = TOWER_TYPE((int)towerType + 1))
         {
-            EntityID enemy = g_mainGame.RegisterEntity();
-            Texture *tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY);
-            ADD_Sprite(enemy, tex);
-            ADD_Transform(enemy, currentX, startY, 0, 0.1f);
-            ADD_Collider(enemy, 1, 0, 0);
-            ADD_Enemy(enemy, 100);
-            ADD_EnemyDebug(enemy, towerType);
-
+            ENEMY_TYPE type = (ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
+            EnemySpawner::SpawnEnemyAt(&g_mainGame, currentX, startY, type, true);
+            
             // move to next horizontal position based on current tower's range
             currentX += 250;
         }
-        everyXframes = 10;
+        everyXframes = 40;
     }
     else
     {
@@ -71,6 +70,10 @@ static void spawnDebugEnemies()
 
 void MainGameScene::OnLoad() 
 {
+
+    WaveSystem_Init(LEVEL_1);
+
+    playerLife_init();
 
     TowerPlacement::Init();
 
@@ -95,6 +98,11 @@ void MainGameScene::handle_pause_input()
         g_mainGame.state = SceneState::INACTIVE;
         printf("main game scene deactivated\n");
         escapeReleased = false;
+    }
+
+    if (Input::IsKeyDown(SDL_SCANCODE_SPACE))
+    {
+        WaveSystem_StartNextWave();
     }
 }
 
@@ -201,6 +209,8 @@ static void PrintDebugTowerStats()
 void MainGameScene::OptionalUpdate(float deltaTime)
 {
     handle_pause_input();
+
+    WaveSystem_Update(deltaTime, &g_mainGame);
 
     // update tower placement
     TowerPlacement::Update();

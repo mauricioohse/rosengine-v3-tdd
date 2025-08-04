@@ -5,6 +5,7 @@
 #include "math.h"
 #include "core/input.h"
 #include <climits>
+#include "game/tower_placement.h"
 
 void RenderSystem::Init() {
     printf("RenderSystem initialized\n");
@@ -126,31 +127,95 @@ static void RenderJet(EntityID entity)
     }
 }
 
-static void RenderTowerRange(EntityID entity)
+static bool ShouldRenderTowerRange(EntityID entity)
 {
     if (!HAS_COMPONENT(entity, C_Tower | C_Transform)) {
-        return;
+        return false;
     }
-
-    bool leftShiftPressed = Input::IsKeyDown(SDL_SCANCODE_LSHIFT);
 
     int mouseX, mouseY;
     Input::GetMousePosition(mouseX, mouseY);
     Point mousePoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
-
     TransformComponent* transform = GET_Transform(entity);
     Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
-    if (true == leftShiftPressed)
+    // if left shift is pressed, render the range
+    if (true == Input::IsKeyDown(SDL_SCANCODE_LSHIFT))
     {
-        TowerComponent* tower = GET_Tower(entity);
-        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+        return true;
     }
+    // if the mouse is hovering over the tower, render the range
     else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
     {
-        TowerComponent* tower = GET_Tower(entity);
-        DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+        return true;
     }
+
+    return false;
+}
+
+static void RenderTowerRange(EntityID entity)
+{
+    TransformComponent* transform = GET_Transform(entity);
+    TowerComponent* tower = GET_Tower(entity);
+    Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
+    DrawCircle(towerPoint.x, towerPoint.y, tower->range);
+}
+
+static void RenderTowerPlacementPreview()
+{
+    if (!TowerPlacement::isPlacementMode || ELE_NONE == TowerPlacement::selectedElement) {
+        return;
+    }
+    
+    int mouseX, mouseY;
+    Input::GetMousePosition(mouseX, mouseY);
+    
+    if (!Grid::IsInsideGrid(mouseX, mouseY)) {
+        return;
+    }
+    
+    Point gridPoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
+    
+    Texture * tex;
+    // Get the range for the selected tower type, improve range definition for each tower type
+    int range = 0;
+    switch (TowerPlacement::selectedElement) {
+        case ELE_FIRE:
+            tex = ResourceManager::GetTexture(TEXTURE_BOX);
+            range = 125;
+            break;
+        case ELE_WATER:
+            tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
+            range = 250;
+            break;
+        case ELE_EARTH:
+            tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
+            range = 150;
+            break;
+        case ELE_WIND:
+            tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
+            range = 150;
+            break;
+        case ELE_ELECTRIC:
+            tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
+            range = 150;
+            break;
+        // case ELE_FIREWATER: // no firewater anymore, rip
+        //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
+        //     range = 200;
+        //     break;
+        default:
+            return;
+    }
+
+    // Draw preview range at mouse position
+    DrawCircle(gridPoint.x, gridPoint.y, range);
+
+    // Draw preview tower (transparent) at mouse position
+    SDL_Rect rect = {gridPoint.x - 24, gridPoint.y - 24, 48, 48};
+    SDL_SetTextureAlphaMod(tex->sdlTexture, 64);  // 25% transparent
+    SDL_RenderCopy(g_Engine.window->renderer, tex->sdlTexture, NULL, &rect);
+    SDL_SetTextureAlphaMod(tex->sdlTexture, 255);  // Reset
 }
 
 static void RenderEnemyLife(EntityID entity)
@@ -368,9 +433,15 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
     {
         if (HAS_COMPONENT(entity, C_Transform | C_Tower))
         {
-            RenderTowerRange(entity);
+            if (ShouldRenderTowerRange(entity))
+            {
+                RenderTowerRange(entity);
+            }
         }
     }
+
+    // 8. render tower placement preview range, doesn't depend on an entity
+    RenderTowerPlacementPreview();
 
     // handle Jet animation logic + render
     for (EntityID entity : entities)

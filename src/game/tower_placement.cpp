@@ -4,6 +4,7 @@
 #include "../core/ecs/components.h"
 #include "main_game_scene.h"
 #include "grid.h"
+#include "enemy_spawner.h"
 
 bool TowerPlacement::isPlacementMode = false;
 ELEMENT TowerPlacement::selectedElement = ELE_NONE;
@@ -130,8 +131,7 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
         {
             existingTower = tower;
         }
-    }
-    END_FOR_EACH
+    } END_FOR_EACH
 
     EntityID new_tower = 0;
     if (existingTower != INVALID_ENTITY)
@@ -153,6 +153,13 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
 }
 
 EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
+    if (selectedElement == TOWER_NONE) {
+        // TODO: in the future, deal with debug enemy spawning properly instead of here
+        EnemySpawner::SpawnEnemyAt(&g_mainGame, gridPoint.x, gridPoint.y, ENEMY_BASIC);
+        printf("no tower type selected, creating debug enemy for the moment\n");
+        return INVALID_ENTITY;
+    }
+    
     // create tower entity
     EntityID tower = g_mainGame.RegisterEntity();
     Texture * tex;
@@ -174,19 +181,6 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
         0.5F );
 
 
-    // note/TODO: this below is just for debugging purposes adding enemies. in the future will be removed.
-    if(type == TOWER_NONE)
-    {
-        tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY);
-        g_Engine.componentArrays.Transforms[tower].scale = 0.1f;
-        ADD_Collider(tower, 1, 0, 0);
-        g_Engine.componentArrays.Colliders[tower].radius = g_Engine.componentArrays.Sprites[tower].height; // copy the collider size from the sprite size
-        //g_Engine.componentArrays.Colliders[tower].width = g_Engine.componentArrays.Sprites[tower].width;
-        ADD_Enemy(tower, 100);
-        ADD_Sprite(tower, tex);
-        return tower;
-    }
-
 
     ADD_Tower(tower, TOWER_NONE, 125, 2); // TODO: remove unused tower data in tower component
     tex = ResourceManager::GetTexture(TEXTURE_BOX_MISSING); // NOTE: the texture will be changed on resolve elements, this is here for easier debugging
@@ -195,74 +189,7 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     ADD_Sprite(tower, tex);
     return tower;
 
-    // switch (type)
-    // {
-    // default:
-    // case TOWER_FIRE: // fire
-    //     ADD_Tower(tower, type, 125, 2);
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MISSING);
-    //     ADD_Element(tower, ELE_FIRE);
-    //     ADD_ResolveElement(tower);
-    //     // ADD_Target(tower, 0);
-    //     // ADD_Damage(tower,50);
-    //     // ADD_Cooldown(tower, 2);
-    //     // ADD_ProjectileSpawner(tower, PROJECTILE_BOMB);
 
-    //     break;
-
-    // case TOWER_WATER: // water
-    //     ADD_Tower(tower, type, 250, 2);
-    //     ADD_Target(tower, 0);
-    //     ADD_Damage(tower, 200);
-    //     ADD_Cooldown(tower,2);
-    //     ADD_ProjectileSpawner(tower,PROJECTILE_JET);
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
-    //     break;
-
-    // case TOWER_EARTH:
-    //     ADD_Tower(tower, type, 150, .33f);
-    //     ADD_Target(tower, 0);
-    //     ADD_Damage(tower, 150);
-    //     ADD_Cooldown(tower, .33f);
-    //     ADD_ProjectileSpawner(tower,PROJECTILE_PELLET);
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
-    //     break;
-
-    // case TOWER_AIR:
-    //     ADD_Tower(tower, type, 150, 1.5);
-    //     ADD_Target(tower, 0);
-    //     ADD_Cooldown(tower, 2);
-    //     ADD_ProjectileSpawner(tower, PROJECTILE_GUST);
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
-    //     break;
-
-    // case TOWER_ELECTRIC:
-    //     ADD_Tower(tower, type, 150, 3);
-    //     ADD_Cooldown(tower, 3);
-    //     ADD_Target(tower, 0);
-    //     ADD_Damage(tower, 150);
-    //     ADD_ProjectileSpawner(tower, PROJECTILE_LIGHTNING);
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
-    //     break;
-
-    // case TOWER_FIREWATER: // water + fire
-    //     ADD_Tower(tower, type, 200, 2);
-    //     ADD_ProjectileSpawner(tower, PROJECTILE_JET_BOMB);
-    //     ADD_Damage(tower, 100);
-    //     ADD_Target(tower, 0);
-    //     ADD_Cooldown(tower, 2);
-
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
-    //     break;
-
-    // case TOWER_DEBUG: // DEBUG: PLACES ENEMIES
-    //     tex = ResourceManager::GetTexture(TEXTURE_BOX_ENEMY); 
-    //     g_Engine.componentArrays.Transforms[tower].scale=0.1f;
-    //     ADD_Collider(tower, 1, 1, 0 ,0);
-    //     g_Engine.componentArrays.Colliders[tower].height=g_Engine.componentArrays.Sprites[tower].height; // copy the collider size from the sprite size
-    //     g_Engine.componentArrays.Colliders[tower].width=g_Engine.componentArrays.Sprites[tower].width;
-    //     ADD_Enemy(tower, 100);
-    // }
     
 
 }
