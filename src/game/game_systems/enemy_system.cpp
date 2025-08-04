@@ -91,7 +91,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
 
             if (debug)
             {
-                g_Game.debugTowerKills[debug->tower]++;
+                g_Game.debugTowerKills[debug->element]++;
             }
 
             g_Engine.entityManager.DestroyEntity(entity);

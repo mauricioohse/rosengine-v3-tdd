@@ -29,11 +29,11 @@ enum ENEMY_TYPE {
 
 // lookup table
 static EnemyArchetype g_enemy_archetypes[] = {
-    {100, 50, .1f, TEXTURE_BOX_ENEMY, 0, 0, 0},     // ENEMY_BASIC
-    {100, 75, .15f, TEXTURE_BOX_ENEMY, 0, 0, 0},    // ENEMY_BASIC_FAST
-    {300, 25, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_SLOW
-    {300, 50, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_NORMAL_SPEED
-    {300, 75, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_FAST
+    {150, 50, .1f, TEXTURE_BOX_ENEMY, 0, 0, 0},     // ENEMY_BASIC - more hp
+    {120, 80, .12f, TEXTURE_BOX_ENEMY, 0, 0, 0},    // ENEMY_BASIC_FAST - faster, less hp
+    {400, 30, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_SLOW - tanky
+    {350, 55, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_NORMAL_SPEED - balanced tank
+    {300, 85, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_FAST - fast tank
     // note: the order needs to be the same as in ENEMY_TYPE.
 };
 

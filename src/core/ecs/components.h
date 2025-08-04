@@ -633,12 +633,12 @@ struct EnemyExitComponent : Component
 
 struct EnemyDebugComponent : Component 
 {
-    TOWER_TYPE tower;
+    ELEMENT element;
     bool debug;
 
-    void Init(TOWER_TYPE t)
+    void Init(ELEMENT _element)
     {
-        tower = t;
+        element = _element;
         debug = 0;
     }
 

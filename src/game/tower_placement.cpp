@@ -153,7 +153,7 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
 }
 
 EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
-    if (selectedElement == TOWER_NONE) {
+    if (type == TOWER_NONE) {
         // TODO: in the future, deal with debug enemy spawning properly instead of here
         EnemySpawner::SpawnEnemyAt(&g_mainGame, gridPoint.x, gridPoint.y, ENEMY_BASIC);
         printf("no tower type selected, creating debug enemy for the moment\n");

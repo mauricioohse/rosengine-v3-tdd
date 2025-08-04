@@ -19,20 +19,21 @@ struct Wave {
 
 // level 1 wave definitions
 static EnemyGroup level1_wave1_groups[] = {
-    {ENEMY_BASIC_FAST, 5, 1.0f, 2.0f},        // 5 basic enemies, 1 sec apart, 2 sec pause
-    {ENEMY_BASIC, 8, 0.8f, 1.0f},        // 8 basic enemies, faster spawn
-    {ENEMY_BASIC_FAST, 3, 1.2f, 0.0f},   // then 3 fast enemies
+    {ENEMY_BASIC, 6, 1.2f, 2.0f},        // 6 basic enemies, slower spawn
+    {ENEMY_BASIC_FAST, 4, 1.0f, 1.0f},   // 4 fast enemies
+    {ENEMY_BASIC, 3, 0.8f, 0.0f},        // 3 more basic
 };
 
 static EnemyGroup level1_wave2_groups[] = {
-    {ENEMY_BASIC, 8, 0.8f, 1.0f},        // 8 basic enemies, faster spawn
-    {ENEMY_BASIC_FAST, 3, 1.2f, 0.0f},   // then 3 fast enemies
+    {ENEMY_BASIC, 8, 0.8f, 1.5f},        // 8 basic enemies, faster spawn
+    {ENEMY_BASIC_FAST, 5, 1.0f, 2.0f},   // 5 fast enemies
+    {ENEMY_FAT_SLOW, 1, 3.0f, 0.0f},     // 1 tank
 };
 
 static EnemyGroup level1_wave3_groups[] = {
-    {ENEMY_BASIC, 10, 0.6f, 2.0f},
-    {ENEMY_FAT_SLOW, 2, 2.0f, 1.0f},
-    {ENEMY_BASIC_FAST, 5, 0.5f, 0.0f},
+    {ENEMY_BASIC, 12, 0.6f, 2.0f},       // more basic enemies
+    {ENEMY_FAT_SLOW, 2, 2.5f, 1.5f},     // 2 tanks
+    {ENEMY_BASIC_FAST, 6, 0.8f, 0.0f},   // 6 fast enemies
 };
 
 // wave lookup table for level 1
