@@ -652,13 +652,15 @@ struct EnemyComponent : Component {
     int alive;
     int currHealth;
     int maxHealth;
+    int speed;
     int currPathIdx;
 
-    void Init(int health) {
+    void Init(int health, int _speed) {
         alive = 1;
         currHealth = health;
         maxHealth = health; 
         currPathIdx = 0;
+        speed = _speed;
     }
 
     void Destroy()
