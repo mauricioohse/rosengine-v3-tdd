@@ -1,40 +1,31 @@
 #pragma once
 #include "ecs/components.h"
+#include <cmath>
 
 #define RED_BEGIN "\x1B[31m"
 #define RED_END  "\x1B[0m"
 
 // Collision utility functions
-inline bool CheckCollisionCentered(
+inline bool CheckCollision(
     TransformComponent* transformA, ColliderComponent* colliderA,
     TransformComponent* transformB, ColliderComponent* colliderB,
     float& penetrationX, float& penetrationY) 
 {
-    // Calculate boundaries for first box (centered)
-    float leftA = transformA->x - colliderA->width/2;
-    float rightA = transformA->x + colliderA->width/2;
-    float topA = transformA->y - colliderA->height/2;
-    float bottomA = transformA->y + colliderA->height/2;
+    // Calculate distance between circles centered on two entities
+    float distancep2 = pow(abs(transformB->x - transformA->x), 2) + pow(abs(transformB->y - transformA->y), 2);  // avoiding use of sqrt
     
-    // Calculate boundaries for second box (centered)
-    float leftB = transformB->x - colliderB->width/2;
-    float rightB = transformB->x + colliderB->width/2;
-    float topB = transformB->y - colliderB->height/2;
-    float bottomB = transformB->y + colliderB->height/2;
-    
-    // Check if boxes overlap
-    if (leftA < rightB && rightA > leftB &&
-        topA < bottomB && bottomA > topB) {
+    // Check if circles overlap
+    if (distancep2 <= pow((colliderA->radius + colliderB->radius), 2)) {
         
         // Calculate penetration depths
-        penetrationX = (rightA > rightB) ? 
-            rightB - leftA : 
-            rightA - leftB;
-            
-        penetrationY = (bottomA > bottomB) ? 
-            bottomB - topA : 
-            bottomA - topB;
-            
+        //penetrationX = (rightA > rightB) ? 
+        //    rightB - leftA : 
+        //    rightA - leftB;
+        //    
+        //penetrationY = (bottomA > bottomB) ? 
+        //    bottomB - topA : 
+        //    bottomA - topB;
+        //    
         return true;
     }
     

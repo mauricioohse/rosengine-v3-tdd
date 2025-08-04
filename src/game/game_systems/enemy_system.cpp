@@ -110,7 +110,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                 if (exitTransform && exitCollider)
                 {
                     float penX, penY;
-                    if (CheckCollisionCentered(transform, coll, exitTransform, exitCollider, penX, penY))
+                    if (CheckCollision(transform, coll, exitTransform, exitCollider, penX, penY))
                     {
                         // enemy reached exit, destroy it
                         g_Engine.entityManager.DestroyEntity(entity);

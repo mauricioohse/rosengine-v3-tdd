@@ -31,7 +31,7 @@ static void loadDebugLevelTowers()
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
         ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH, Grid::GRID_SQUARE_LENGTH, 1, 1);
+        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH*2, 1, 1);
         g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
 
         // move to next horizontal position based on current tower's range

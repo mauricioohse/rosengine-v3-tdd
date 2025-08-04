@@ -173,12 +173,14 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     }
     
     // add basic components
-    ADD_Collider(tower, 48, 48, 1, 0);
+    ADD_Collider(tower, 48, 1, 0);
     ADD_Transform(tower,
         (float)center.x, 
         (float)center.y,
         0.0F,
         0.5F );
+
+
 
     ADD_Tower(tower, TOWER_NONE, 125, 2); // TODO: remove unused tower data in tower component
     tex = ResourceManager::GetTexture(TEXTURE_BOX_MISSING); // NOTE: the texture will be changed on resolve elements, this is here for easier debugging
