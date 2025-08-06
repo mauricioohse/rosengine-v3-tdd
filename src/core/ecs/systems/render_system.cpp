@@ -1,11 +1,16 @@
 #include "render_system.h"
 #include "../../engine.h"
 #include <stdio.h>
-#include "grid.h"
-#include "math.h"
-#include "core/input.h"
+#include "../../game/grid.h"
+#include <math.h>
+#include "../../core/input.h"
 #include <climits>
 #include "game/tower_placement.h"
+#include "game/scenes/main_game_scene.h"
+#include "game/game_systems/resolve_elements_system.h"
+
+// Global variable to track which tower should be hidden during placement preview
+static EntityID g_towerToHide = INVALID_ENTITY;
 
 void RenderSystem::Init() {
     printf("RenderSystem initialized\n");
@@ -145,7 +150,7 @@ static bool ShouldRenderTowerRange(EntityID entity)
         return true;
     }
     // if the mouse is hovering over the tower, render the range
-    else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y))
+    else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y) && (!TowerPlacement::isPlacementMode))
     {
         return true;
     }
@@ -163,6 +168,8 @@ static void RenderTowerRange(EntityID entity)
 
 static void RenderTowerPlacementPreview()
 {
+    g_towerToHide = INVALID_ENTITY; // reset at start of method
+
     if (!TowerPlacement::isPlacementMode || ELE_NONE == TowerPlacement::selectedElement) {
         return;
     }
@@ -176,46 +183,84 @@ static void RenderTowerPlacementPreview()
     
     Point gridPoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
     
-    Texture * tex;
-    // Get the range for the selected tower type, improve range definition for each tower type
-    int range = 0;
-    switch (TowerPlacement::selectedElement) {
-        case ELE_FIRE:
-            tex = ResourceManager::GetTexture(TEXTURE_BOX);
-            range = 125;
+    // when in placement mode, finds tower in current mouse position
+    SceneBase* scene = &g_mainGame;
+    bool towerFound = false;
+    EntityID existingTower = 0;
+    FOR_EACH_COMPONENT_2(scene, tower,
+                          Transform, TR,
+                          Tower, TC
+                          )
+    {
+        if (TR->x == gridPoint.x && TR->y == gridPoint.y)
+        {
+            towerFound = true;
+            existingTower = tower;
             break;
-        case ELE_WATER:
-            tex = ResourceManager::GetTexture(TEXTURE_BOX_BLUE);
-            range = 250;
-            break;
-        case ELE_EARTH:
-            tex = ResourceManager::GetTexture(TEXTURE_BOX_EARTH);
-            range = 150;
-            break;
-        case ELE_WIND:
-            tex = ResourceManager::GetTexture(TEXTURE_BOX_AIR);
-            range = 150;
-            break;
-        case ELE_ELECTRIC:
-            tex = ResourceManager::GetTexture(TEXTURE_BOX_ELECTRO);
-            range = 150;
-            break;
-        // case ELE_FIREWATER: // no firewater anymore, rip
-        //     tex = ResourceManager::GetTexture(TEXTURE_BOX_MIX);
-        //     range = 200;
-        //     break;
-        default:
+        }
+    } END_FOR_EACH
+
+    TowerData* towerData = 0;
+    if (towerFound)
+    {
+        ElementComponent* existingTowerElement = GET_Element(existingTower);
+        if (!existingTowerElement) // existing tower has no Element component, this should never happen
+        {
             return;
+        }
+        
+        if (existingTowerElement->elements[2] != ELE_NONE) // the placed tower has 3 elements, no tower will be created
+        {
+            return;
+        }
+        else if (existingTowerElement->elements[1] != ELE_NONE) // the placed tower has 2 elements
+        {
+            if (existingTowerElement->elements[0] != TowerPlacement::selectedElement && existingTowerElement->elements[1] != TowerPlacement::selectedElement) // check if its a unique element to add to current tower
+            {
+                ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], existingTowerElement->elements[1], TowerPlacement::selectedElement};
+                SortDescendingElementsInPlace(tempElements);
+                towerData = GetTowerDataForElements(tempElements);
+                g_towerToHide = existingTower; // hide current tower during preview
+            }
+        }
+        else if (existingTowerElement->elements[0] != ELE_NONE) // the placed tower has 1 element
+        {
+            if (existingTowerElement->elements[0] != TowerPlacement::selectedElement) // check if its a unique element to add
+            {
+                ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], TowerPlacement::selectedElement, ELE_NONE};
+                SortDescendingElementsInPlace(tempElements);
+                towerData = GetTowerDataForElements(tempElements);
+                g_towerToHide = existingTower; // hide current tower during preview
+            }
+        }
+    }
+    else
+    {
+        // no existing tower found in this grid point
+        ELEMENT tempElements[MAX_ELEMENTS] = {TowerPlacement::selectedElement, ELE_NONE, ELE_NONE};
+        towerData = GetTowerDataForElements(tempElements);
     }
 
-    // Draw preview range at mouse position
-    DrawCircle(gridPoint.x, gridPoint.y, range);
+    // check if we got valid tower data
+    if (!towerData) {
+        return;
+    }
 
-    // Draw preview tower (transparent) at mouse position
+    // draw preview range at mouse position
+    DrawCircle(gridPoint.x, gridPoint.y, towerData->range);
+
+    // draw preview tower box at mouse position
     SDL_Rect rect = {gridPoint.x - 24, gridPoint.y - 24, 48, 48};
-    SDL_SetTextureAlphaMod(tex->sdlTexture, 64);  // 25% transparent
-    SDL_RenderCopy(g_Engine.window->renderer, tex->sdlTexture, NULL, &rect);
-    SDL_SetTextureAlphaMod(tex->sdlTexture, 255);  // Reset
+    
+    Texture* texture = ResourceManager::GetTexture(towerData->tex);
+    if (!texture || !texture->sdlTexture) { // if invalid texture for tower data sets a fallback sprite, should never happen
+        texture = ResourceManager::GetTexture(TEXTURE_BOX_MISSING);
+    }
+    
+    // draw preview tower sprite at mouse position
+    SDL_SetTextureAlphaMod(texture->sdlTexture, 64); // 25% transparent new sprite
+    SDL_RenderCopy(g_Engine.window->renderer, texture->sdlTexture, NULL, &rect);
+    SDL_SetTextureAlphaMod(texture->sdlTexture, 255); // reset transparency
 }
 
 static void RenderEnemyLife(EntityID entity)
@@ -540,6 +585,9 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
         (SpriteComponent*)components->GetComponentData(entity, C_Sprite);
 
     if (!transform || !sprite || !sprite->texture || !sprite->isVisible) return;
+    
+    // Skip rendering if this tower should be hidden during placement preview
+    if (entity == g_towerToHide) return;
 
     float screenX = transform->x;
     float screenY = transform->y;
