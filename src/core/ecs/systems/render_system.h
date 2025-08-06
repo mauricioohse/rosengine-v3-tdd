@@ -1,6 +1,8 @@
 #pragma once
 #include "../systems.h"
 #include "../../window.h"
+#include <map>
+#include <string>
 
 struct RenderSystem : System {
     void Init() override;
@@ -18,4 +20,17 @@ private:
     static void RenderTextEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
     static void RenderUIEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
     void RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera,  float deltaTime);
+};
+
+struct RenderColor {
+    Uint8 r, g, b, a;
+};
+
+extern std::map<std::string, RenderColor> paletteOpaque = {
+    {"red", {255, 0, 0, 255}},
+    {"green", {0, 255, 0, 255}},
+    {"blue", {0, 0, 255, 255}},
+    {"white", {255, 255, 255, 255}},
+    {"black", {0, 0, 0, 255}},
+    {"grey", {122, 122, 122, 255}}
 };
