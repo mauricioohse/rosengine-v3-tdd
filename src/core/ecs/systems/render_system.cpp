@@ -13,44 +13,44 @@ void RenderSystem::Init() {
     cameraY = 0.0f;
 }
 
-static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius)
+static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius, RenderColor color = paletteOpaque["grey"])
 {
     SDL_Renderer * renderer = g_Engine.window->renderer;
-   const int32_t diameter = (radius * 2);
+    const int32_t diameter = (radius * 2);
 
-   int32_t x = (radius - 1);
-   int32_t y = 0;
-   int32_t tx = 1;
-   int32_t ty = 1;
-   int32_t error = (tx - diameter);
+    int32_t x = (radius - 1);
+    int32_t y = 0;
+    int32_t tx = 1;
+    int32_t ty = 1;
+    int32_t error = (tx - diameter);
 
-   SDL_SetRenderDrawColor(renderer, 122, 122, 122, 122);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-   while (x >= y)
-   {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+    while (x >= y)
+    {
+       //  Each of the following renders an octant of the circle
+       SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
+       SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
+       SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
+       SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
+       SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
+       SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
+       SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
+       SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
 
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
+       if (error <= 0)
+       {
+          ++y;
+          error += ty;
+          ty += 2;
+       }
 
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
+       if (error > 0)
+       {
+          --x;
+          tx += 2;
+          error += (tx - diameter);
+       }
    }
 }
 static void RenderCollider(EntityID entity)
@@ -60,16 +60,18 @@ static void RenderCollider(EntityID entity)
     
     if (!transform || !collider) return;
     
-    SDL_Renderer* renderer = g_Engine.window->renderer;
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    
-    int x = (int)(transform->x - collider->radius / 2);
-    int y = (int)(transform->y - collider->radius / 2);
-    int w = (int)collider->radius;
-    int h = (int)collider->radius;
-    
-    SDL_Rect rect = {x, y, w, h};
-    SDL_RenderDrawRect(renderer, &rect);
+    DrawCircle(transform->x, transform->y, collider->radius, paletteOpaque["red"]);
+
+    //SDL_Renderer* renderer = g_Engine.window->renderer;
+    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    //
+    //int x = (int)(transform->x - collider->radius / 2);
+    //int y = (int)(transform->y - collider->radius / 2);
+    //int w = (int)collider->radius;
+    //int h = (int)collider->radius;
+    //
+    //SDL_Rect rect = {x, y, w, h};
+    //SDL_RenderDrawRect(renderer, &rect);
 }
 
 static void RenderJet(EntityID entity)
