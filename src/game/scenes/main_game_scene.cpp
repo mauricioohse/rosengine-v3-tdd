@@ -54,7 +54,7 @@ static void spawnDebugEnemies()
     {
         for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element = ELEMENT((int)element + 1))
         {
-            ENEMY_TYPE type = ENEMY_BASIC_FAST;//(ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
+            ENEMY_TYPE type = ENEMY_BASIC_I;//(ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
             EntityID e = EnemySpawner::SpawnEnemyAt(&g_mainGame, currentX, startY, type, true);
             ADD_EnemyDebug(e, element);
             // move to next horizontal position based on current tower's range
@@ -105,6 +105,7 @@ void MainGameScene::handle_pause_input()
     {
         WaveSystem_StartNextWave();
     }
+
 }
 
 static const char* TowerElementToString(ELEMENT type)

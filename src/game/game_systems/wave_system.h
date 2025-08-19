@@ -4,12 +4,12 @@
 
 
 // each round may be a series of enemy waves
-struct EnemyGroup {
-    ENEMY_TYPE enemy_type;
-    int count;
-    float spawn_interval;     // seconds between spawning each enemy in group
-    float delay_after_group;  // seconds to wait after this group finishes
-};
+// struct EnemyGroup {
+//     ENEMY_TYPE enemy_type;
+//     int count;
+//     float spawn_interval;     // seconds between spawning each enemy in group
+//     float delay_after_group;  // seconds to wait after this group finishes
+// };
 
 struct Wave {
     EnemyGroup* groups;
@@ -19,28 +19,61 @@ struct Wave {
 
 // level 1 wave definitions
 static EnemyGroup level1_wave1_groups[] = {
-    {ENEMY_BASIC, 6, 1.2f, 2.0f},        // 6 basic enemies, slower spawn
-    {ENEMY_BASIC_FAST, 4, 1.0f, 1.0f},   // 4 fast enemies
-    {ENEMY_BASIC, 3, 0.8f, 0.0f},        // 3 more basic
+    g_enemy_groups[ENEMY_BASIC_I],
+    g_enemy_groups[ENEMY_BASIC_I],
+    g_enemy_groups[ENEMY_BASIC_I]
 };
 
 static EnemyGroup level1_wave2_groups[] = {
-    {ENEMY_BASIC, 8, 0.8f, 1.5f},        // 8 basic enemies, faster spawn
-    {ENEMY_BASIC_FAST, 5, 1.0f, 2.0f},   // 5 fast enemies
-    {ENEMY_FAT_SLOW, 1, 3.0f, 0.0f},     // 1 tank
+    
+    g_enemy_groups[ENEMY_FODDER_I],
+    g_enemy_groups[ENEMY_BASIC_I]
 };
 
 static EnemyGroup level1_wave3_groups[] = {
-    {ENEMY_BASIC, 12, 0.6f, 2.0f},       // more basic enemies
-    {ENEMY_FAT_SLOW, 2, 2.5f, 1.5f},     // 2 tanks
-    {ENEMY_BASIC_FAST, 6, 0.8f, 0.0f},   // 6 fast enemies
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_I],
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_I],
 };
+
+static EnemyGroup level1_wave4_groups[] = {
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_III],
+};
+
+
+static EnemyGroup level1_wave5_groups[] = {
+    g_enemy_groups[ENEMY_FAT_II],
+    g_enemy_groups[ENEMY_RUNNER_II],
+};
+
+
+static EnemyGroup level1_wave6_groups[] = {
+    g_enemy_groups[ENEMY_FAT_III],
+    g_enemy_groups[ENEMY_FODDER_II],
+    g_enemy_groups[ENEMY_FODDER_II],
+};
+
+
+static EnemyGroup level1_wave7_groups[] = {
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_RUNNER_II],
+    g_enemy_groups[ENEMY_BASIC_III],
+    g_enemy_groups[ENEMY_FODDER_II],
+};
+
+
 
 // wave lookup table for level 1
 static Wave level1_waves[] = {
-    {level1_wave1_groups, 1, 0.0f},      // 1 group, start immediately
-    {level1_wave2_groups, 2, 3.0f},      // 2 groups, 3 sec delay
-    {level1_wave3_groups, 3, 4.0f},      // 3 groups, 4 sec delay
+    {level1_wave1_groups, 3, 0.0f},     // wave 1: 3 groups
+    {level1_wave2_groups, 2, 2.0f},     // wave 2: 2 groups
+    {level1_wave3_groups, 4, 2.0f},     // wave 3: 4 groups
+    {level1_wave4_groups, 2, 2.0f},     // wave 4: 2 groups
+    {level1_wave5_groups, 2, 2.0f},     // wave 5: 2 groups
+    {level1_wave6_groups, 3, 2.0f},     // wave 6: 3 groups
+    {level1_wave7_groups, 4, 2.0f},     // wave 7: 4 groups
 };
 
 // level lookup table
@@ -55,7 +88,7 @@ struct LevelWaves {
 };
 
 static LevelWaves g_level_waves[] = {
-    {level1_waves, 3},  // LEVEL_1: 3 waves
+    {level1_waves, 7},  // LEVEL_1: 7 waves
     // add more levels here
 };
 

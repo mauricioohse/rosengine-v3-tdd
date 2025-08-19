@@ -20,7 +20,7 @@ struct ElementCombo {
 
 // the element combination dictionary
 static ElementCombo g_element_combinations[] = {
-    // single elements - balanced for ~15-25 dps
+    // single elements - balanced for ~50 dps single target, or 50 dps considering area damage +three targets
     {{ELE_FIRE, ELE_NONE, ELE_NONE}, {PROJECTILE_BOMB, 125, 1.5f, 25, TEXTURE_BOX}},
     {{ELE_WATER, ELE_NONE, ELE_NONE}, {PROJECTILE_JET, 250, 2.0f, 40, TEXTURE_BOX_BLUE}},
     {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.5f, 8, TEXTURE_BOX_EARTH}},

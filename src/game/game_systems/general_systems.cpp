@@ -385,7 +385,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
     case PROJECTILE_LIGHTNING:
         ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
-                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 0);
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 3, 0);
         ADD_LifeTime(projectile, .3f); // in case we forget to delete
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
         break;

@@ -2,6 +2,7 @@
 #include "enemy_spawner.h"
 #include "main_game_scene.h"
 #include "grid.h"
+#include "engine.h"
 
 static WaveSystemState g_wave_state = {};
 
@@ -113,7 +114,16 @@ void WaveSystem_StartNextWave()
         g_wave_state.waiting_for_next_wave = false;
         g_wave_state.wave_active = false; // will trigger wave delay timer
         g_wave_state.auto_wave_timer = 0.0f; // reset auto timer
-        printf("starting next wave %d\n", g_wave_state.current_wave_index);
+
+        char text[40];
+        snprintf(text, sizeof(text),"starting next wave %d\n", g_wave_state.current_wave_index );
+        printf(text);
+
+        // create a red text in the middle of the screen saying starting next wave, with 3 second lifetime
+        EntityID wave_text = g_mainGame.RegisterEntity();
+        ADD_Transform(wave_text, 400, 300, 0, 1.0f);
+        ADD_Text(wave_text, ResourceManager::GetFont(FONT_FPS),text);
+        ADD_LifeTime(wave_text, 3.0f);
     }
 }
 
