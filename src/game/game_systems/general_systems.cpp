@@ -113,7 +113,7 @@ void ExplodeOnXYSystem(SceneBase *scene)
                                    Collider, enemy_cc)
                 {
                 
-                    if (IsEnemyInRange(enemy, exp->x, exp->y, 100))
+                    if (IsEnemyInRange(enemy, exp->x, exp->y, exp->range))
                         en->currHealth -= dmg->damage;
                 
                     } END_FOR_EACH
@@ -196,7 +196,7 @@ static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int da
     EntityID bomb = scene->RegisterEntity();
     ADD_Transform(bomb, x, y, 0, 1);
     ADD_Damage(bomb, damage);
-    ADD_ExplodeOnXY(bomb, x, y); // note: explosion radius is hardcoded for now
+    ADD_ExplodeOnXY(bomb, x, y, range); // note: explosion radius is hardcoded for now
 }
 
 // TODO: think of a better way to separate the chainlightning into smaller components
@@ -230,7 +230,7 @@ void ChainLightningSystem(SceneBase * scene)
                         {
                             auto target_transform = GET_Transform(CL->target);
                             // creates a mini explosion on the target
-                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100, CL->damage);
+                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 30, CL->damage);
                         }
                         else // individual damage only
                         {
@@ -354,7 +354,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 200);
         ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
         ADD_Damage(projectile, tower_damage->damage);
-        ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y);
+        ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y, 75);
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
@@ -395,7 +395,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
             // jet bomb is actually two entities: one jet with 0 damage, and a exploding bomb
             CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y); // this it just the animation
 
-            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100,tower_damage->damage );
+            CreateExplosionAt(scene, target_transform->x, target_transform->y, 50, tower_damage->damage);
             scene->DeleteEntity(projectile);
         
         }
@@ -408,7 +408,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
                              Transform, enemy_tr)
         {
             auto tower_c = GET_Tower(tower);
-            if (IsEnemyInRange(enemy, tower_transform->x, tower_transform->y, tower_c->range))
+            if (IsEnemyInRange(enemy, tower_transform->x, tower_transform->y, 50))
             {
                 printf("area gust single CC created!\n");
                 CreateCCGust(scene, enemy);

@@ -37,9 +37,9 @@ enum ENEMY_TYPE {
 
 // lookup table
 static EnemyArchetype g_enemy_archetypes[] = {
-    {100, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_I
-    {150, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_II
-    {200, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_III
+    {80, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_I
+    {120, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_II
+    {180, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_III
     {40, 50, .1f, TEXTURE_BOX_ENEMY},         // ENEMY_FODDER_I
     {60, 50, .12f, TEXTURE_BOX_ENEMY},        // ENEMY_FODDER_II
     {90, 50, .15f, TEXTURE_BOX_ENEMY},        // ENEMY_FODDER_III

@@ -556,6 +556,12 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
         sprite->height*transform->scale
     };
 
+    // Apply color modulation for hue shifting
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 
+                          sprite->colorMod.r, 
+                          sprite->colorMod.g, 
+                          sprite->colorMod.b);
+
     SDL_RenderCopyEx(
         g_Engine.window->renderer,
         sprite->texture->sdlTexture,
@@ -565,6 +571,9 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
         NULL,
         SDL_FLIP_NONE
     );
+
+    // Reset color modulation to prevent affecting other sprites
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 255, 255, 255);
 }
 
 void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera) {

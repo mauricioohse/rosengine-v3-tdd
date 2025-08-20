@@ -38,6 +38,9 @@ struct SpriteComponent : Component {
     int width, height;
     SDL_Rect srcRect;
     bool isVisible;
+    SDL_Color colorMod;  // RGB color modulation (255,255,255 = no change)
+    float hueShift;      // Hue shift in degrees (0-360)
+    
 
     void Init(Texture* tex) {
         texture = tex;
@@ -53,6 +56,8 @@ struct SpriteComponent : Component {
             srcRect = {0, 0, 0, 0};
             isVisible = false;
         }
+        colorMod = {255, 255, 255, 255}; // default: no shift
+        hueShift = 0.0f;
     }
 
     void ChangeTexture(Texture* newTexture) {
@@ -64,12 +69,37 @@ struct SpriteComponent : Component {
         }
     }
 
+    void SetHue(float degrees) {
+        hueShift = degrees;
+        while (hueShift >= 360.0f) hueShift -= 360.0f;
+        while (hueShift < 0.0f) hueShift += 360.0f;
+        
+        // Convert HSV to RGB for color modulation
+        float h = hueShift / 60.0f;
+        float c = 1.0f;  // Full saturation for pure hue shift
+        float x = c * (1.0f - ((int)h % 2 == 0 ? h - (int)h : (int)h + 1 - h));
+        
+        float r, g, b;
+        if (h < 1) { r = c; g = x; b = 0; }
+        else if (h < 2) { r = x; g = c; b = 0; }
+        else if (h < 3) { r = 0; g = c; b = x; }
+        else if (h < 4) { r = 0; g = x; b = c; }
+        else if (h < 5) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        
+        colorMod.r = (unsigned char)(r * 255);
+        colorMod.g = (unsigned char)(g * 255);
+        colorMod.b = (unsigned char)(b * 255);
+    }
+
     void Destroy() override {
         // Note: We don't destroy the texture here as it's managed by ResourceManager
         texture = nullptr;
         width = 0;
         height = 0;
         srcRect = {0, 0, 0, 0};
+        colorMod = {255, 255, 255, 255};
+        hueShift = 0.0f;
     }
 };
 
@@ -565,12 +595,13 @@ struct DamageComponent : Component {
 
 struct ExplodeOnXYComponent : Component
 {
-    int x, y;
+    int x, y, range;
 
-    void Init(int _x, int _y)
+    void Init(int _x, int _y, int _range)
     {
         x = _x;
         y = _y;
+        range = _range;
     }
 };
 

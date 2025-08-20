@@ -113,7 +113,7 @@ AIR-AIR-FIRE
 
 
 todo:
-[ ] - basic archetypes
+[x] - basic archetypes
 [ ] - boss (with enemy spawner)
 [ ] - remaining dual towers
 [ ] - FIRE + WATER + AIR
