@@ -115,7 +115,8 @@ AIR-AIR-FIRE
 todo:
 [x] - basic archetypes
 [ ] - boss (with enemy spawner)
-[ ] - remaining dual towers
-[ ] - FIRE + WATER + AIR
+[x] - remaining dual towers
+[x] - FIRE + WATER + AIR
 [ ] - implement the waves, text when wave starting
+    >
 [ ] - implement the reward element selection

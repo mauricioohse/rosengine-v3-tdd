@@ -5,6 +5,7 @@
 #include "main_game_scene.h"
 #include "grid.h"
 #include "enemy_spawner.h"
+#include "wave_system.h"
 
 bool TowerPlacement::isPlacementMode = false;
 ELEMENT TowerPlacement::selectedElement = ELE_NONE;
@@ -27,6 +28,12 @@ void TowerPlacement::Update() {
             
             if (TryPlaceTower(selectedElement, mouseX, mouseY)) {
                 printf("tower placed successfully\n");
+                
+                // if we're in tower selection mode, complete the selection
+                if (WaveSystem_IsInTowerSelection()) {
+                    WaveSystem_CompleteTowerSelection();
+                    isPlacementMode = false; // exit placement mode
+                }
             }
             else
             {
@@ -38,45 +45,51 @@ void TowerPlacement::Update() {
         mousePressed = false;
     }
     
-    // handle keyboard input for tower selection
-    if (Input::IsKeyPressed(SDL_SCANCODE_1)) {
-        selectedElement = ELE_FIRE; // fire tower
-        isPlacementMode = true;
-        printf("fire tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_2)) {
-        selectedElement = ELE_WATER; // water tower
-        isPlacementMode = true;
-        printf("water tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_3)) {
-        // selectedElement = ELE_; // water+fire tower
-        // isPlacementMode = true;
-        // printf("fire_water tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_4)) {
-        selectedElement = ELE_NONE; // enemy, debug
-        isPlacementMode = true;
-        printf("enemy selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_Q)) {
-        selectedElement = ELE_EARTH;
-        isPlacementMode = true;
-        printf("earth tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_W)) {
-        selectedElement = ELE_WIND;
-        isPlacementMode = true;
-        printf("air tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_E)) {
-        selectedElement = ELE_ELECTRIC;
-        isPlacementMode = true;
-        printf("electric tower selected\n");
-    }
-    if (Input::IsKeyPressed(SDL_SCANCODE_ESCAPE)) {
-        isPlacementMode = false;
-        printf("placement mode cancelled\n");
+    // TODO: temporarely disabling debug tower placement. in future, we should have a way to have this enabled (maybe a terminal command or something else)
+    if (1) return;
+    
+    // only allow manual tower selection if NOT in wave system tower selection mode
+    if (!WaveSystem_IsInTowerSelection()) {
+        // handle keyboard input for tower selection
+        if (Input::IsKeyPressed(SDL_SCANCODE_1)) {
+            selectedElement = ELE_FIRE; // fire tower
+            isPlacementMode = true;
+            printf("fire tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_2)) {
+            selectedElement = ELE_WATER; // water tower
+            isPlacementMode = true;
+            printf("water tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_3)) {
+            // selectedElement = ELE_; // water+fire tower
+            // isPlacementMode = true;
+            // printf("fire_water tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_4)) {
+            selectedElement = ELE_NONE; // enemy, debug
+            isPlacementMode = true;
+            printf("enemy selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_Q)) {
+            selectedElement = ELE_EARTH;
+            isPlacementMode = true;
+            printf("earth tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_W)) {
+            selectedElement = ELE_WIND;
+            isPlacementMode = true;
+            printf("air tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_E)) {
+            selectedElement = ELE_ELECTRIC;
+            isPlacementMode = true;
+            printf("electric tower selected\n");
+        }
+        if (Input::IsKeyPressed(SDL_SCANCODE_ESCAPE)) {
+            isPlacementMode = false;
+            printf("placement mode cancelled\n");
+        }
     }
 }
 
