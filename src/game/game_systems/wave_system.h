@@ -92,6 +92,13 @@ static LevelWaves g_level_waves[] = {
     // add more levels here
 };
 
+enum WAVE_STATE {
+    WAVE_STATE_SPAWNING,        // actively spawning enemies
+    WAVE_STATE_WAITING,         // waiting between waves  
+    WAVE_STATE_TOWER_SELECTION, // player must select and place a tower
+    WAVE_STATE_COMPLETE         // all waves finished
+};
+
 // system state
 struct WaveSystemState {
     LEVEL_ID current_level;
@@ -103,6 +110,7 @@ struct WaveSystemState {
     float auto_wave_timer;    // timer for automatic wave start after 10 seconds
     bool wave_active;
     bool waiting_for_next_wave;
+    WAVE_STATE state;
 };
 
 // functions
@@ -110,4 +118,4 @@ void WaveSystem_Init(LEVEL_ID level);
 void WaveSystem_Update(float deltaTime, SceneBase* scene);
 void WaveSystem_StartNextWave();  // manual trigger
 bool WaveSystem_AllWavesComplete();
-
+bool WaveSystem_IsInTowerSelection();

@@ -9,16 +9,107 @@
 
 bool TowerPlacement::isPlacementMode = false;
 ELEMENT TowerPlacement::selectedElement = ELE_NONE;
+static EntityID texts[10];
+static TextComponent textscomp[10];
+
+
+static void InitSelectionText()
+{
+    // Init the selection text entities, but keep them invisible until needed
+
+
+    for(int i = 0; i < 3; i++) {
+        texts[i] = g_mainGame.RegisterEntity();
+        
+        auto textComp = ADD_Text(texts[i], ResourceManager::GetFont(FONT_FPS), "");
+        ADD_Transform(texts[i], 1400, 300+(i*40),0,2);
+        textComp->visible = false; // start invisible
+        switch(i) {
+            case 0:
+                strncpy(textComp->text, "1: fire tower", sizeof(textComp->text) - 1);
+                break;
+            case 1:
+                strncpy(textComp->text, "2: water tower", sizeof(textComp->text) - 1);
+                break;
+            case 2:
+                strncpy(textComp->text, "3: air tower", sizeof(textComp->text) - 1);
+                break;
+        }
+    }
+}
 
 void TowerPlacement::Init() {
     isPlacementMode = true;
     selectedElement = ELE_NONE;
+    InitSelectionText();
+
+}
+
+void TowerPlacement::HandleSelection()
+{
+    const SDL_Color yellowColor = {255, 255, 0, 255};
+
+    // allow the inputs 1 to 3 to select fire, water or air tower
+    if (Input::IsKeyPressed(SDL_SCANCODE_1))
+    {
+        selectedElement = ELE_FIRE; // fire tower
+        isPlacementMode = true;
+        printf("fire tower selected\n");
+    }
+    if (Input::IsKeyPressed(SDL_SCANCODE_2))
+    {
+        selectedElement = ELE_WATER; // water tower
+        isPlacementMode = true;
+        printf("water tower selected\n");
+    }
+    if (Input::IsKeyPressed(SDL_SCANCODE_3))
+    {
+        selectedElement = ELE_WIND; // water+fire tower
+        isPlacementMode = true;
+        printf("air tower selected\n");
+    }
+
+    // now update the colors: the selected text should be yellow, others should be black
+    for(int i = 0; i < 3; i++) {
+        auto textComp = GET_Text(texts[i]);
+        if(textComp) {
+            if((i == 0 && selectedElement == ELE_FIRE) ||
+               (i == 1 && selectedElement == ELE_WATER) ||
+               (i == 2 && selectedElement == ELE_WIND)) {
+                textComp->color = {255, 255, 0, 255}; // yellow for selected
+                textComp->isDirty = true;
+            } else {
+                if (memcmp(&textComp->color, &yellowColor, sizeof(textComp->color)) == 0)
+                {
+                    textComp->isDirty = true;
+                    textComp->color = {0, 0, 0, 255}; // black for unselected
+                }
+            }
+            // also makes it visible
+            textComp->visible=true;
+        }
+    }
 }
 
 void TowerPlacement::Update() {
     // handle input for tower placement
     static bool mousePressed = false;
     
+    if(WaveSystem_IsInTowerSelection())
+    {
+        HandleSelection();
+    }
+    else
+    {
+        // make text invisible
+        for(int i = 0; i < 3; i++) {
+            auto textComp = GET_Text(texts[i]);
+            if(textComp) {
+                textComp->visible = false;
+            }
+        }
+    }
+
     if (Input::IsMouseButtonDown(SDL_BUTTON_LEFT)) {
         if (!mousePressed) {
             mousePressed = true;
@@ -31,7 +122,7 @@ void TowerPlacement::Update() {
                 
                 // if we're in tower selection mode, complete the selection
                 if (WaveSystem_IsInTowerSelection()) {
-                    WaveSystem_CompleteTowerSelection();
+                    WaveSystem_StartNextWave();
                     isPlacementMode = false; // exit placement mode
                 }
             }

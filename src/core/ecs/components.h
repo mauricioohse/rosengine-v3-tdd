@@ -274,6 +274,7 @@ struct TextComponent : Component {
     Texture* texture = nullptr;
     bool isDirty = true;
     TextAlignment alignment = TEXT_CENTER;
+    bool visible = true;
 
     void Init(Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
         font = _font;

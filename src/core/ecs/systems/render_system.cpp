@@ -582,7 +582,7 @@ void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components
     TextComponent* text = 
         (TextComponent*)components->GetComponentData(entity, C_Text);
 
-    if (!transform || !text || !text->texture) return;
+    if (!transform || !text || !text->texture || !text->visible) return;
 
     float screenX = transform->x;
     float screenY = transform->y;
@@ -592,22 +592,25 @@ void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components
         screenY -= camera->y;
     }
 
+    int scaledWidth = (int)(text->texture->width * transform->scale);
+    int scaledHeight = (int)(text->texture->height * transform->scale);
+
     // Adjust position based on alignment
     switch (text->alignment) {
         case TEXT_CENTER:
-            screenX -= text->texture->width / 2;
-            screenY -= text->texture->height / 2;
+            screenX -= scaledWidth / 2;
+            screenY -= scaledHeight / 2;
             break;
         case TEXT_RIGHT:
-            screenX -= text->texture->width;
+            screenX -= scaledWidth;
             break;
     }
 
     SDL_Rect destRect = {
         (int)screenX,
         (int)screenY,
-        text->texture->width,
-        text->texture->height
+        scaledWidth,
+        scaledHeight
     };
 
     SDL_RenderCopy(
