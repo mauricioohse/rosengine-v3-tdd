@@ -399,20 +399,10 @@ struct ElementComponent  {
 
     void Init(ELEMENT new_ele)
     {
-        int idx = 0;
-        while (elements[idx]!=ELE_NONE)
-        {
-            idx++;
-        }
+        memset(elements,0, sizeof(elements));
+        elements[0] = new_ele;
 
-        // now idx is the next idx that is not filled with ELE_NONE
-        if(idx >= MAX_ELEMENTS)
-        {
-            DO_ONCE(printf("ATTEMPTED ADDING EXTRA ELEMENT ON TOWER WITH 3 ELEMENTS!\n"));
-            return;
-        }
-
-        elements[idx] = new_ele;
+        
     }
 };
 

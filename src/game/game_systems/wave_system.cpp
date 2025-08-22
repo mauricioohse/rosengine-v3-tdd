@@ -134,14 +134,14 @@ void WaveSystem_StartNextWave()
         g_wave_ctx.state = WAVE_STATE_SPAWNING;
 
         char text[40];
-        snprintf(text, sizeof(text),"current wave: %d", g_wave_ctx.current_wave_index );
+        snprintf(text, sizeof(text),"current wave: %d/7", g_wave_ctx.current_wave_index );
         printf(text);
         printf("\n");
 
         // create a red text in the middle of the screen saying starting next wave, with 3 second lifetime
         if (!g_Engine.entityManager.IsEntityValid(wave_text))
         {
-            EntityID wave_text = g_mainGame.RegisterEntity();
+            wave_text = g_mainGame.RegisterEntity();
             ADD_Transform(wave_text, 1440, 50, 0, 1.0f);
             ADD_Text(wave_text, ResourceManager::GetFont(FONT_FPS), text);
         }
@@ -150,6 +150,7 @@ void WaveSystem_StartNextWave()
             // if wave changed, update text
             if (g_wave_ctx.current_wave_index != last_wave_in_text)
             {
+                last_wave_in_text = g_wave_ctx.current_wave_index;
                 auto comp = GET_Text(wave_text);
                 snprintf(comp->text, sizeof(comp->text), text);
                 comp->isDirty =  true;
@@ -164,7 +165,13 @@ bool WaveSystem_AllWavesComplete()
     if (g_wave_ctx.current_level >= LEVEL_MAX) {
         return true;
     }
-    
+
+    // debug since we only have 1 level and 7 waves
+    if (g_wave_ctx.current_wave_index >= 8)
+    {
+        return true;
+    }
+
     LevelWaves* level_waves = &g_level_waves[g_wave_ctx.current_level];
     return g_wave_ctx.current_wave_index >= level_waves->wave_count;
 }

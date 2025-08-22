@@ -9,3 +9,4 @@ struct playerLife_context {
 
 void playerLife_init();
 void playerLife_decrease_health(int amount);
+int playerLife_get_health();

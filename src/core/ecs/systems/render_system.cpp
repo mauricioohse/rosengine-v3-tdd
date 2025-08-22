@@ -461,14 +461,14 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // DEBUG: draw all Colliders rectangle edges in red
-    for (EntityID entity : entities)
-    {
-        if (HAS_COMPONENT(entity, C_Collider))
-        {
-            RenderCollider(entity);
-        }
-    }
+    // // DEBUG: draw all Colliders rectangle edges in red
+    // for (EntityID entity : entities)
+    // {
+    //     if (HAS_COMPONENT(entity, C_Collider))
+    //     {
+    //         RenderCollider(entity);
+    //     }
+    // }
 }
 
 void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera, float deltaTime) {

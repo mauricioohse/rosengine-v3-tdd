@@ -71,6 +71,7 @@ static void spawnDebugEnemies()
 
 static EntityID speedTextEntity;
 static EntityID mousePosTextEntity;
+static EntityID victoryTextEntity;
 
 static void Init_speed_text(){
      speedTextEntity = g_mainGame.RegisterEntity();
@@ -83,6 +84,14 @@ static void Init_speed_text(){
     ADD_Transform(mousePosTextEntity, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 30, 0, 1.0f);
     char * mousePosText = "(0, 0)";
     ADD_Text(mousePosTextEntity, ResourceManager::GetFont(FONT_FPS), mousePosText);
+
+
+    // victory text, will be only shown in screen if all waves ends
+    // victory text entity
+    EntityID victoryTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(victoryTextEntity, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 3.0f);
+    auto t =ADD_Text(victoryTextEntity, ResourceManager::GetFont(FONT_FPS), "victory!");
+    t->visible = false;
 }
 
 static void Update_speed_text()
@@ -96,6 +105,27 @@ static void Update_speed_text()
     auto mousePosComp = GET_Text(mousePosTextEntity);
     snprintf(mousePosComp->text, sizeof(mousePosComp->text), "(%d, %d)", (int)Input::mouseX, (int)Input::mouseY);
     mousePosComp->isDirty = true;
+
+    // checks win condition
+    if (WaveSystem_AllWavesComplete())
+    {
+        // update text based on remaining life: more than 0, yellow vicotry text. 0 or less, show DEFEATED, TRY HARDER
+        victoryTextEntity = speedTextEntity + 2; // hacky but works since we know the order
+        auto victoryComp = GET_Text(victoryTextEntity);
+        
+        if (playerLife_get_health() > 0) {
+            // yellow victory text
+            snprintf(victoryComp->text, sizeof(victoryComp->text), "VICTORY!");
+            victoryComp->color = {255, 255, 0, 255}; // yellow
+        } else {
+            // red defeat text
+            snprintf(victoryComp->text, sizeof(victoryComp->text), "DEFEATED, TRY HARDER");
+            victoryComp->color = {255, 0, 0, 255}; // red
+        }
+        
+        victoryComp->visible = true;
+        victoryComp->isDirty = true;
+    }
 }
 
 void MainGameScene::OnLoad() 

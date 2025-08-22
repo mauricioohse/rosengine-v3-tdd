@@ -9,7 +9,7 @@ struct EnemyArchetype {
     int base_speed;
     float size_multiplier;
     TextureID texture;
-    SDL_Color color;
+    SDL_Color color = {255,255,255,255};
     // behavioral flags
     int flies = 0;
     int armored = 0;
@@ -34,22 +34,33 @@ enum ENEMY_TYPE {
     ENEMY_LAST_VALUE // keep as last
     // whenever creating a new enemy type, also add a comment in g_enemy_archetypes matching it!
 };
-
+const SDL_Color SDL_RED = {255, 0, 0, 255};
+const SDL_Color SDL_GREEN = {0, 255, 0, 255};
+const SDL_Color SDL_BLUE = {0, 0, 255, 255};
+const SDL_Color SDL_WHITE = {255, 255, 255, 255};
+const SDL_Color SDL_BLACK = {0, 0, 0, 255};
+const SDL_Color SDL_YELLOW = {255, 255, 0, 255};
+const SDL_Color SDL_CYAN = {0, 255, 255, 255};
+const SDL_Color SDL_MAGENTA = {255, 0, 255, 255};
+const SDL_Color SDL_GRAY = {128, 128, 128, 255};
+const SDL_Color SDL_ORANGE = {255, 165, 0, 255};
+const SDL_Color SDL_PURPLE = {128, 0, 128, 255};
+const SDL_Color SDL_BROWN = {165, 42, 42, 255};
 
 // lookup table
 static EnemyArchetype g_enemy_archetypes[] = {
     {80, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_I
     {120, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_II
     {180, 50, .2f, TEXTURE_BOX_ENEMY},        // ENEMY_BASIC_III
-    {40, 50, .1f, TEXTURE_BOX_ENEMY},         // ENEMY_FODDER_I
-    {60, 50, .12f, TEXTURE_BOX_ENEMY},        // ENEMY_FODDER_II
-    {90, 50, .15f, TEXTURE_BOX_ENEMY},        // ENEMY_FODDER_III
-    {50, 125, .15f, TEXTURE_BOX_ENEMY},        // ENEMY_RUNNER_I
-    {50, 175, .15f, TEXTURE_BOX_ENEMY},        // ENEMY_RUNNER_II
-    {80, 250, .15f, TEXTURE_BOX_ENEMY},        // ENEMY_RUNNER_III
-    {500, 30, .3f, TEXTURE_BOX_FAT_ENEMY},   // ENEMY_FAT_I
-    {1000, 30, .5f, TEXTURE_BOX_FAT_ENEMY},  // ENEMY_FAT_II
-    {1000, 60, .6f, TEXTURE_BOX_FAT_ENEMY}, // ENEMY_FAT_III
+    {40, 50, .1f, TEXTURE_BOX_ENEMY, SDL_RED},         // ENEMY_FODDER_I
+    {60, 50, .12f, TEXTURE_BOX_ENEMY, SDL_RED},        // ENEMY_FODDER_II
+    {90, 50, .15f, TEXTURE_BOX_ENEMY, SDL_RED},        // ENEMY_FODDER_III
+    {50, 125, .15f, TEXTURE_BOX_ENEMY, SDL_CYAN},        // ENEMY_RUNNER_I
+    {50, 175, .15f, TEXTURE_BOX_ENEMY, SDL_CYAN},        // ENEMY_RUNNER_II
+    {80, 250, .15f, TEXTURE_BOX_ENEMY, SDL_CYAN},        // ENEMY_RUNNER_III
+    {500, 30, .3f, TEXTURE_BOX_FAT_ENEMY, SDL_BLUE},   // ENEMY_FAT_I
+    {1000, 30, .5f, TEXTURE_BOX_FAT_ENEMY, SDL_BLUE},  // ENEMY_FAT_II
+    {1000, 60, .6f, TEXTURE_BOX_FAT_ENEMY, SDL_BLUE}, // ENEMY_FAT_III
     {5000, 30, 1.f, TEXTURE_BOSS}, // ENEMY_FAT_III
     // note: the order needs to be the same as in ENEMY_TYPE.
 };
