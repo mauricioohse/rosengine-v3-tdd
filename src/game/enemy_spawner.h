@@ -30,6 +30,7 @@ enum ENEMY_TYPE {
     ENEMY_FAT_I,
     ENEMY_FAT_II,
     ENEMY_FAT_III,
+    ENEMY_BOSS,
     ENEMY_LAST_VALUE // keep as last
     // whenever creating a new enemy type, also add a comment in g_enemy_archetypes matching it!
 };
@@ -49,6 +50,7 @@ static EnemyArchetype g_enemy_archetypes[] = {
     {500, 30, .3f, TEXTURE_BOX_FAT_ENEMY},   // ENEMY_FAT_I
     {1000, 30, .5f, TEXTURE_BOX_FAT_ENEMY},  // ENEMY_FAT_II
     {1000, 60, .6f, TEXTURE_BOX_FAT_ENEMY}, // ENEMY_FAT_III
+    {5000, 30, 1.f, TEXTURE_BOSS}, // ENEMY_FAT_III
     // note: the order needs to be the same as in ENEMY_TYPE.
 };
 
@@ -73,6 +75,7 @@ static EnemyGroup g_enemy_groups[]=
     {ENEMY_FAT_I, 3, 2.f},
     {ENEMY_FAT_II, 3, 2.f},
     {ENEMY_FAT_III, 3, 2.f},
+    {ENEMY_BOSS, 1, 2.f},
 };
 
 namespace EnemySpawner

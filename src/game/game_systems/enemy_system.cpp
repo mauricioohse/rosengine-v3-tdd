@@ -69,6 +69,17 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                     transform->y += dy * speed * deltaTime;
                 }
             }
+        
+            // specific enemy logic here
+            // switch (enemy.)
+            // {
+            // case constant expression:
+            //     /* code */
+            //     break;
+            
+            // default:
+            //     break;
+            // }
         }
         else if (transform && enemy && debug)
         {

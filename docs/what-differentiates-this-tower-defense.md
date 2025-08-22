@@ -117,6 +117,11 @@ todo:
 [ ] - boss (with enemy spawner)
 [x] - remaining dual towers
 [x] - FIRE + WATER + AIR
-[ ] - implement the waves, text when wave starting
-    >
-[ ] - implement the reward element selection
+[x] - implement the waves, text when wave starting
+[x] - implement the reward element selection
+[ ] - sound when wave ends and when tower is placed
+[ ] - overhaul in wave system (eventually)
+[ ] - towers need to be more differentiable between them
+[ ] - targetting needs to be improved, always target target that is closer to the end
+[ ] - on mouse over, tower should tell damage + kills
+[ ] - enemy collor based on what is best against it (red for water, ice-blue for fodder, green for wind why not)

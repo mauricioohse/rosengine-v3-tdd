@@ -64,9 +64,15 @@ static EnemyGroup level1_wave7_groups[] = {
 };
 
 
+static EnemyGroup level1_wave8_groups[] = {
+    g_enemy_groups[ENEMY_BOSS],
+};
+
+
 
 // wave lookup table for level 1
 static Wave level1_waves[] = {
+    {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups // for testing
     {level1_wave1_groups, 3, 0.0f},     // wave 1: 3 groups
     {level1_wave2_groups, 2, 2.0f},     // wave 2: 2 groups
     {level1_wave3_groups, 4, 2.0f},     // wave 3: 4 groups
@@ -74,6 +80,7 @@ static Wave level1_waves[] = {
     {level1_wave5_groups, 2, 2.0f},     // wave 5: 2 groups
     {level1_wave6_groups, 3, 2.0f},     // wave 6: 3 groups
     {level1_wave7_groups, 4, 2.0f},     // wave 7: 4 groups
+    {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups
 };
 
 // level lookup table
