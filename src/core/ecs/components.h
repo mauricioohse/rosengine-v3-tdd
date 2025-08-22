@@ -273,7 +273,7 @@ struct TextComponent : Component {
     Texture* texture = nullptr;
     bool isDirty = true;
     TextAlignment alignment = TEXT_CENTER;
-    bool visible = true;
+    bool visible;
 
     void Init(Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
         font = _font;
@@ -282,6 +282,7 @@ struct TextComponent : Component {
         alignment = _alignment;
         isDirty = true;
         texture = nullptr;
+        visible =  true;
         printf("text component initialized: %s\n", text);
     }
 
