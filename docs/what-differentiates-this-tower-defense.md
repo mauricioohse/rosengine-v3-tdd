@@ -125,3 +125,5 @@ todo:
 [ ] - targetting needs to be improved, always target target that is closer to the end
 [ ] - on mouse over, tower should tell damage + kills
 [ ] - enemy collor based on what is best against it (red for water, ice-blue for fodder, green for wind why not)
+[ ] - remove debug square drawing on enemies and on towers
+[ ] - press F to change speed from 1x 2x 3x (rotating)

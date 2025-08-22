@@ -15,7 +15,7 @@ EntityID EnemySpawner::SpawnEnemyAt(SceneBase* scene, int x, int y, ENEMY_TYPE t
         (float)y,
         0.0F,
         enemy_archetype.size_multiplier );
-    ADD_Enemy(enemy, enemy_archetype.base_health, enemy_archetype.base_speed);
+    ADD_Enemy(enemy, enemy_archetype.base_health, enemy_archetype.base_speed, type);
     ADD_Sprite(enemy, ResourceManager::GetTexture(enemy_archetype.texture));
     g_Engine.componentArrays.Colliders[enemy].radius = g_Engine.componentArrays.Sprites[enemy].height/2; // copy the collider size from the sprite size
 

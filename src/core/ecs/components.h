@@ -7,7 +7,6 @@
 #include <float.h>
 #include "components/background_component.h"
 
-
 // Add camera constants
 #define CAMERA_FOLLOW_SPEED 15.0f     // How fast camera catches up to target
 #define CAMERA_DEADZONE_X 100.0f     // Horizontal deadzone before camera starts moving
@@ -683,13 +682,15 @@ struct EnemyComponent : Component {
     int maxHealth;
     int speed;
     int currPathIdx;
+    int type; // using int instead of ENEMY_TYPE to avoid forward declaration issues
 
-    void Init(int health, int _speed) {
+    void Init(int health, int _speed, int _type) {
         alive = 1;
         currHealth = health;
         maxHealth = health; 
         currPathIdx = 0;
         speed = _speed;
+        type = _type;
     }
 
     void Destroy()
@@ -697,6 +698,27 @@ struct EnemyComponent : Component {
         alive = 0;
     }
 
+};
+
+struct EnemySpawnerComponent : Component {
+    float spawnCooldown;
+    float currentCooldown;
+    int spawnType; // using int instead of ENEMY_TYPE to avoid forward declaration issues
+    int currentSpawns;
+    
+    void Init(float cooldown, int type) {
+        spawnCooldown = cooldown;
+        currentCooldown = cooldown;
+        spawnType = type;
+        currentSpawns = 0;
+    }
+    
+    void Destroy() override {
+        spawnCooldown = 0.0f;
+        currentCooldown = 0.0f;
+        spawnType = 0; // ENEMY_BASIC_I equivalent
+        currentSpawns = 0;
+    }
 };
 
 // Component initialization functions declarations only
