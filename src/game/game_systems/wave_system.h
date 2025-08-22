@@ -81,9 +81,7 @@ static Wave level1_waves[] = {
     {level1_wave5_groups, 2, 2.0f},     // wave 5: 2 groups
     {level1_wave6_groups, 3, 2.0f},     // wave 6: 3 groups
     {level1_wave7_groups, 4, 2.0f},     // wave 7: 4 groups
-    {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups
-    {level1_wave8_groups, 1, 2.0f},     // TODO: BUG! last wave is not spawning, this is a hack. 
-                                        // the whole wave system should be rewritten because it is omega-complex and dumb.
+    {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups (boss wave)
 };
 
 // level lookup table
@@ -98,7 +96,7 @@ struct LevelWaves {
 };
 
 static LevelWaves g_level_waves[] = {
-    {level1_waves, 7},  // LEVEL_1: 7 waves
+    {level1_waves, 8},  // LEVEL_1: 8 waves (0-7)
     // add more levels here
 };
 
