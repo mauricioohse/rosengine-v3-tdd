@@ -9,6 +9,15 @@
 #include "game/scenes/main_game_scene.h"
 #include "game/game_systems/resolve_elements_system.h"
 
+std::map<std::string, RenderColor> paletteOpaque = {
+    {"red", {255, 0, 0, 255}},
+    {"green", {0, 255, 0, 255}},
+    {"blue", {0, 0, 255, 255}},
+    {"white", {255, 255, 255, 255}},
+    {"black", {0, 0, 0, 255}},
+    {"grey", {122, 122, 122, 255}}
+};
+
 // Global variable to track which tower should be hidden during placement preview
 static EntityID g_towerToHide = INVALID_ENTITY;
 
@@ -58,6 +67,7 @@ static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius, Render
        }
    }
 }
+
 static void RenderCollider(EntityID entity)
 {
     TransformComponent* transform = GET_Transform(entity);
