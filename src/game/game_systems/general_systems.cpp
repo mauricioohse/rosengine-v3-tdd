@@ -47,25 +47,6 @@ static EntityID CheckEnemyInRange(EntityID tower){
 
 }
 
-// TODO: this targeting system sucks and needs to be better thought out. sometimes towers shoots entities outside their range if the target is aquired while CD > 0
-void TargetingSystem(SceneBase *scene)
-{
-    FOR_EACH_COMPONENT_2(scene, tower, Target, tar, Tower, tc)
-    {
-
-        if (tar->target == 0 && tc->currCD<=0) { // TODO: create a INVALID_ENTITY constant instead of magic 0
-            tar->target= CheckEnemyInRange(tower);
-            if (tar->target) printf("Tower %d found target tar->target %d!\n", tower, tar->target);
-        }
-        else
-        {
-            if (!g_Engine.entityManager.IsEntityValid(tar->target))
-                tar->target = 0;
-        }
-        
-    } END_FOR_EACH
-}
-
 static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
 {
     auto enemy_tr = GET_Transform(enemy);
@@ -322,24 +303,56 @@ static void CreateCCGust(SceneBase* scene, EntityID target)
 }
 
 
+static EntityID GetTarget(TransformComponent* tr, TowerComponent * tw )
+{
+    SceneBase * scene = &g_mainGame;
+    
+    EntityID bestTarget = 0;
+    int maxPathProgress = -1;
+    
+    // iterate through all enemies
+    FOR_EACH_COMPONENT_2(scene, enemy,
+                        Transform, enemy_tr,
+                        Enemy, en)
+    {
+        // check if enemy is in range
+        float dx = enemy_tr->x - tr->x;
+        float dy = enemy_tr->y - tr->y;
+        float distance = sqrt(dx * dx + dy * dy);
+        
+        if (distance <= tw->range) {
+            // enemy is in range, check if it's more advanced than current best
+            if (en->currPathIdx > maxPathProgress) {
+                maxPathProgress = en->currPathIdx;
+                bestTarget = enemy;
+            }
+        }
+    } END_FOR_EACH
+    
+    return bestTarget;
+}
+
 
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
-    TargetComponent *tc = GET_Target(tower);
+    TransformComponent* tower_transform = GET_Transform(tower);
+    TowerComponent* tower_component = GET_Tower(tower);
+    
+    if (!tower_transform || !tower_component) return;
+    
+    EntityID target = GetTarget(tower_transform, tower_component);
     TransformComponent *target_transform = nullptr;
-    EntityID target = tc ? tc->target : INVALID_ENTITY; // store target
-    if (target!=0 && g_Engine.entityManager.IsEntityValid(target))
+    
+    if (target != 0 && g_Engine.entityManager.IsEntityValid(target))
     {
-        target_transform = GET_Transform(tc->target);
-        tc->target = 0; // resets target
+        target_transform = GET_Transform(target);
     }
     else
     return ; // no target, do nothing
 
     // if (!ps) {DO_ONCE(printf("something wrong happened here!\n"); return;);} // how the hell we came here!?
 
-    TransformComponent* tower_transform = GET_Transform(tower);
     DamageComponent * tower_damage = GET_Damage(tower);
     EnemyComponent *enemy = GET_Enemy(target);
 

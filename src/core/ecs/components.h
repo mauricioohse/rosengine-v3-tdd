@@ -411,12 +411,6 @@ struct ResolveElementComponent: Component {
     
 };
 
-struct TargetComponent {
-    EntityID target = 0;
-
-    void Init(EntityID _target) { target = _target; }
-};
-
 struct LifeTimeComponent : Component {
     float remaininglifeTime; // in seconds
 

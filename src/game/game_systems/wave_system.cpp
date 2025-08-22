@@ -166,12 +166,29 @@ bool WaveSystem_AllWavesComplete()
         return true;
     }
 
-    // debug since we only have 1 level and 7 waves
-    if (g_wave_ctx.current_wave_index >= 8)
-    {
-        return true;
-    }
-
     LevelWaves* level_waves = &g_level_waves[g_wave_ctx.current_level];
-    return g_wave_ctx.current_wave_index >= level_waves->wave_count;
+    
+    // check if all waves in current level are complete
+    if (g_wave_ctx.current_wave_index >= level_waves->wave_count) {
+        // if this was the last level, we're done
+        if (g_wave_ctx.current_level + 1 >= LEVEL_MAX) {
+            return true;
+        }
+        
+        // otherwise advance to next level
+        g_wave_ctx.current_level = (LEVEL_ID)(g_wave_ctx.current_level + 1);
+        g_wave_ctx.current_wave_index = 0;
+        g_wave_ctx.current_group_index = 0;
+        g_wave_ctx.enemies_spawned_in_group = 0;
+        g_wave_ctx.wave_active = false;
+        g_wave_ctx.waiting_for_next_wave = false;
+        g_wave_ctx.state = WAVE_STATE_TOWER_SELECTION;
+        
+        printf("advanced to level %d\n", g_wave_ctx.current_level);
+        
+        // check again with new level
+        return WaveSystem_AllWavesComplete();
+    }
+    
+    return false;
 }

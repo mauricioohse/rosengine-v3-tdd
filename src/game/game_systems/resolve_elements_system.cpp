@@ -99,7 +99,6 @@ void ResolveElementSystem(SceneBase * scene)
             // apply the tower configuration
             ADD_ProjectileSpawner(entity, tower_data->projectile_type);
             ADD_Damage(entity, tower_data->damage);
-            ADD_Target(entity, 0);
             ADD_Cooldown(entity, tower_data->cooldown);
             ADD_Tower(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
             ADD_Sprite(entity, ResourceManager::GetTexture(tower_data->tex));

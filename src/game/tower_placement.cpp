@@ -220,7 +220,7 @@ static bool AddElementToExistingTower(EntityID e, ELEMENT element)
     }
     else
     {
-        ADD_Element(e, element);
+        container->elements[idx]=element;
         ADD_ResolveElement(e);
         return true;
     }

@@ -22,7 +22,7 @@ xcomponent(Crowdcontrol, 20, (EntityID entity, EntityID tgt, int _targetX, int _
 xcomponent(ChainLightning, 21, (EntityID entity, int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes), ( _currX, _currY, _nextX, _nextY, _target, _damage, _jumps, _explodes))
 xcomponent(EnemyDebug,22, (EntityID entity, ELEMENT _element), ( _element))
 xcomponent(EnemyExit,23, (EntityID entity), ( ))
-xcomponent(Target,24, (EntityID entity, EntityID _target), (_target))
+
 xcomponent(ProjectileSpawner,25, (EntityID entity, PROJECTILE_TYPE _type), (_type))
 xcomponent(Cooldown,26, (EntityID entity, float _CD), (_CD))
 xcomponent(Damage,27, (EntityID entity, int _damage), (_damage))

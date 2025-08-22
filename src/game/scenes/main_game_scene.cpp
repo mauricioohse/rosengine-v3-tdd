@@ -285,8 +285,6 @@ void MainGameScene::OptionalUpdate(float deltaTime)
 
     Grid::DrawGrid();
 
-    TargetingSystem(&g_mainGame);
-
     ProjectileSpawningSystem(&g_mainGame);
 
     new_CrowdcontrolSystem(&g_mainGame);
