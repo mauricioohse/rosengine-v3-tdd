@@ -106,7 +106,7 @@ void Engine::RunFrame() {
     g_Engine.window->Clear();
 
     // Update and render game
-    g_Game.Update(g_Engine.deltaTime);
+    g_Game.Update(g_Engine.deltaTime * speed);
     g_Game.Render();
 
     // Present screen
@@ -148,4 +148,13 @@ void Engine::Cleanup() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
-} 
+}
+
+void Engine::ChangeSpeed()
+{
+    // rotates speed, possible values: [1,2,3]
+    speed++;
+    if (speed > 3) {
+        speed = 1;
+    }
+}

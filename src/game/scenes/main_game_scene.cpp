@@ -69,12 +69,43 @@ static void spawnDebugEnemies()
     
 } 
 
+static EntityID speedTextEntity;
+static EntityID mousePosTextEntity;
+
+static void Init_speed_text(){
+     speedTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(speedTextEntity, 1400, 833, 0, 1.0f);
+    char * text = "Press F to change speed: 1x";
+    ADD_Text(speedTextEntity, ResourceManager::GetFont(FONT_FPS), text);
+
+    // debug: also show mouse position
+    mousePosTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(mousePosTextEntity, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 30, 0, 1.0f);
+    char * mousePosText = "(0, 0)";
+    ADD_Text(mousePosTextEntity, ResourceManager::GetFont(FONT_FPS), mousePosText);
+}
+
+static void Update_speed_text()
+{
+    char text[30];
+    auto comp = GET_Text(speedTextEntity);
+    snprintf(comp->text, sizeof(comp->text), "Press F to change speed: %dx", g_Engine.speed);
+    comp->isDirty = true;
+
+    // update mouse position text
+    auto mousePosComp = GET_Text(mousePosTextEntity);
+    snprintf(mousePosComp->text, sizeof(mousePosComp->text), "(%d, %d)", (int)Input::mouseX, (int)Input::mouseY);
+    mousePosComp->isDirty = true;
+}
+
 void MainGameScene::OnLoad() 
 {
 
     WaveSystem_Init(LEVEL_1);
 
     playerLife_init();
+
+    Init_speed_text();
 
     TowerPlacement::Init();
 
@@ -86,7 +117,7 @@ void MainGameScene::OnLoad()
     }
 }
 
-void MainGameScene::handle_pause_input()
+void MainGameScene::handle_input()
 {
     static bool escapeReleased = false;
     
@@ -104,6 +135,11 @@ void MainGameScene::handle_pause_input()
     if (Input::IsKeyDown(SDL_SCANCODE_SPACE))
     {
         WaveSystem_StartNextWave();
+    }
+
+    if (Input::IsKeyPressed(SDL_SCANCODE_F))
+    {
+        g_Engine.ChangeSpeed();
     }
 
 }
@@ -208,7 +244,9 @@ static void PrintDebugTowerStats()
 
 void MainGameScene::OptionalUpdate(float deltaTime)
 {
-    handle_pause_input();
+    handle_input();
+
+    Update_speed_text();
 
     WaveSystem_Update(deltaTime, &g_mainGame);
 

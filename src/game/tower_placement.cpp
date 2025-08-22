@@ -6,6 +6,8 @@
 #include "grid.h"
 #include "enemy_spawner.h"
 #include "wave_system.h"
+#include "play_sound.h"
+
 
 bool TowerPlacement::isPlacementMode = false;
 ELEMENT TowerPlacement::selectedElement = ELE_NONE;
@@ -18,20 +20,24 @@ static void InitSelectionText()
     // Init the selection text entities, but keep them invisible until needed
 
 
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 4; i++) {
         texts[i] = g_mainGame.RegisterEntity();
         
         auto textComp = ADD_Text(texts[i], ResourceManager::GetFont(FONT_FPS), "");
-        ADD_Transform(texts[i], 1400, 300+(i*40),0,2);
+        ADD_Transform(texts[i], 1580, 300+(i*40),0,1.3);
         textComp->visible = false; // start invisible
+        textComp->alignment = TEXT_RIGHT;
         switch(i) {
             case 0:
-                strncpy(textComp->text, "1: fire tower", sizeof(textComp->text) - 1);
+            strncpy(textComp->text, "Select new element:", sizeof(textComp->text) - 1);
                 break;
             case 1:
-                strncpy(textComp->text, "2: water tower", sizeof(textComp->text) - 1);
+                strncpy(textComp->text, "1: fire tower", sizeof(textComp->text) - 1);
                 break;
             case 2:
+                strncpy(textComp->text, "2: water tower", sizeof(textComp->text) - 1);
+                break;
+            case 3:
                 strncpy(textComp->text, "3: air tower", sizeof(textComp->text) - 1);
                 break;
         }
@@ -70,12 +76,12 @@ void TowerPlacement::HandleSelection()
     }
 
     // now update the colors: the selected text should be yellow, others should be black
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 4; i++) {
         auto textComp = GET_Text(texts[i]);
         if(textComp) {
-            if((i == 0 && selectedElement == ELE_FIRE) ||
-               (i == 1 && selectedElement == ELE_WATER) ||
-               (i == 2 && selectedElement == ELE_WIND)) {
+            if((i == 1 && selectedElement == ELE_FIRE) ||
+               (i == 2 && selectedElement == ELE_WATER) ||
+               (i == 3 && selectedElement == ELE_WIND)) {
                 textComp->color = {255, 255, 0, 255}; // yellow for selected
                 textComp->isDirty = true;
             } else {
@@ -89,7 +95,10 @@ void TowerPlacement::HandleSelection()
             textComp->visible=true;
         }
     }
+
+
 }
+
 
 void TowerPlacement::Update() {
     // handle input for tower placement
@@ -102,7 +111,7 @@ void TowerPlacement::Update() {
     else
     {
         // make text invisible
-        for(int i = 0; i < 3; i++) {
+        for(int i = 0; i < 4; i++) {
             auto textComp = GET_Text(texts[i]);
             if(textComp) {
                 textComp->visible = false;
@@ -119,6 +128,7 @@ void TowerPlacement::Update() {
             
             if (TryPlaceTower(selectedElement, mouseX, mouseY)) {
                 printf("tower placed successfully\n");
+                PlaySound::PlaySound(SOUND_JUMP);
                 
                 // if we're in tower selection mode, complete the selection
                 if (WaveSystem_IsInTowerSelection()) {

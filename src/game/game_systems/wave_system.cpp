@@ -120,6 +120,9 @@ void WaveSystem_Update(float deltaTime, SceneBase* scene)
     }
 }
 
+static EntityID wave_text = INVALID_ENTITY;
+static int last_wave_in_text = 0;
+
 void WaveSystem_StartNextWave()
 {
     // handle both initial tower selection and between-wave cases
@@ -131,14 +134,28 @@ void WaveSystem_StartNextWave()
         g_wave_ctx.state = WAVE_STATE_SPAWNING;
 
         char text[40];
-        snprintf(text, sizeof(text),"starting next wave %d\n", g_wave_ctx.current_wave_index );
+        snprintf(text, sizeof(text),"current wave: %d", g_wave_ctx.current_wave_index );
         printf(text);
+        printf("\n");
 
         // create a red text in the middle of the screen saying starting next wave, with 3 second lifetime
-        EntityID wave_text = g_mainGame.RegisterEntity();
-        ADD_Transform(wave_text, 400, 300, 0, 1.0f);
-        ADD_Text(wave_text, ResourceManager::GetFont(FONT_FPS),text);
-        ADD_LifeTime(wave_text, 3.0f);
+        if (!g_Engine.entityManager.IsEntityValid(wave_text))
+        {
+            EntityID wave_text = g_mainGame.RegisterEntity();
+            ADD_Transform(wave_text, 1440, 50, 0, 1.0f);
+            ADD_Text(wave_text, ResourceManager::GetFont(FONT_FPS), text);
+        }
+        else
+        {
+            // if wave changed, update text
+            if (g_wave_ctx.current_wave_index != last_wave_in_text)
+            {
+                auto comp = GET_Text(wave_text);
+                snprintf(comp->text, sizeof(comp->text), text);
+                comp->isDirty =  true;
+            }
+        }
+        
     }
 }
 

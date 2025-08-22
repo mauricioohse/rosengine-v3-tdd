@@ -9,7 +9,7 @@ struct MainGameScene : public SceneBase {
     void OnLoad() override;
     void OptionalUpdate(float deltaTime) override;
 
-    void handle_pause_input();
+    void handle_input();
     char levelPath[30] = "lvl1.csv";
     int level = 1;
 

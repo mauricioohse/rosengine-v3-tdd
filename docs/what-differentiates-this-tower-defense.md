@@ -119,7 +119,7 @@ todo:
 [x] - FIRE + WATER + AIR
 [x] - implement the waves, text when wave starting
 [x] - implement the reward element selection
-[ ] - sound when wave ends and when tower is placed
+[x] - sound when wave ends and when tower is placed
 [ ] - overhaul in wave system (eventually)
 [ ] - towers need to be more differentiable between them
 [ ] - targetting needs to be improved, always target target that is closer to the end
