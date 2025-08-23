@@ -518,14 +518,14 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities, Compo
         }
     }
 
-    // DEBUG: draw all Colliders rectangle edges in red
-    for (EntityID entity : entities)
-    {
-        if (HAS_COMPONENT(entity, C_Collider))
-        {
-            RenderCollider(entity);
-        }
-    }
+    // // DEBUG: draw all Colliders rectangle edges in red
+    // for (EntityID entity : entities)
+    // {
+    //     if (HAS_COMPONENT(entity, C_Collider))
+    //     {
+    //         RenderCollider(entity);
+    //     }
+    // }
 }
 
 void RenderSystem::RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera, float deltaTime) {
@@ -616,6 +616,12 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
         sprite->height*transform->scale
     };
 
+    // Apply color modulation for hue shifting
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 
+                          sprite->colorMod.r, 
+                          sprite->colorMod.g, 
+                          sprite->colorMod.b);
+
     SDL_RenderCopyEx(
         g_Engine.window->renderer,
         sprite->texture->sdlTexture,
@@ -625,6 +631,9 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, ComponentArrays* componen
         NULL,
         SDL_FLIP_NONE
     );
+
+    // Reset color modulation to prevent affecting other sprites
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 255, 255, 255);
 }
 
 void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera) {
@@ -633,7 +642,7 @@ void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components
     TextComponent* text = 
         (TextComponent*)components->GetComponentData(entity, C_Text);
 
-    if (!transform || !text || !text->texture) return;
+    if (!transform || !text || !text->texture || !text->visible) return;
 
     float screenX = transform->x;
     float screenY = transform->y;
@@ -643,22 +652,25 @@ void RenderSystem::RenderTextEntity(EntityID entity, ComponentArrays* components
         screenY -= camera->y;
     }
 
+    int scaledWidth = (int)(text->texture->width * transform->scale);
+    int scaledHeight = (int)(text->texture->height * transform->scale);
+
     // Adjust position based on alignment
     switch (text->alignment) {
         case TEXT_CENTER:
-            screenX -= text->texture->width / 2;
-            screenY -= text->texture->height / 2;
+            screenX -= scaledWidth / 2;
+            screenY -= scaledHeight / 2;
             break;
         case TEXT_RIGHT:
-            screenX -= text->texture->width;
+            screenX -= scaledWidth;
             break;
     }
 
     SDL_Rect destRect = {
         (int)screenX,
         (int)screenY,
-        text->texture->width,
-        text->texture->height
+        scaledWidth,
+        scaledHeight
     };
 
     SDL_RenderCopy(

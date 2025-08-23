@@ -20,18 +20,19 @@ static void loadDebugLevelTowers()
 {
     // loads all towers types spaced horizontally
     // spawn one tower of each type, each in its own row, spaced by radius
-    int startX = Grid::GRID_START_POINT.x + Grid::GRID_SQUARE_LENGTH;
-    int startY = Grid::GRID_START_POINT.y + Grid::GRID_SQUARE_LENGTH;
+    int startX = Grid::GRID_START_POINT.x + Grid::GRID_SQUARE_LENGTH/2;
+    int startY = Grid::GRID_START_POINT.y + Grid::GRID_SQUARE_LENGTH/2;
     int currentX = startX;
 
     for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element=ELEMENT((int)element+1))
     {
         TowerPlacement::CreateTowerAt(element,Point{currentX,startY});
+        printf("element %d\n", element);
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
         ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH*2, 1, 1);
+        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH, 1, 1);
         g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
 
         // move to next horizontal position based on current tower's range
@@ -51,11 +52,11 @@ static void spawnDebugEnemies()
 
     if(everyXframes<=0)
     {
-        for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType = TOWER_TYPE((int)towerType + 1))
+        for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element = ELEMENT((int)element + 1))
         {
-            ENEMY_TYPE type = (ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
-            EnemySpawner::SpawnEnemyAt(&g_mainGame, currentX, startY, type, true);
-            
+            ENEMY_TYPE type = ENEMY_BASIC_I;//(ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
+            EntityID e = EnemySpawner::SpawnEnemyAt(&g_mainGame, currentX, startY, type, true);
+            ADD_EnemyDebug(e, element);
             // move to next horizontal position based on current tower's range
             currentX += 250;
         }
@@ -68,12 +69,73 @@ static void spawnDebugEnemies()
     
 } 
 
+static EntityID speedTextEntity;
+static EntityID mousePosTextEntity;
+static EntityID victoryTextEntity;
+
+static void Init_speed_text(){
+     speedTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(speedTextEntity, 1400, 833, 0, 1.0f);
+    char * text = "Press F to change speed: 1x";
+    ADD_Text(speedTextEntity, ResourceManager::GetFont(FONT_FPS), text);
+
+    // debug: also show mouse position
+    mousePosTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(mousePosTextEntity, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 30, 0, 1.0f);
+    char * mousePosText = "(0, 0)";
+    ADD_Text(mousePosTextEntity, ResourceManager::GetFont(FONT_FPS), mousePosText);
+
+
+    // victory text, will be only shown in screen if all waves ends
+    // victory text entity
+    EntityID victoryTextEntity = g_mainGame.RegisterEntity();
+    ADD_Transform(victoryTextEntity, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 3.0f);
+    auto t =ADD_Text(victoryTextEntity, ResourceManager::GetFont(FONT_FPS), "victory!");
+    t->visible = false;
+}
+
+static void Update_speed_text()
+{
+    char text[30];
+    auto comp = GET_Text(speedTextEntity);
+    snprintf(comp->text, sizeof(comp->text), "Press F to change speed: %dx", g_Engine.speed);
+    comp->isDirty = true;
+
+    // update mouse position text
+    auto mousePosComp = GET_Text(mousePosTextEntity);
+    snprintf(mousePosComp->text, sizeof(mousePosComp->text), "(%d, %d)", (int)Input::mouseX, (int)Input::mouseY);
+    mousePosComp->isDirty = true;
+
+    // checks win condition
+    if (WaveSystem_AllWavesComplete())
+    {
+        // update text based on remaining life: more than 0, yellow vicotry text. 0 or less, show DEFEATED, TRY HARDER
+        victoryTextEntity = speedTextEntity + 2; // hacky but works since we know the order
+        auto victoryComp = GET_Text(victoryTextEntity);
+        
+        if (playerLife_get_health() > 0) {
+            // yellow victory text
+            snprintf(victoryComp->text, sizeof(victoryComp->text), "VICTORY!");
+            victoryComp->color = {255, 255, 0, 255}; // yellow
+        } else {
+            // red defeat text
+            snprintf(victoryComp->text, sizeof(victoryComp->text), "DEFEATED, TRY HARDER");
+            victoryComp->color = {255, 0, 0, 255}; // red
+        }
+        
+        victoryComp->visible = true;
+        victoryComp->isDirty = true;
+    }
+}
+
 void MainGameScene::OnLoad() 
 {
 
     WaveSystem_Init(LEVEL_1);
 
     playerLife_init();
+
+    Init_speed_text();
 
     TowerPlacement::Init();
 
@@ -85,7 +147,7 @@ void MainGameScene::OnLoad()
     }
 }
 
-void MainGameScene::handle_pause_input()
+void MainGameScene::handle_input()
 {
     static bool escapeReleased = false;
     
@@ -104,19 +166,23 @@ void MainGameScene::handle_pause_input()
     {
         WaveSystem_StartNextWave();
     }
+
+    if (Input::IsKeyPressed(SDL_SCANCODE_F))
+    {
+        g_Engine.ChangeSpeed();
+    }
+
 }
 
-static const char* TowerTypeToString(TOWER_TYPE type)
+static const char* TowerElementToString(ELEMENT type)
 {
     switch(type)
     {
-        case TOWER_FIRE: return "FIRE";
-        case TOWER_WATER: return "WATER";
-        case TOWER_FIREWATER: return "FIREWATER";
-        case TOWER_EARTH: return "EARTH";
-        case TOWER_AIR: return "AIR";
-        case TOWER_ELECTRIC: return "ELECTRIC";
-        case TOWER_DEBUG: return "DEBUG";
+        case ELE_FIRE: return "FIRE";
+        case ELE_WATER: return "WATER";
+        case ELE_EARTH: return "EARTH";
+        case ELE_WIND: return "WIND";
+        case ELE_ELECTRIC: return "ELECTRIC";
         default: return "UNKNOWN";
     }
 }
@@ -154,32 +220,32 @@ static void PrintDebugTowerStats()
     int textY = Grid::GRID_END_POINT.y + 50; // 50 pixels below grid
     int currentX = startX;
     
-    for (TOWER_TYPE towerType = TOWER_FIRE; towerType < TOWER_MAX; towerType = TOWER_TYPE((int)towerType + 1))
+    for (ELEMENT element = ELE_FIRE; element < ELE_MAX; element=ELEMENT((int)element+1))
     {
         // create or update KPS text entity
-        if (statTextEntities[towerType] == 0)
+        if (statTextEntities[element] == 0)
         {
-            statTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_Transform(statTextEntities[towerType], currentX, textY, 0, 0.5f);
-            ADD_Text(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            statTextEntities[element] = g_mainGame.RegisterEntity();
+            ADD_Transform(statTextEntities[element], currentX, textY, 0, 0.5f);
+            ADD_Text(statTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // create or update kills text entity (below KPS text)
-        if (killsTextEntities[towerType] == 0)
+        if (killsTextEntities[element] == 0)
         {
-            killsTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_Transform(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
-            ADD_Text(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            killsTextEntities[element] = g_mainGame.RegisterEntity();
+            ADD_Transform(killsTextEntities[element], currentX, textY + 20, 0, 0.5f);
+            ADD_Text(killsTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // update KPS text content
         char statText[100];
         snprintf(statText, sizeof(statText), "%s kps: %.1f", 
-                TowerTypeToString(towerType), kpsValues[towerType]);
+                TowerElementToString(element), kpsValues[element]);
         
         // update KPS text component
         TextComponent* textComp = (TextComponent*)GET_COMPONENT(
-            statTextEntities[towerType], C_Text);
+            statTextEntities[element], C_Text);
         if (textComp)
         {
             strncpy(textComp->text, statText, sizeof(textComp->text) - 1);
@@ -189,11 +255,11 @@ static void PrintDebugTowerStats()
         
         // update kills text content
         char killsText[100];
-        snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[towerType]);
+        snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[element]);
         
         // update kills text component
         TextComponent* killsTextComp = (TextComponent*)GET_COMPONENT(
-            killsTextEntities[towerType], C_Text);
+            killsTextEntities[element], C_Text);
         if (killsTextComp)
         {
             strncpy(killsTextComp->text, killsText, sizeof(killsTextComp->text) - 1);
@@ -208,7 +274,9 @@ static void PrintDebugTowerStats()
 
 void MainGameScene::OptionalUpdate(float deltaTime)
 {
-    handle_pause_input();
+    handle_input();
+
+    Update_speed_text();
 
     WaveSystem_Update(deltaTime, &g_mainGame);
 
@@ -216,8 +284,6 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     TowerPlacement::Update();
 
     Grid::DrawGrid();
-
-    TargetingSystem(&g_mainGame);
 
     ProjectileSpawningSystem(&g_mainGame);
 

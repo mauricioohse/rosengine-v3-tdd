@@ -5,6 +5,7 @@
 #include "../../core/utils.h"
 #include "main_game_scene.h"
 #include "player_life_system.h"
+#include "enemy_spawner.h"
 
 void enemy_system::Init()
 {
@@ -69,6 +70,52 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                     transform->y += dy * speed * deltaTime;
                 }
             }
+        
+            // specific enemy logic here
+            switch (enemy->type)
+            {
+                // TODO: in the future, if spawning enemies is not only enemy_boss specific, we should refactor this to somewhere else
+                case ENEMY_BOSS:
+                {
+                    // first, check if enemySpawner component already exists. if not, create it.
+                    EnemySpawnerComponent *spawner = GET_EnemySpawner(entity);
+
+                    if (!spawner)
+                    {
+                        // if the entity does not have the spawner component yet, we add it here once
+                        spawner = ADD_EnemySpawner(entity, 3.0f, ENEMY_RUNNER_III);
+                    }
+
+                    // if already exists, then apply the enemySpawn when the cooldown is less than zero, and also reset the cooldown
+                    if (spawner)
+                    {
+                        spawner->currentCooldown -= deltaTime;
+
+                        if (spawner->currentCooldown <= 0.0f)
+                        {
+                            // spawn enemy near the boss
+                            Point bossPos = {(int)transform->x, (int)transform->y};
+                            int spawnX = bossPos.x;
+                            int spawnY = bossPos.y;
+
+                            EntityID spawnedEnemy = EnemySpawner::SpawnEnemyAt(&g_mainGame, spawnX, spawnY, (ENEMY_TYPE)spawner->spawnType);
+                            auto spawnedEnemy_enemyComponent = GET_Enemy(spawnedEnemy);
+                            spawnedEnemy_enemyComponent->currPathIdx = enemy->currPathIdx;
+
+                            spawner->currentSpawns++;
+                            spawner->currentCooldown = spawner->spawnCooldown;
+
+                            printf("boss spawned minion %d/%d at (%d, %d)\n",
+                                spawner->currentSpawns, spawnX, spawnY);
+                        }
+                    }
+                }
+                break;
+
+            default:
+                // no specific behavior for other enemy types
+                break;
+            }
         }
         else if (transform && enemy && debug)
         {
@@ -91,7 +138,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
 
             if (debug)
             {
-                g_Game.debugTowerKills[debug->tower]++;
+                g_Game.debugTowerKills[debug->element]++;
             }
 
             g_Engine.entityManager.DestroyEntity(entity);

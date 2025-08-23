@@ -7,7 +7,6 @@
 #include <float.h>
 #include "components/background_component.h"
 
-
 // Add camera constants
 #define CAMERA_FOLLOW_SPEED 15.0f     // How fast camera catches up to target
 #define CAMERA_DEADZONE_X 100.0f     // Horizontal deadzone before camera starts moving
@@ -38,6 +37,9 @@ struct SpriteComponent : Component {
     int width, height;
     SDL_Rect srcRect;
     bool isVisible;
+    SDL_Color colorMod;  // RGB color modulation (255,255,255 = no change)
+    float hueShift;      // Hue shift in degrees (0-360)
+    
 
     void Init(Texture* tex) {
         texture = tex;
@@ -53,6 +55,8 @@ struct SpriteComponent : Component {
             srcRect = {0, 0, 0, 0};
             isVisible = false;
         }
+        colorMod = {255, 255, 255, 255}; // default: no shift
+        hueShift = 0.0f;
     }
 
     void ChangeTexture(Texture* newTexture) {
@@ -64,12 +68,37 @@ struct SpriteComponent : Component {
         }
     }
 
+    void SetHue(float degrees) {
+        hueShift = degrees;
+        while (hueShift >= 360.0f) hueShift -= 360.0f;
+        while (hueShift < 0.0f) hueShift += 360.0f;
+        
+        // Convert HSV to RGB for color modulation
+        float h = hueShift / 60.0f;
+        float c = 1.0f;  // Full saturation for pure hue shift
+        float x = c * (1.0f - ((int)h % 2 == 0 ? h - (int)h : (int)h + 1 - h));
+        
+        float r, g, b;
+        if (h < 1) { r = c; g = x; b = 0; }
+        else if (h < 2) { r = x; g = c; b = 0; }
+        else if (h < 3) { r = 0; g = c; b = x; }
+        else if (h < 4) { r = 0; g = x; b = c; }
+        else if (h < 5) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        
+        colorMod.r = (unsigned char)(r * 255);
+        colorMod.g = (unsigned char)(g * 255);
+        colorMod.b = (unsigned char)(b * 255);
+    }
+
     void Destroy() override {
         // Note: We don't destroy the texture here as it's managed by ResourceManager
         texture = nullptr;
         width = 0;
         height = 0;
         srcRect = {0, 0, 0, 0};
+        colorMod = {255, 255, 255, 255};
+        hueShift = 0.0f;
     }
 };
 
@@ -244,6 +273,7 @@ struct TextComponent : Component {
     Texture* texture = nullptr;
     bool isDirty = true;
     TextAlignment alignment = TEXT_CENTER;
+    bool visible;
 
     void Init(Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
         font = _font;
@@ -252,6 +282,7 @@ struct TextComponent : Component {
         alignment = _alignment;
         isDirty = true;
         texture = nullptr;
+        visible =  true;
         printf("text component initialized: %s\n", text);
     }
 
@@ -368,32 +399,16 @@ struct ElementComponent  {
 
     void Init(ELEMENT new_ele)
     {
-        int idx = 0;
-        while (elements[idx]!=ELE_NONE)
-        {
-            idx++;
-        }
+        memset(elements,0, sizeof(elements));
+        elements[0] = new_ele;
 
-        // now idx is the next idx that is not filled with ELE_NONE
-        if(idx >= MAX_ELEMENTS)
-        {
-            DO_ONCE(printf("ATTEMPTED ADDING EXTRA ELEMENT ON TOWER WITH 3 ELEMENTS!\n"));
-            return;
-        }
-
-        elements[idx] = new_ele;
+        
     }
 };
 
 // tag component
 struct ResolveElementComponent: Component {
     
-};
-
-struct TargetComponent {
-    EntityID target = 0;
-
-    void Init(EntityID _target) { target = _target; }
 };
 
 struct LifeTimeComponent : Component {
@@ -565,12 +580,13 @@ struct DamageComponent : Component {
 
 struct ExplodeOnXYComponent : Component
 {
-    int x, y;
+    int x, y, range;
 
-    void Init(int _x, int _y)
+    void Init(int _x, int _y, int _range)
     {
         x = _x;
         y = _y;
+        range = _range;
     }
 };
 
@@ -633,12 +649,12 @@ struct EnemyExitComponent : Component
 
 struct EnemyDebugComponent : Component 
 {
-    TOWER_TYPE tower;
+    ELEMENT element;
     bool debug;
 
-    void Init(TOWER_TYPE t)
+    void Init(ELEMENT _element)
     {
-        tower = t;
+        element = _element;
         debug = 0;
     }
 
@@ -651,13 +667,15 @@ struct EnemyComponent : Component {
     int maxHealth;
     int speed;
     int currPathIdx;
+    int type; // using int instead of ENEMY_TYPE to avoid forward declaration issues
 
-    void Init(int health, int _speed) {
+    void Init(int health, int _speed, int _type) {
         alive = 1;
         currHealth = health;
         maxHealth = health; 
         currPathIdx = 0;
         speed = _speed;
+        type = _type;
     }
 
     void Destroy()
@@ -665,6 +683,27 @@ struct EnemyComponent : Component {
         alive = 0;
     }
 
+};
+
+struct EnemySpawnerComponent : Component {
+    float spawnCooldown;
+    float currentCooldown;
+    int spawnType; // using int instead of ENEMY_TYPE to avoid forward declaration issues
+    int currentSpawns;
+    
+    void Init(float cooldown, int type) {
+        spawnCooldown = cooldown;
+        currentCooldown = cooldown;
+        spawnType = type;
+        currentSpawns = 0;
+    }
+    
+    void Destroy() override {
+        spawnCooldown = 0.0f;
+        currentCooldown = 0.0f;
+        spawnType = 0; // ENEMY_BASIC_I equivalent
+        currentSpawns = 0;
+    }
 };
 
 // Component initialization functions declarations only

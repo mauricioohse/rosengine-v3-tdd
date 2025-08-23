@@ -9,6 +9,7 @@ struct EnemyArchetype {
     int base_speed;
     float size_multiplier;
     TextureID texture;
+    SDL_Color color = {255,255,255,255};
     // behavioral flags
     int flies = 0;
     int armored = 0;
@@ -17,25 +18,31 @@ struct EnemyArchetype {
 
 
 enum ENEMY_TYPE {
-    ENEMY_BASIC,
-    ENEMY_BASIC_FAST,
-    ENEMY_FAT_SLOW,
-    ENEMY_FAT_NORMAL_SPEED,
-    ENEMY_FAT_FAST,
+    ENEMY_BASIC_I,
+    ENEMY_BASIC_II,
+    ENEMY_BASIC_III,
+    ENEMY_FODDER_I,
+    ENEMY_FODDER_II,
+    ENEMY_FODDER_III,
+    ENEMY_RUNNER_I,
+    ENEMY_RUNNER_II,
+    ENEMY_RUNNER_III,
+    ENEMY_FAT_I,
+    ENEMY_FAT_II,
+    ENEMY_FAT_III,
+    ENEMY_BOSS,
     ENEMY_LAST_VALUE // keep as last
     // whenever creating a new enemy type, also add a comment in g_enemy_archetypes matching it!
 };
 
-
-// lookup table
-static EnemyArchetype g_enemy_archetypes[] = {
-    {100, 50, .1f, TEXTURE_BOX_ENEMY, 0, 0, 0},     // ENEMY_BASIC
-    {100, 75, .15f, TEXTURE_BOX_ENEMY, 0, 0, 0},    // ENEMY_BASIC_FAST
-    {300, 25, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_SLOW
-    {300, 50, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_NORMAL_SPEED
-    {300, 75, .4f, TEXTURE_BOX_FAT_ENEMY, 0, 0, 0}, // ENEMY_FAT_FAST
-    // note: the order needs to be the same as in ENEMY_TYPE.
+struct EnemyGroup {
+    ENEMY_TYPE enemy_type;
+    int count;
+    float spawn_interval;
+    float delay_after_group;
 };
+
+extern EnemyGroup g_enemy_groups[];
 
 namespace EnemySpawner
 {
