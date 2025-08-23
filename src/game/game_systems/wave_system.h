@@ -29,10 +29,6 @@ struct LevelWaves {
     int wave_count;
 };
 
-static LevelWaves g_level_waves[] = {
-    {level1_waves, 8},  // LEVEL_1: 8 waves (0-7)
-    // add more levels here
-};
 
 enum WAVE_STATE {
     WAVE_STATE_SPAWNING,        // actively spawning enemies

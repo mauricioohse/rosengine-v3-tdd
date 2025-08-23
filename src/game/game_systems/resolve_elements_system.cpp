@@ -2,23 +2,6 @@
 #include "engine.h"
 
 
-// tower data lookup table
-struct TowerData {
-    PROJECTILE_TYPE projectile_type;
-    int range;
-    float cooldown;
-    int damage;
-    TextureID tex = TEXTURE_BOX_MISSING;
-    SDL_Color colorMod = {255, 255, 255, 255};
-
-};
-
-// element combination lookup
-struct ElementCombo {
-    ELEMENT elements[MAX_ELEMENTS]; // sorted elements
-    TowerData tower_data;
-};
-
 // the element combination dictionary
 static ElementCombo g_element_combinations[] = {
     // single elements - balanced for ~50 dps single target, or 50 dps considering area damage +three targets

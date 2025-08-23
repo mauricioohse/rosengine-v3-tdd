@@ -75,6 +75,11 @@ static Wave level1_waves[] = {
     {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups (boss wave)
 };
 
+static LevelWaves g_level_waves[] = {
+    {level1_waves, 8},  // LEVEL_1: 8 waves (0-7)
+    // add more levels here
+};
+
 void WaveSystem_Init(LEVEL_ID level)
 {
     g_wave_ctx.current_level = level;
