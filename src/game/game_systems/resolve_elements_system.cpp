@@ -60,21 +60,22 @@ TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
 
 void ResolveElementSystem(SceneBase * scene)
 {
-    FOR_EACH_COMPONENT_2(scene, entity,
-                          Element, elementC,
-                          ResolveElement, _)
+    // FOR_EACH_COMPONENT_2(scene, entity,
+    //                       Element, elementC,
+    //                       ResolveElement, _)
+    ForEachComponent<ElementComponent, ResolveElementComponent>(scene, [&](EntityID entity, ElementComponent* elementC, ResolveElementComponent* _)
     {
         SortDescendingElementsInPlace(elementC->elements);
 
         TowerData* tower_data = GetTowerDataForElements(elementC->elements);
         if (tower_data) {
             // apply the tower configuration
-            ADD_ProjectileSpawner(entity, tower_data->projectile_type);
-            ADD_Damage(entity, tower_data->damage);
-            ADD_Target(entity, 0);
-            ADD_Cooldown(entity, tower_data->cooldown);
-            ADD_Tower(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
-            ADD_Sprite(entity, ResourceManager::GetTexture(tower_data->tex));
+            ProjectileSpawnerComponent::Add(entity, tower_data->projectile_type);
+            DamageComponent::Add(entity, tower_data->damage);
+            TargetComponent::Add(entity, 0);
+            CooldownComponent::Add(entity, tower_data->cooldown);
+            TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
+            SpriteComponent::Add(entity, ResourceManager::GetTexture(tower_data->tex));
 
             printf("configured tower with projectile type %d\n", tower_data->projectile_type);
         } else {
@@ -82,6 +83,6 @@ void ResolveElementSystem(SceneBase * scene)
         }
 
         // remove the resolve component so this doesn't run again
-        g_Engine.entityManager.RemoveComponentFromEntity(entity, C_ResolveElement);
-    } END_FOR_EACH
+        RemoveComponent<ResolveElementComponent>(entity);
+    });
 }

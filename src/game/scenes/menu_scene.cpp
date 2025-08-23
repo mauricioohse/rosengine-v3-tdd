@@ -40,79 +40,66 @@ void MenuScene::OnLoad()
 
     // Create centered game title
     EntityID titleText = RegisterEntity();
-    ADD_Transform(titleText, g_Engine.window->width / 2, g_Engine.window->height / 3, 0, 1);
-    ADD_Text(titleText, ResourceManager::GetFont(FONT_FPS), "Game Name");
+    TransformComponent::Add(titleText, g_Engine.window->width / 2, g_Engine.window->height / 3, 0, 1);
+    TextComponent::Add(titleText, ResourceManager::GetFont(FONT_FPS), "Game Name");
 
-    // Create Start Game button
-    EntityID startButton = RegisterEntity();
-    EM->AddComponentToEntity(startButton, C_Transform | C_UIBox | C_Text);
-    
     // Initialize button position and size
     float buttonWidth = 200;
     float buttonHeight = 50;
     float buttonX = (g_Engine.window->width - buttonWidth) / 2;  // Center horizontally
     float buttonY = g_Engine.window->height / 2;                 // Place below title
-    
-    // Setup transform
-    g_Engine.componentArrays.Transforms[startButton].Init(buttonX, buttonY);
-    
-    // Setup UI box with callback
-    g_Engine.componentArrays.UIBoxs[startButton].Init(
-        buttonWidth, 
-        buttonHeight,
-        SDL_Color{50, 50, 50, 255},      // Dark gray background
-        SDL_Color{200, 200, 200, 255},   // Light gray border
-        2.0f,                            // Border width
-        StartGameButtonClicked           // Click callback
-    );
 
+    // Create Start Game button
+    EntityID startButton = RegisterEntity();
+
+    TransformComponent::Add(startButton, buttonX, buttonY);
+    TextComponent::Add(startButton, ResourceManager::GetFont(FONT_FPS), "Start Game", TEXT_CENTER);
+    UIBoxComponent::Add(startButton,
+                        buttonWidth,
+                        buttonHeight,
+                        SDL_Color{50, 50, 50, 255},      // Dark gray background
+                        SDL_Color{200, 200, 200, 255},   // Light gray border
+                        2.0f,                            // Border width
+                        StartGameButtonClicked);         // Click callback
+
+    // Create Debug Level button
     EntityID debugLevelButton = RegisterEntity();
-    ADD_Transform(debugLevelButton, g_Engine.window->width*.8f - buttonWidth/2, g_Engine.window->height / 2, 0, 1.0f);
-    ADD_UIBox(debugLevelButton,50,50);
-    g_Engine.componentArrays.UIBoxs[debugLevelButton].Init(
-        50, 
-        50,
-        SDL_Color{50, 50, 50, 255},      // Dark gray background
-        SDL_Color{200, 200, 200, 255},   // Light gray border
-        2.0f,                            // Border width
-        StartDebugLevelCallback          // Click callback
-    );
-    ADD_Text(debugLevelButton, ResourceManager::GetFont(FONT_FPS), "DEBUG LEVEL");
-    
-    // Setup text
-    g_Engine.componentArrays.Texts[startButton].Init(
-        ResourceManager::GetFont(FONT_FPS),
-        "Start Game",
-        TEXT_CENTER
-    );
 
-        // Create Toggle Music button
+    TransformComponent::Add(debugLevelButton, g_Engine.window->width * 0.8f - buttonWidth / 2, g_Engine.window->height / 2, 0, 1.0f);
+    TextComponent::Add(debugLevelButton, ResourceManager::GetFont(FONT_FPS), "DEBUG LEVEL");
+    UIBoxComponent::Add(debugLevelButton,
+                        50,
+                        50,
+                        SDL_Color{50, 50, 50, 255},      // Dark gray background
+                        SDL_Color{200, 200, 200, 255},   // Light gray border
+                        2.0f,                            // Border width
+                        StartDebugLevelCallback);        // Click callback
+
+    // Create Toggle Music button
     EntityID toggleMusicButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleMusicButton, C_UIBox);
-    ADD_Transform(toggleMusicButton, buttonX, buttonY + 2*buttonHeight + 40, 0, 1.5f);
-    ADD_Text(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");    
-    g_Engine.componentArrays.UIBoxs[toggleMusicButton].Init(
-        buttonWidth,
-        buttonHeight,
-        SDL_Color{50, 50, 50, 255},
-        SDL_Color{200, 200, 200, 255},
-        2.0f,
-        ToggleMusicButtonClicked
-    );
+
+    TransformComponent::Add(toggleMusicButton, buttonX, buttonY + 2 * buttonHeight + 40, 0, 1.5f);
+    TextComponent::Add(toggleMusicButton, ResourceManager::GetFont(FONT_FPS), "Toggle Music");
+    UIBoxComponent::Add(toggleMusicButton,
+                        buttonWidth,
+                        buttonHeight,
+                        SDL_Color{50, 50, 50, 255},      // Dark gray background
+                        SDL_Color{200, 200, 200, 255},   // Light gray border
+                        2.0f,                            // Border width
+                        ToggleMusicButtonClicked);       // Click callback
 
     // Create Toggle Sound button
     EntityID toggleSoundButton = RegisterEntity();
-    EM->AddComponentToEntity(toggleSoundButton, C_UIBox);
-    ADD_Transform(toggleSoundButton, buttonX, buttonY + 3*buttonHeight + 60, 0, 1.5f);
-    ADD_Text(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
-    g_Engine.componentArrays.UIBoxs[toggleSoundButton].Init(
-        buttonWidth,
-        buttonHeight,
-        SDL_Color{50, 50, 50, 255},
-        SDL_Color{200, 200, 200, 255},
-        2.0f,
-        ToggleSoundButtonClicked
-    );
+
+    TransformComponent::Add(toggleSoundButton, buttonX, buttonY + 3 * buttonHeight + 60, 0, 1.5f);
+    TextComponent::Add(toggleSoundButton, ResourceManager::GetFont(FONT_FPS), "Toggle SFX");
+    UIBoxComponent::Add(toggleSoundButton,
+                        buttonWidth,
+                        buttonHeight,
+                        SDL_Color{50, 50, 50, 255},      // Dark gray background
+                        SDL_Color{200, 200, 200, 255},   // Light gray border
+                        2.0f,                            // Border width
+                        ToggleSoundButtonClicked);       // Click callback
 
     state = SceneState::ACTIVE;
 }

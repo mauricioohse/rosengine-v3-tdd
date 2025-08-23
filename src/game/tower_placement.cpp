@@ -88,13 +88,13 @@ void TowerPlacement::Destroy() {
 static bool AddElementToExistingTower(EntityID e, ELEMENT element)
 {
     // check the existing elements, only add a new element if it is available
-    ElementComponent * container = GET_Element(e);
+    ElementComponent* container = ElementComponent::Get(e);
     if(!container) {
         printf("Existing tower has no element! invalid!\n");
         return false;
     }
-    int idx=0;
-    while(container->elements[idx]!=ELE_NONE)
+    int idx = 0;
+    while (container->elements[idx] != ELE_NONE)
     {
         idx++;
     }
@@ -106,8 +106,10 @@ static bool AddElementToExistingTower(EntityID e, ELEMENT element)
     }
     else
     {
-        ADD_Element(e, element);
-        ADD_ResolveElement(e);
+        // ADD_Element(e, element);
+        // ADD_ResolveElement(e);
+        ElementComponent::Add(e, element);
+        ResolveElementComponent::Add(e);
         return true;
     }
 }
@@ -120,18 +122,19 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
     Point gridPoint = Grid::GetNearestGridPointCenter(mouseX, mouseY);
 
     // TODO: check if tower has elements slot available, if not return
-    SceneBase * scene = &g_mainGame;
+    SceneBase* scene = &g_mainGame;
     EntityID existingTower = 0;
-    FOR_EACH_COMPONENT_2(scene, tower,
-                          Transform, TR,
-                          Tower, TC
-                          )
-    {
+    // FOR_EACH_COMPONENT_2(scene, tower,
+    //                       Transform, TR,
+    //                       Tower, TC
+    //                       )
+    ForEachComponent<TransformComponent, TowerComponent>(scene, [&](EntityID entity, TransformComponent* TR, TowerComponent* TC) {
         if (TR->x == gridPoint.x && TR->y == gridPoint.y)
         {
-            existingTower = tower;
+            existingTower = entity;
+            return false; // Stop search when matching tower is found
         }
-    } END_FOR_EACH
+    });
 
     EntityID new_tower = 0;
     if (existingTower != INVALID_ENTITY)
@@ -164,7 +167,7 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     EntityID tower = g_mainGame.RegisterEntity();
     Texture * tex;
 
-    Point center = Grid::GetNearestGridPointCenter(gridPoint.x, gridPoint.y); 
+    Point center = Grid::GetNearestGridPointCenter(gridPoint.x, gridPoint.y);
     
     printf("attempting to create tower entityId %d with element %s\n" , tower, GetElementName(type));
     if (tower == INVALID_ENTITY) {
@@ -173,24 +176,15 @@ EntityID TowerPlacement::CreateTowerAt(ELEMENT type, Point gridPoint) {
     }
     
     // add basic components
-    ADD_Collider(tower, 48, 1, 0);
-    ADD_Transform(tower,
-        (float)center.x, 
-        (float)center.y,
-        0.0F,
-        0.5F );
+    ColliderComponent::Add(tower, 48, 1, 0);
+    TransformComponent::Add(tower, (float)center.x, (float)center.y, 0.0F, 0.5F);
 
-
-
-    ADD_Tower(tower, TOWER_NONE, 125, 2); // TODO: remove unused tower data in tower component
+    TowerComponent::Add(tower, TOWER_NONE, 125, 2); // TODO: remove unused tower data in tower component
     tex = ResourceManager::GetTexture(TEXTURE_BOX_MISSING); // NOTE: the texture will be changed on resolve elements, this is here for easier debugging
-    ADD_Element(tower, type);
-    ADD_ResolveElement(tower);
-    ADD_Sprite(tower, tex);
+    ElementComponent::Add(tower, type);
+    ResolveElementComponent::Add(tower);
+    SpriteComponent::Add(tower, tex);
     return tower;
-
-
-    
 
 }
 

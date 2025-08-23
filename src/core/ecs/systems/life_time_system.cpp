@@ -5,14 +5,14 @@ void life_time_system::Init()
 {
 }
 
-void life_time_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
+void life_time_system::Update(float deltaTime, std::vector<EntityID> entities)
 {
 
     for (EntityID e : entities)
     {
-        if ( HAS_COMPONENT(e, C_LifeTime) )
+        if ( HasComponent<LifeTimeComponent>(e) )
         {
-            LifeTimeComponent * lt = (LifeTimeComponent *)GET_COMPONENT(e, C_LifeTime);
+            LifeTimeComponent* lt = Get<LifeTimeComponent>(e);
             lt->remaininglifeTime -= deltaTime;
             
             if (lt->remaininglifeTime < 0 )

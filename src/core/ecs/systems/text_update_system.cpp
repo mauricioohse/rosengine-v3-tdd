@@ -5,12 +5,11 @@ void TextUpdateSystem::Init() {
     printf("TextUpdateSystem initialized\n");
 }
 
-void TextUpdateSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
+void TextUpdateSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities) {
-        if (HAS_COMPONENT(entity, C_Text)) {
-            TextComponent* text = 
-                (TextComponent*)components->GetComponentData(entity, C_Text);
-            
+        if (HasComponent<TextComponent>(entity)) {
+            TextComponent* text = Get<TextComponent>(entity);
+
             if (text->isDirty) {
                 // Clean up old texture if it exists
                 if (text->texture) {
@@ -19,8 +18,8 @@ void TextUpdateSystem::Update(float deltaTime, std::vector<EntityID> entities, C
                 
                 // Generate new texture
                 text->texture = ResourceManager::GetTextTexture(
-                    text->font, 
-                    text->text, 
+                    text->font,
+                    text->text,
                     text->color
                 );
                 

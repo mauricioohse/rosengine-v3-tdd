@@ -30,9 +30,9 @@ static void loadDebugLevelTowers()
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
-        ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH*2, 1, 1);
-        g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
+        TransformComponent::Add(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
+        ColliderComponent::Add(exitCollider, Grid::GRID_SQUARE_LENGTH*2, 1, 1);
+        EnemyExitComponent::Add(exitCollider);
 
         // move to next horizontal position based on current tower's range
         currentX += 250;
@@ -160,16 +160,16 @@ static void PrintDebugTowerStats()
         if (statTextEntities[towerType] == 0)
         {
             statTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_Transform(statTextEntities[towerType], currentX, textY, 0, 0.5f);
-            ADD_Text(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            TransformComponent::Add(statTextEntities[towerType], currentX, textY, 0, 0.5f);
+            TextComponent::Add(statTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // create or update kills text entity (below KPS text)
         if (killsTextEntities[towerType] == 0)
         {
             killsTextEntities[towerType] = g_mainGame.RegisterEntity();
-            ADD_Transform(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
-            ADD_Text(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
+            TransformComponent::Add(killsTextEntities[towerType], currentX, textY + 20, 0, 0.5f);
+            TextComponent::Add(killsTextEntities[towerType], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // update KPS text content
@@ -178,8 +178,7 @@ static void PrintDebugTowerStats()
                 TowerTypeToString(towerType), kpsValues[towerType]);
         
         // update KPS text component
-        TextComponent* textComp = (TextComponent*)GET_COMPONENT(
-            statTextEntities[towerType], C_Text);
+        TextComponent* textComp = Get<TextComponent>(statTextEntities[towerType]);
         if (textComp)
         {
             strncpy(textComp->text, statText, sizeof(textComp->text) - 1);
@@ -192,8 +191,7 @@ static void PrintDebugTowerStats()
         snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[towerType]);
         
         // update kills text component
-        TextComponent* killsTextComp = (TextComponent*)GET_COMPONENT(
-            killsTextEntities[towerType], C_Text);
+        TextComponent* killsTextComp = Get<TextComponent>(killsTextEntities[towerType]);
         if (killsTextComp)
         {
             strncpy(killsTextComp->text, killsText, sizeof(killsTextComp->text) - 1);

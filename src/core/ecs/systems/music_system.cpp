@@ -17,7 +17,7 @@ void MusicSystem::Init() {
     printf("MusicSystem initialized\n");
 }
 
-void MusicSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
+void MusicSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     // Handle music toggle with M key
     if (Input::IsKeyDown(SDL_SCANCODE_M)) {
         if (!wasKeyPressed) {

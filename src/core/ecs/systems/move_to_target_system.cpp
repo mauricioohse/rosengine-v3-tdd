@@ -1,19 +1,20 @@
 #include "move_to_target_system.h"
 #include "engine.h"
 #include "math.h"
+#include "../component_manager.h"
 
 void move_to_target_system::Init()
 {
 }
 
-void move_to_target_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
+void move_to_target_system::Update(float deltaTime, std::vector<EntityID> entities)
 {
     for (EntityID e : entities)
     {
-        if (HAS_COMPONENT(e, C_Transform|C_MoveToXY))
+        if (HasComponents<TransformComponent, MoveToXYComponent>(e))
         {
-            TransformComponent* transform = &components->Transforms[e];
-            MoveToXYComponent* moveTarget = &components->MoveToXYs[e];
+            TransformComponent* transform = Get<TransformComponent>(e);
+            MoveToXYComponent* moveTarget = Get<MoveToXYComponent>(e);
 
 
             // calculate direction to target

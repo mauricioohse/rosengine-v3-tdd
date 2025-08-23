@@ -10,23 +10,24 @@ void enemy_system::Init()
 {
 }
 
-void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
+void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
 {
-    FOR_EACH_COMPONENT_3((&g_mainGame), entity,
-                         Transform, transform,
-                         Enemy, enemy,
-                         Collider, coll)
-    {
+    SceneBase* scene = &g_mainGame;
+    // FOR_EACH_COMPONENT_3(scene, entity,
+    //                      Transform, transform,
+    //                      Enemy, enemy,
+    //                      Collider, coll)
+    ForEachComponent<TransformComponent, EnemyComponent, ColliderComponent>(scene, [&](EntityID entity, TransformComponent* transform, EnemyComponent* enemy, ColliderComponent* coll) {
         float speed = enemy->speed;
 
-        auto enemy_slow = GET_Slow(entity);
+        SlowComponent* enemy_slow = Get<SlowComponent>(entity);
         if (enemy_slow)
         {
             speed *= enemy_slow->intensity;
             enemy_slow->duration -= deltaTime;
         }
 
-        EnemyDebugComponent * debug = GET_EnemyDebug(entity);
+        EnemyDebugComponent* debug = Get<EnemyDebugComponent>(entity);
 
         if (transform && enemy && !debug)
         {
@@ -49,7 +50,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                         // reached end of path, destroy enemy
                         g_Engine.entityManager.DestroyEntity(entity);
                         playerLife_decrease_health(1);
-                        continue;
+                        return true; // skips the ForEachComponent loop to the next iteration
                     }
                     // get new target position
                     targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
@@ -85,9 +86,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
         // check if enemy health is above zero, if not, destroy him
         if (enemy && enemy->currHealth <= 0)
         {
-
-            EnemyDebugComponent *debug =
-                (EnemyDebugComponent *)GET_COMPONENT(entity, C_EnemyDebug);
+            EnemyDebugComponent* debug = Get<EnemyDebugComponent>(entity);
 
             if (debug)
             {
@@ -100,12 +99,10 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
         // Check if enemy hit any of the exit collider entities
         for (EntityID exit : entities)
         {
-            if (HAS_COMPONENT(exit, C_EnemyExit | C_Transform | C_Collider))
+            if (HasComponents<TransformComponent, ColliderComponent, EnemyExitComponent>(exit))
             {
-                TransformComponent *exitTransform =
-                    (TransformComponent *)components->GetComponentData(exit, C_Transform);
-                ColliderComponent *exitCollider =
-                    (ColliderComponent *)components->GetComponentData(exit, C_Collider);
+                TransformComponent *exitTransform = Get<TransformComponent>(exit);
+                ColliderComponent *exitCollider = Get<ColliderComponent>(exit);
 
                 if (exitTransform && exitCollider)
                 {
@@ -116,12 +113,12 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                         g_Engine.entityManager.DestroyEntity(entity);
                         printf("enemy %d reached exit\n", entity);
                         playerLife_decrease_health(1);
-                        break;
+                        return false; // breaks the ForEachComponent loop
                     }
                 }
             }
         } 
-    } END_FOR_EACH
+    });
 }
 
 void enemy_system::Destroy()

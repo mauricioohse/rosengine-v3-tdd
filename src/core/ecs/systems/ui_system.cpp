@@ -8,28 +8,26 @@ void UISystem::Init() {
     printf("UISystem initialized\n");
 }
 
-void UISystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
+void UISystem::Update(float deltaTime, std::vector<EntityID> entities) {
     // Get mouse position
     int mouseX, mouseY;
     Input::GetMousePosition(mouseX, mouseY);
 
     // Update UI states
     for (EntityID entity : entities) {
-        if (!HAS_COMPONENT(entity, C_Transform | C_UIBox)) {
+        if (!HasComponents<TransformComponent, UIBoxComponent>(entity)) {
             continue;
         }
 
-        UIBoxComponent* box = 
-            (UIBoxComponent*)components->GetComponentData(entity, C_UIBox);
-        TransformComponent* transform = 
-            (TransformComponent*)components->GetComponentData(entity, C_Transform);
+        UIBoxComponent* box = Get<UIBoxComponent>(entity);
+        TransformComponent* transform = Get<TransformComponent>(entity);
 
         if (!box || !transform) continue;
 
         // Check for hover state
         box->isHovered = IsPointInBox(mouseX, mouseY, 
-                                    transform->x, transform->y, 
-                                    box->width, box->height);
+                                      transform->x, transform->y, 
+                                      box->width, box->height);
 
         // Update pressed state based on mouse input
         if (box->isHovered) {

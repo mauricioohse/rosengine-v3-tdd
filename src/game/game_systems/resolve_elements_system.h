@@ -20,6 +20,6 @@ struct ElementCombo {
     TowerData tower_data;
 };
 
-void ResolveElementSystem(SceneBase * scene);
+void ResolveElementSystem(SceneBase* scene);
 TowerData* GetTowerDataForElements(ELEMENT* elements);
-void SortDescendingElementsInPlace(ELEMENT*elements);
+void SortDescendingElementsInPlace(ELEMENT* elements);
