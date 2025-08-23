@@ -122,8 +122,8 @@ todo:
 [x] - sound when wave ends and when tower is placed
 [ ] - overhaul in wave system (eventually)
 [ ] - towers need to be more differentiable between them
-[ ] - targetting needs to be improved, always target target that is closer to the end
+[x] - targetting needs to be improved, always target target that is closer to the end
 [ ] - on mouse over, tower should tell damage + kills
-[ ] - enemy collor based on what is best against it (red for water, ice-blue for fodder, green for wind why not)
-[ ] - remove debug square drawing on enemies and on towers
-[ ] - press F to change speed from 1x 2x 3x (rotating)
+[x] - enemy collor based on what is best against it (red for water, ice-blue for fodder, green for wind why not)
+[x] - remove debug square drawing on enemies and on towers
+[x] - press F to change speed from 1x 2x 3x (rotating)

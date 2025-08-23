@@ -7,6 +7,74 @@
 
 static WaveSystemState g_wave_ctx = {};
 
+
+// level 1 wave definitions
+static EnemyGroup level1_wave1_groups[] = {
+    g_enemy_groups[ENEMY_BASIC_I],
+    g_enemy_groups[ENEMY_BASIC_I],
+    g_enemy_groups[ENEMY_BASIC_I]
+};
+
+
+static EnemyGroup level1_wave2_groups[] = {
+    
+    g_enemy_groups[ENEMY_FODDER_I],
+    g_enemy_groups[ENEMY_BASIC_I]
+};
+
+
+static EnemyGroup level1_wave3_groups[] = {
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_I],
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_I],
+};
+
+
+static EnemyGroup level1_wave4_groups[] = {
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_FODDER_III],
+};
+
+
+static EnemyGroup level1_wave5_groups[] = {
+    g_enemy_groups[ENEMY_FAT_II],
+    g_enemy_groups[ENEMY_RUNNER_II],
+};
+
+
+static EnemyGroup level1_wave6_groups[] = {
+    g_enemy_groups[ENEMY_FAT_III],
+    g_enemy_groups[ENEMY_FODDER_II],
+    g_enemy_groups[ENEMY_FODDER_II],
+};
+
+
+static EnemyGroup level1_wave7_groups[] = {
+    g_enemy_groups[ENEMY_FAT_I],
+    g_enemy_groups[ENEMY_RUNNER_II],
+    g_enemy_groups[ENEMY_BASIC_III],
+    g_enemy_groups[ENEMY_FODDER_II],
+};
+
+
+static EnemyGroup level1_wave8_groups[] = {
+    g_enemy_groups[ENEMY_BOSS],
+};
+
+
+// wave lookup table for level 1
+static Wave level1_waves[] = {
+    {level1_wave1_groups, 3, 0.0f},     // wave 1: 3 groups
+    {level1_wave2_groups, 2, 2.0f},     // wave 2: 2 groups
+    {level1_wave3_groups, 4, 2.0f},     // wave 3: 4 groups
+    {level1_wave4_groups, 2, 2.0f},     // wave 4: 2 groups
+    {level1_wave5_groups, 2, 2.0f},     // wave 5: 2 groups
+    {level1_wave6_groups, 3, 2.0f},     // wave 6: 3 groups
+    {level1_wave7_groups, 4, 2.0f},     // wave 7: 4 groups
+    {level1_wave8_groups, 1, 2.0f},     // wave 8: 1 groups (boss wave)
+};
+
 void WaveSystem_Init(LEVEL_ID level)
 {
     g_wave_ctx.current_level = level;
