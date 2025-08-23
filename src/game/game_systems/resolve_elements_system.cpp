@@ -51,7 +51,7 @@ static ElementCombo g_element_combinations[] = {
 
 static const int g_num_combinations = sizeof(g_element_combinations) / sizeof(ElementCombo);
 
-static void SortDescendingElementsInPlace(ELEMENT*elements)
+void SortDescendingElementsInPlace(ELEMENT*elements)
 {
     // bubble sort
     for (int i = 0; i < MAX_ELEMENTS - 1; i++) {
@@ -65,11 +65,6 @@ static void SortDescendingElementsInPlace(ELEMENT*elements)
     }
 }
 
-
-
-
-
-
 static bool ElementsMatch(const ELEMENT* a, const ELEMENT* b) {
     for (int i = 0; i < MAX_ELEMENTS; i++) {
         if (a[i] != b[i]) return false;
@@ -77,7 +72,7 @@ static bool ElementsMatch(const ELEMENT* a, const ELEMENT* b) {
     return true;
 }
 
-static TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
+TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
     for (int i = 0; i < g_num_combinations; i++) {
         if (ElementsMatch(sorted_elements, g_element_combinations[i].elements)) {
             return &g_element_combinations[i].tower_data;
