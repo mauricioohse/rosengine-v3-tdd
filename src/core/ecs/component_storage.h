@@ -3,8 +3,8 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+#include <cstdio>
 #include "ecs_types.h"
-#include "../engine.h"
 
 // Forward declaration
 struct SceneBase;
@@ -32,6 +32,7 @@ public:
     /// @brief Register a new component type
     template<typename T>
     static void Register() {
+        printf("Registering component: %s\n", typeid(T).name());
         customArrayNameSoNoDuplicateExists[TypeIndex<T>()] = std::make_unique<ComponentArray<T>>(MAX_ENTITIES);
     }
 

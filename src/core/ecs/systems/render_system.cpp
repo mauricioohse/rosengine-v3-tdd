@@ -1,6 +1,16 @@
 #include "render_system.h"
 #include "../../engine.h"
 #include <stdio.h>
+
+// Define the palette
+std::map<std::string, RenderColor> paletteOpaque = {
+    {"red", {255, 0, 0, 255}},
+    {"green", {0, 255, 0, 255}},
+    {"blue", {0, 0, 255, 255}},
+    {"white", {255, 255, 255, 255}},
+    {"black", {0, 0, 0, 255}},
+    {"grey", {122, 122, 122, 255}}
+};
 #include "../../game/grid.h"
 #include <math.h>
 #include "../../core/input.h"

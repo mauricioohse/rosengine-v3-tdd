@@ -33,3 +33,5 @@ ComponentType* Get(EntityID entity);
 
 template<typename ComponentType>
 void RemoveComponent(EntityID entity);
+
+#include "component_helpers.tpp"

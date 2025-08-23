@@ -1,6 +1,7 @@
 #include "enemy_spawner.h"
 #include "engine.h"
 #include "main_game_scene.h"
+#include "components.h"
 
 // file to have functions for organizing enemy creation
 
@@ -17,7 +18,18 @@ EntityID EnemySpawner::SpawnEnemyAt(SceneBase* scene, int x, int y, ENEMY_TYPE t
                             enemy_archetype.size_multiplier);
     EnemyComponent::Add(enemy, enemy_archetype.base_health, enemy_archetype.base_speed);
     SpriteComponent::Add(enemy, ResourceManager::GetTexture(enemy_archetype.texture));
-    Get<ColliderComponent>(enemy)->radius = Get<SpriteComponent>(enemy)->height / 2; // copy the collider size from the sprite size
+    
+    // Safety checks before accessing components
+    ColliderComponent* collider = Get<ColliderComponent>(enemy);
+    SpriteComponent* sprite = Get<SpriteComponent>(enemy);
+    
+    if (collider && sprite) {
+        collider->radius = sprite->height / 2; // copy the collider size from the sprite size
+        printf("Enemy %d spawned successfully with radius %f\n", enemy, collider->radius);
+    } else {
+        printf("ERROR: Failed to get components for enemy %d - collider: %p, sprite: %p\n", 
+               enemy, collider, sprite);
+    }
 
     return enemy;
 

@@ -34,7 +34,6 @@ void ForEachComponent(SceneBase* scene, Func&& callback) {
 template<typename Comp1, typename Comp2, typename Comp3, typename Comp4, typename Func>
 void ForEachComponent(SceneBase* scene, Func&& callback) {
     ComponentManager<Comp1>::template ForEachWith<Comp2, Comp3, Comp4>(scene, callback);
-    ComponentManager<Comp1>::template ForEachWith<Comp2, Comp3, Comp4>(scene, callback);
 }
 
 // Type-safe component access

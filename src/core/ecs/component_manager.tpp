@@ -58,7 +58,7 @@ void ComponentManager<ComponentType>::ForEach(SceneBase* scene, Func&& callback)
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _component))
+                    if (callback(entity, _component) == false)
                         break;
                 } else {
                     // Normal callback, no early exit required
@@ -84,7 +84,7 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, OtherComponent*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2))
+                    if (callback(entity, _comp1, _comp2) == false)
                         break;
                 } else {
                     // Normal callback, no early exit required
@@ -109,7 +109,7 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, Comp2*, Comp3*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2, _comp3)) break;
+                    if (callback(entity, _comp1, _comp2, _comp3) == false) break;
                 } else {
                     // Normal callback, no early exit required
                     callback(entity, _comp1, _comp2, _comp3);
@@ -134,7 +134,7 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, Comp2*, Comp3*, Comp4*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2, _comp3, _comp4)) break;
+                    if (callback(entity, _comp1, _comp2, _comp3, _comp4) == false) break;
                 } else {
                     // Normal callback, no early exit required
                     callback(entity, _comp1, _comp2, _comp3, _comp4);

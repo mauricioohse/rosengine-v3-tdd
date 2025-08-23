@@ -18,6 +18,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
     //                      Enemy, enemy,
     //                      Collider, coll)
     ForEachComponent<TransformComponent, EnemyComponent, ColliderComponent>(scene, [&](EntityID entity, TransformComponent* transform, EnemyComponent* enemy, ColliderComponent* coll) {
+        printf("Processing enemy %d\n", entity);
         float speed = enemy->speed;
 
         SlowComponent* enemy_slow = Get<SlowComponent>(entity);
@@ -39,7 +40,9 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
                 // calculate distance to current target
                 float dx = targetPos.x - transform->x;
                 float dy = targetPos.y - transform->y;
+                printf("Enemy %d: dx=%f, dy=%f, about to call sqrt\n", entity, dx, dy);
                 float distance = sqrt(dx * dx + dy * dy);
+                printf("Enemy %d: distance=%f\n", entity, distance);
 
                 // if close enough to target, advance to next path point
                 if (distance <= 10.0f)
@@ -47,8 +50,9 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
                     enemy->currPathIdx++;
                     if (enemy->currPathIdx >= Grid::GetMonsterPathSize())
                     {
-                        // reached end of path, destroy enemy
-                        g_Engine.entityManager.DestroyEntity(entity);
+                        // reached end of path, mark for destruction
+                        printf("Enemy %d reached end of path, marking for destruction\n", entity);
+                        enemy->currHealth = -1; // mark as dead
                         playerLife_decrease_health(1);
                         return true; // skips the ForEachComponent loop to the next iteration
                     }
@@ -118,6 +122,15 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
                 }
             }
         } 
+        
+        // check if enemy is dead and should be destroyed
+        if (enemy->currHealth <= 0) {
+            printf("Destroying dead enemy %d\n", entity);
+            g_Engine.entityManager.DestroyEntity(entity);
+            return true; // skip to next iteration
+        }
+        
+        return false; // continue processing
     });
 }
 
