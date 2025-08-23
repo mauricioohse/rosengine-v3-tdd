@@ -56,7 +56,6 @@ bool Engine::Init() {
     // Initialize engine systems
     g_Engine.entityManager.Init();
     g_Engine.systemManager.Init();
-    g_Engine.componentArrays.Init();
 
     return true;
 }

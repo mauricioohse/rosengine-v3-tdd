@@ -52,7 +52,7 @@ void SceneBase::OnUpdate(float deltaTime) {
     OptionalUpdate(deltaTime);
     
     // Then do the standard system updates
-    g_Engine.systemManager.UpdateSystems(deltaTime, entities, &g_Engine.componentArrays);
+    g_Engine.systemManager.UpdateSystems(deltaTime, entities);
 
     CleanDeletedEntities();
 }
@@ -67,7 +67,7 @@ void SceneManager::Update(float deltaTime) {
         SceneBase* scene = sceneStack[i];
         switch (scene->state){
             case SceneState::ACTIVE:
-                scene->OnUpdate(deltaTime);   
+                scene->OnUpdate(deltaTime);
                 break;
 
             case SceneState::PAUSED:
@@ -98,6 +98,6 @@ void SceneManager::PushScene(SceneBase *scene) {
 }    // add scene to top of stack
 void SceneManager::PopScene() {
     free(sceneStack[stackSize--]);
-}                     
+}
 
 

@@ -1,9 +1,8 @@
 #pragma once
 #include "ecs_types.h"
+#include <typeindex>
 
 struct EntityManager {
-    // Tracks which components each entity has
-    uint32_t componentMasks[MAX_ENTITIES];
     // Tracks which entities are active
     bool activeEntities[MAX_ENTITIES];
     // Number of active entities
@@ -15,8 +14,8 @@ struct EntityManager {
     bool IsEntityValid(EntityID entity);
     
     // Component relationship functions
-    void AddComponentToEntity(EntityID entity, ComponentType type);
-    void RemoveComponentFromEntity(EntityID entity, ComponentType type);
-    bool HasComponent(EntityID entity, ComponentType type);
+    void AddComponentToEntity(EntityID entity, std::type_index typeIdx);
+    void RemoveComponentFromEntity(EntityID entity, std::type_index typeIdx);
+    bool HasComponent(EntityID entity, std::type_index typeIdx);
     void Init();
 };

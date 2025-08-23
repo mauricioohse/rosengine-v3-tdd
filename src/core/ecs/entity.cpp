@@ -1,27 +1,24 @@
 #include "entity.h"
 #include <stdio.h>
+#include <unordered_set>
 
 // Initialize static members if any are needed later
 EntityManager g_EntityManager;
+std::unordered_set<std::type_index> componentTypes[MAX_ENTITIES];
 
 EntityID EntityManager::CreateEntity() {
-    // Check if we've reached the entity limit
     if (entityCount >= MAX_ENTITIES) {
         printf("Warning: Reached maximum entity count!\n");
         return INVALID_ENTITY;
     }
-    
-    // Find first available entity ID
-    // Entity IDs start from 1 since 0 is INVALID_ENTITY
     for (EntityID i = 1; i < MAX_ENTITIES; i++) {
         if (!activeEntities[i]) {
             activeEntities[i] = true;
-            componentMasks[i] = 0;
+            componentTypes[i].clear(); // Ensure no leftover components
             entityCount++;
             return i;
         }
     }
-    
     return INVALID_ENTITY;
 }
 
@@ -30,59 +27,49 @@ void EntityManager::DestroyEntity(EntityID entity) {
         printf("Warning: Attempting to destroy inactive entity %u\n", entity);
         return;
     }
-    
+
     activeEntities[entity] = false;
-    componentMasks[entity] = 0;
+    componentTypes[entity].clear(); // Remove all component types
     entityCount--;
 }
 
 bool EntityManager::IsEntityValid(EntityID entity) { 
 
-    return (entity > 0 && 
+    return (entity > INVALID_ENTITY && 
             entity < MAX_ENTITIES && 
             activeEntities[entity]);
 }
 
-void EntityManager::AddComponentToEntity(EntityID entity, ComponentType type) {
+void EntityManager::AddComponentToEntity(EntityID entity, std::type_index typeIdx) {
     if (!IsEntityValid(entity)) {
         printf("Warning: Attempting to add component to invalid entity %u\n", entity);
         return;
     }
-    
-    // Add component type to entity's mask using bitwise OR
-    componentMasks[entity] |= type;
+    componentTypes[entity].insert(typeIdx);
 }
 
-void EntityManager::RemoveComponentFromEntity(EntityID entity, ComponentType type) {
+void EntityManager::RemoveComponentFromEntity(EntityID entity, std::type_index typeIdx) {
     if (!IsEntityValid(entity)) {
         printf("Warning: Attempting to remove component from invalid entity %u\n", entity);
         return;
     }
-    
-    // Remove component type from entity's mask using bitwise AND with inverted type
-    componentMasks[entity] &= ~type;
-    
-    // If entity has no more components, destroy it
-    if (componentMasks[entity] == 0) {
+    componentTypes[entity].erase(typeIdx);
+    if (componentTypes[entity].empty()) {
         DestroyEntity(entity);
     }
 }
 
-bool EntityManager::HasComponent(EntityID entity, ComponentType componentMask) {
+bool EntityManager::HasComponent(EntityID entity, std::type_index typeIdx) {
     if (!IsEntityValid(entity)) {
         return false;
     }
-
-    // todo: should we check if the entity is active/exists and not only the component mask?
-    
-    // Check if all bits from componentMask are present in entity's mask
-    return (componentMasks[entity] & componentMask) == componentMask;
+    return componentTypes[entity].find(typeIdx) != componentTypes[entity].end();
 }
 
 void EntityManager::Init() {
     entityCount = 0;
     for (EntityID i = 0; i < MAX_ENTITIES; i++) {
         activeEntities[i] = false;
-        componentMasks[i] = 0;
+        componentTypes[i].clear(); // Clear all component type sets
     }
-} 
+}
