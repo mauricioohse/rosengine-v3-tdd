@@ -23,11 +23,6 @@ static EntityID CheckEnemyInRange(EntityID tower){
     EntityID enemyInRange = INVALID_ENTITY;
     
     // check collision with enemies
-    // FOR_EACH_COMPONENT_3(scene, enemy, 
-    //                     Transform, enemy_tr,
-    //                     Enemy, en,
-    //                     Collider, enemy_cc)
-    // {
     ForEachComponent<TransformComponent, EnemyComponent, ColliderComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* enemy_c, ColliderComponent* enemy_cc) {
 
             float penX, penY; //used to get the penetration of the collision, but we dont care in this case
@@ -49,7 +44,6 @@ static EntityID CheckEnemyInRange(EntityID tower){
 // TODO: this targeting system sucks and needs to be better thought out. sometimes towers shoots entities outside their range if the target is aquired while CD > 0
 void TargetingSystem(SceneBase *scene)
 {
-    // FOR_EACH_COMPONENT_2(scene, tower, Target, tar, Tower, tc)
     ForEachComponent<TargetComponent, TowerComponent>(scene, [&](EntityID tower, TargetComponent* tar, TowerComponent* tc)
     {
 
@@ -83,9 +77,6 @@ static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
 
 void ExplodeOnXYSystem(SceneBase *scene)
 {
-    // FOR_EACH_COMPONENT_2(scene, entity,
-    //                      Transform, tr,
-    //                      ExplodeOnXY, exp)
     ForEachComponent<TransformComponent, ExplodeOnXYComponent>(scene, [&](EntityID entity, TransformComponent* tr, ExplodeOnXYComponent* exp)
     {
         const int TOLERANCE = 10; // 10px tolerance each side
@@ -108,10 +99,6 @@ void ExplodeOnXYSystem(SceneBase *scene)
             // deal damage to nearby enemies
             DamageComponent* dmg = Get<DamageComponent>(entity);
             if (dmg) {
-                // FOR_EACH_COMPONENT_3(scene, enemy,
-                //                    Transform, enemy_tr,
-                //                    Enemy, en,
-                //                    Collider, enemy_cc)
                 ForEachComponent<EnemyComponent, TransformComponent, ColliderComponent>(scene, [&](EntityID enemy, EnemyComponent* en, TransformComponent* enemy_tr, ColliderComponent* enemy_cc)
                 {
                     if (IsEnemyInRange(enemy, exp->x, exp->y, 100))
@@ -126,18 +113,8 @@ void ExplodeOnXYSystem(SceneBase *scene)
 
 void DamageOnCollisionSystem(SceneBase * scene)
 {
-    // FOR_EACH_COMPONENT_4(scene, damage_entity,
-    //                      DamageOnCollision, unused,
-    //                      Damage, entity_dmg,
-    //                      Collider, entity_col,
-    //                      Transform, entity_tr)
     ForEachComponent<DamageOnCollisionComponent, DamageComponent, ColliderComponent, TransformComponent>(scene, [&](EntityID damage_entity, auto* unused, auto* entity_dmg, auto* entity_col, auto* entity_tr)
     {
-        // look for enemies that collide with the entity
-        // FOR_EACH_COMPONENT_3(scene, enemy,
-        //                      Enemy, enemy_component,
-        //                      Transform, enemy_tr,
-        //                      Collider, enemy_col)
         ForEachComponent<EnemyComponent, TransformComponent, ColliderComponent>(scene, [&](EntityID enemy, auto* enemy_component, auto* enemy_tr, auto* enemy_col)
         {
             float penX, penY;
@@ -164,9 +141,6 @@ void DamageOnCollisionSystem(SceneBase * scene)
 
 void new_CrowdcontrolSystem(SceneBase * scene)
 {
-    // FOR_EACH_COMPONENT_2(scene, entity,
-    //                      Transform, tc,
-    //                      Crowdcontrol, CC)
     ForEachComponent<TransformComponent, CrowdControlComponent>(scene, [&](EntityID entity, TransformComponent* tc, CrowdControlComponent* CC)
     {
         TransformComponent * enemy_tr = Get<TransformComponent>(CC->target);
@@ -199,8 +173,6 @@ static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int da
 // TODO: think of a better way to separate the chainlightning into smaller components
 void ChainLightningSystem(SceneBase * scene)
 {
-    // FOR_EACH_COMPONENT(scene, entity,
-    //                    ChainLightning, CL)
     ForEachComponent<ChainLightningComponent>(scene, [&](EntityID entity, ChainLightningComponent* CL)
     {
         // if no jumps left, delete entity
@@ -254,9 +226,6 @@ void ChainLightningSystem(SceneBase * scene)
             EntityID nextTarget = INVALID_ENTITY;
             float closestDist = 150.0f; // max chain range
 
-            // FOR_EACH_COMPONENT_2(scene, enemy,
-            //                     Transform, enemy_tr,
-            //                     Enemy, enemy_c)
             ForEachComponent<TransformComponent, EnemyComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* enemy_c)
             {
                 // check if already hit
@@ -404,9 +373,6 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     case PROJECTILE_AREA_GUST:
         // area gust queries for all enemies in tower range, then spawn a CC entity for each enemy that will despawn shortly
         // TODO: in the future we should not do a range check here, I think there should be a "AreaRange" component or something like that
-        // FOR_EACH_COMPONENT_2(scene, enemy,
-        //                      Enemy, enemy_en,
-        //                      Transform, enemy_tr)
         ForEachComponent<EnemyComponent, TransformComponent>(scene, [&](EntityID enemy, EnemyComponent* enemy_en, TransformComponent* enemy_tr)
         {
             auto tower_c = Get<TowerComponent>(tower);
@@ -448,11 +414,6 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
 void ProjectileSpawningSystem(SceneBase *scene)
 {
-    // FOR_EACH_COMPONENT_4(scene, tower,
-    //                      ProjectileSpawner, spawner,
-    //                      Tower, tc,
-    //                      Cooldown, cd,
-    //                      Transform, tr )
     ForEachComponent<ProjectileSpawnerComponent, TowerComponent, CooldownComponent, TransformComponent>(scene, [&](EntityID tower, ProjectileSpawnerComponent* spawner, TowerComponent* tc, CooldownComponent* cd, TransformComponent* tr)
     {
         if(cd->remainingCD<0)
@@ -468,8 +429,6 @@ void ProjectileSpawningSystem(SceneBase *scene)
 
 void AttackCDSystem(SceneBase *scene, float deltaTime)
 {
-    // FOR_EACH_COMPONENT(scene, entity,
-    //                    Cooldown, cd)
     ForEachComponent<CooldownComponent>(scene, [&](EntityID entity, CooldownComponent* cd)
     {
         cd->remainingCD-=deltaTime;

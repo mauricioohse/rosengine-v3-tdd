@@ -123,10 +123,6 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
     // TODO: check if tower has elements slot available, if not return
     SceneBase* scene = &g_mainGame;
     EntityID existingTower = 0;
-    // FOR_EACH_COMPONENT_2(scene, tower,
-    //                       Transform, TR,
-    //                       Tower, TC
-    //                       )
     ForEachComponent<TransformComponent, TowerComponent>(scene, [&](EntityID entity, TransformComponent* TR, TowerComponent* TC) {
         if (TR->x == gridPoint.x && TR->y == gridPoint.y)
         {
