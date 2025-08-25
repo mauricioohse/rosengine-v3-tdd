@@ -25,8 +25,8 @@ struct TransformComponent : Component<TransformComponent> {
         scale = scl;
     }
 
-    static void Add(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f) {
-        ComponentManager<TransformComponent>::Add(entity, x, y, rotation, scale);
+    static TransformComponent* Add(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f) {
+        return ComponentManager<TransformComponent>::Add(entity, x, y, rotation, scale);
     }
 
     void Destroy() override {
@@ -35,6 +35,9 @@ struct TransformComponent : Component<TransformComponent> {
         rotation = 0.0f;
         scale = 1.0f;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct SpriteComponent : Component<SpriteComponent> {
@@ -59,8 +62,8 @@ struct SpriteComponent : Component<SpriteComponent> {
         }
     }
 
-    static void Add(EntityID entity, Texture* tex) {
-        ComponentManager<SpriteComponent>::Add(entity, tex);
+    static SpriteComponent* Add(EntityID entity, Texture* tex) {
+        return ComponentManager<SpriteComponent>::Add(entity, tex);
     }
 
     void ChangeTexture(Texture* newTexture) {
@@ -79,6 +82,9 @@ struct SpriteComponent : Component<SpriteComponent> {
         height = 0;
         srcRect = {0, 0, 0, 0};
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct WASDControllerComponent : Component<WASDControllerComponent> {
@@ -96,8 +102,8 @@ struct WASDControllerComponent : Component<WASDControllerComponent> {
         moveForce = 1.0f;
     }
 
-    static void Add(EntityID entity, float speed = 200.0f, bool enabled = true) {
-        ComponentManager<WASDControllerComponent>::Add(entity, speed, enabled);
+    static WASDControllerComponent* Add(EntityID entity, float speed = 200.0f, bool enabled = true) {
+        return ComponentManager<WASDControllerComponent>::Add(entity, speed, enabled);
     }
 
     void Destroy() override {
@@ -107,6 +113,10 @@ struct WASDControllerComponent : Component<WASDControllerComponent> {
         moveY = 0;
         moveForce = 0.0f;
     }
+
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct ColliderComponent : Component<ColliderComponent> {
@@ -120,8 +130,8 @@ struct ColliderComponent : Component<ColliderComponent> {
         isTrigger = triggerCollider;
     }
 
-    static void Add(EntityID entity, float r, bool staticCollider = false, bool triggerCollider = false) {
-        ComponentManager<ColliderComponent>::Add(entity, r, staticCollider, triggerCollider);
+    static ColliderComponent* Add(EntityID entity, float r, bool staticCollider = false, bool triggerCollider = false) {
+        return ComponentManager<ColliderComponent>::Add(entity, r, staticCollider, triggerCollider);
     }
     
     void Destroy() override {
@@ -129,6 +139,9 @@ struct ColliderComponent : Component<ColliderComponent> {
         isTrigger = false;
         isStatic = false;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct AnimationComponent : Component<AnimationComponent> {
@@ -163,9 +176,9 @@ struct AnimationComponent : Component<AnimationComponent> {
         UpdateFrameRect();
     }
 
-    static void Add(EntityID entity, Texture* sheet, int frameW, int frameH, int cols, int frames, 
+    static AnimationComponent* Add(EntityID entity, Texture* sheet, int frameW, int frameH, int cols, int frames, 
                     float time = 0.1f, bool shouldLoop = true) {
-        ComponentManager<AnimationComponent>::Add(entity, sheet, frameW, frameH, cols, frames, time, shouldLoop);
+        return ComponentManager<AnimationComponent>::Add(entity, sheet, frameW, frameH, cols, frames, time, shouldLoop);
     }
 
     void Destroy() override {
@@ -188,6 +201,9 @@ struct AnimationComponent : Component<AnimationComponent> {
         frameRect.w = frameWidth;
         frameRect.h = frameHeight;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct GravityComponent : Component<GravityComponent> {
@@ -201,8 +217,8 @@ struct GravityComponent : Component<GravityComponent> {
         isGrounded = false;
     }
 
-    static void Add(EntityID entity, float scale = 1.0f) {
-        ComponentManager<GravityComponent>::Add(entity, scale);
+    static GravityComponent* Add(EntityID entity, float scale = 1.0f) {
+        return ComponentManager<GravityComponent>::Add(entity, scale);
     }
 
     void Destroy() override {
@@ -210,6 +226,9 @@ struct GravityComponent : Component<GravityComponent> {
         gravityScale = 1.0f;
         isGrounded = false;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct CameraComponent : Component<CameraComponent> {
@@ -245,8 +264,8 @@ struct CameraComponent : Component<CameraComponent> {
         maxY = height * 50.0f;
     }
 
-    static void Add(EntityID entity, float width, float height, EntityID target = 0) {
-        ComponentManager<CameraComponent>::Add(entity, width, height, target);
+    static CameraComponent* Add(EntityID entity, float width, float height, EntityID target = 0) {
+        return ComponentManager<CameraComponent>::Add(entity, width, height, target);
     }
 
     void Destroy() override {
@@ -259,6 +278,9 @@ struct CameraComponent : Component<CameraComponent> {
         shakeAmount = 0.0f;
         shakeTimer = 0.0f;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 enum TextAlignment {
@@ -284,8 +306,8 @@ struct TextComponent : Component<TextComponent> {
         printf("text component initialized: %s\n", text);
     }
 
-    static void Add(EntityID entity, Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
-        ComponentManager<TextComponent>::Add(entity, _font, _text, _alignment);
+    static TextComponent* Add(EntityID entity, Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
+        return ComponentManager<TextComponent>::Add(entity, _font, _text, _alignment);
     }
 
     void Destroy() override {
@@ -296,6 +318,9 @@ struct TextComponent : Component<TextComponent> {
         isDirty = true;
         alignment = TEXT_CENTER;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct UIBoxComponent : Component<UIBoxComponent> {
@@ -326,14 +351,14 @@ struct UIBoxComponent : Component<UIBoxComponent> {
         onClick = callback;
     }
 
-    static void Add(EntityID entity,
+    static UIBoxComponent* Add(EntityID entity,
                     float w,
                     float h,
                     SDL_Color bgColor = {50, 50, 50, 255},
                     SDL_Color brdColor = {255, 255, 255, 255},
                     float brdWidth = 2.0f,
                     OnClickCallback callback = nullptr) {
-        ComponentManager<UIBoxComponent>::Add(entity, w, h, bgColor, brdColor, brdWidth, callback);
+        return ComponentManager<UIBoxComponent>::Add(entity, w, h, bgColor, brdColor, brdWidth, callback);
     }
     
     void Destroy() override {
@@ -346,6 +371,9 @@ struct UIBoxComponent : Component<UIBoxComponent> {
         isPressed = false;
         onClick = nullptr;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 enum TOWER_TYPE{
@@ -373,14 +401,17 @@ struct TowerComponent : Component<TowerComponent> {
         currCD=0;
     }
 
-    static void Add(EntityID entity, TOWER_TYPE t, int r, float CD) {
-        ComponentManager<TowerComponent>::Add(entity, t, r, CD);
+    static TowerComponent* Add(EntityID entity, TOWER_TYPE t, int r, float CD) {
+        return ComponentManager<TowerComponent>::Add(entity, t, r, CD);
     }
 
     void Destroy()
     {
         type = (TOWER_TYPE) 0 ;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 // only base elements
@@ -409,7 +440,6 @@ inline const char* GetElementName(ELEMENT element) {
     return g_element_names[element];
 }
 
-#define MAX_ELEMENTS 3
 struct ElementComponent : Component<ElementComponent> {
     ELEMENT elements[MAX_ELEMENTS] = {};
 
@@ -431,9 +461,12 @@ struct ElementComponent : Component<ElementComponent> {
         elements[idx] = new_ele;
     }
 
-    static void Add(EntityID entity, ELEMENT new_ele) {
-        ComponentManager<ElementComponent>::Add(entity, new_ele);
+    static ElementComponent* Add(EntityID entity, ELEMENT new_ele) {
+        return ComponentManager<ElementComponent>::Add(entity, new_ele);
     }
+
+// private:
+//    static inline bool _r = Component<ElementComponent>::registered;
 };
 
 // tag component
@@ -444,9 +477,12 @@ struct ResolveElementComponent : Component<ResolveElementComponent> {
         // empty
     }
 
-    static void Add(EntityID entity) {
-        ComponentManager<ResolveElementComponent>::Add(entity);
+    static ResolveElementComponent* Add(EntityID entity) {
+        return ComponentManager<ResolveElementComponent>::Add(entity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct TargetComponent : Component<TargetComponent> {
@@ -454,9 +490,12 @@ struct TargetComponent : Component<TargetComponent> {
 
     void Init(EntityID _target) { target = _target; }
 
-    static void Add(EntityID entity, EntityID _target) {
-        ComponentManager<TargetComponent>::Add(entity, _target);
+    static TargetComponent* Add(EntityID entity, EntityID _target) {
+        return ComponentManager<TargetComponent>::Add(entity, _target);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct LifeTimeComponent : Component<LifeTimeComponent> {
@@ -467,14 +506,17 @@ struct LifeTimeComponent : Component<LifeTimeComponent> {
         remaininglifeTime = lifeTime;
     }
 
-    static void Add(EntityID entity, float lifeTime) {
-        ComponentManager<LifeTimeComponent>::Add(entity, lifeTime);
+    static LifeTimeComponent* Add(EntityID entity, float lifeTime) {
+        return ComponentManager<LifeTimeComponent>::Add(entity, lifeTime);
     }
 
     void Destroy() override 
     {
         remaininglifeTime = 0;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 // tag
@@ -485,9 +527,12 @@ struct DamageOnCollisionComponent : Component<DamageOnCollisionComponent> {
         // empty
     }
 
-    static void Add(EntityID entity) {
-        ComponentManager<DamageOnCollisionComponent>::Add(entity);
+    static DamageOnCollisionComponent* Add(EntityID entity) {
+        return ComponentManager<DamageOnCollisionComponent>::Add(entity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct JetAnimationComponent : Component<JetAnimationComponent> {
@@ -508,8 +553,8 @@ struct JetAnimationComponent : Component<JetAnimationComponent> {
         currentStep = 0;
     }
 
-    static void Add(EntityID entity, int _srcX, int _srcY, int _destX, int _destY) {
-        ComponentManager<JetAnimationComponent>::Add(entity, _srcX, _srcY, _destX, _destY);
+    static JetAnimationComponent* Add(EntityID entity, int _srcX, int _srcY, int _destX, int _destY) {
+        return ComponentManager<JetAnimationComponent>::Add(entity, _srcX, _srcY, _destX, _destY);
     }
 
     void Destroy() override 
@@ -519,6 +564,9 @@ struct JetAnimationComponent : Component<JetAnimationComponent> {
         destX = 0;
         destY = 0;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct ChainLightningComponent : Component<ChainLightningComponent> {
@@ -552,14 +600,17 @@ struct ChainLightningComponent : Component<ChainLightningComponent> {
         currFrameDelay = 0;
     }
 
-    static void Add(EntityID entity, int _currX, int _currY, int _nextX, int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes) {
-        ComponentManager<ChainLightningComponent>::Add(entity, _currX, _currY, _nextX, _nextY, _target, _damage, _jumps, _explodes);
+    static ChainLightningComponent* Add(EntityID entity, int _currX, int _currY, int _nextX, int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes) {
+        return ComponentManager<ChainLightningComponent>::Add(entity, _currX, _currY, _nextX, _nextY, _target, _damage, _jumps, _explodes);
     }
 
     void Destroy () override 
     {
 
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct CrowdControlComponent : Component<CrowdControlComponent> {
@@ -574,14 +625,17 @@ struct CrowdControlComponent : Component<CrowdControlComponent> {
         targetY = _targetY;
     }
 
-    static void Add(EntityID entity, EntityID tgt, int _targetX, int _targetY) {
-        ComponentManager<CrowdControlComponent>::Add(entity, tgt, _targetX, _targetY);
+    static CrowdControlComponent* Add(EntityID entity, EntityID tgt, int _targetX, int _targetY) {
+        return ComponentManager<CrowdControlComponent>::Add(entity, tgt, _targetX, _targetY);
     }
 
     void Destroy() override
     {
         target = 0;
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 enum PROJECTILE_TYPE {
@@ -605,9 +659,12 @@ struct ProjectileSpawnerComponent : Component<ProjectileSpawnerComponent> {
         type = _type;
     }
 
-    static void Add(EntityID entity, PROJECTILE_TYPE _type) {
-        ComponentManager<ProjectileSpawnerComponent>::Add(entity, _type);
+    static ProjectileSpawnerComponent* Add(EntityID entity, PROJECTILE_TYPE _type) {
+        return ComponentManager<ProjectileSpawnerComponent>::Add(entity, _type);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct AddSlowOnCollisionComponent : Component<AddSlowOnCollisionComponent> {
@@ -620,9 +677,12 @@ struct AddSlowOnCollisionComponent : Component<AddSlowOnCollisionComponent> {
         intensity = _intensity; 
     }
 
-    static void Add(EntityID entity, float _duration, float _intensity) {
-        ComponentManager<AddSlowOnCollisionComponent>::Add(entity, _duration, _intensity);
+    static AddSlowOnCollisionComponent* Add(EntityID entity, float _duration, float _intensity) {
+        return ComponentManager<AddSlowOnCollisionComponent>::Add(entity, _duration, _intensity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct SlowComponent : Component<SlowComponent> {
@@ -635,9 +695,12 @@ struct SlowComponent : Component<SlowComponent> {
         intensity = _intensity; 
     }
 
-    static void Add(EntityID entity, float _duration, float _intensity) {
-        ComponentManager<SlowComponent>::Add(entity, _duration, _intensity);
+    static SlowComponent* Add(EntityID entity, float _duration, float _intensity) {
+        return ComponentManager<SlowComponent>::Add(entity, _duration, _intensity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct CooldownComponent : Component<CooldownComponent> {
@@ -650,9 +713,12 @@ struct CooldownComponent : Component<CooldownComponent> {
         remainingCD = 0;
     }
 
-    static void Add(EntityID entity, float _CD) {
-        ComponentManager<CooldownComponent>::Add(entity, _CD);
+    static CooldownComponent* Add(EntityID entity, float _CD) {
+        return ComponentManager<CooldownComponent>::Add(entity, _CD);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct RangeComponent : Component<RangeComponent> {
@@ -663,9 +729,12 @@ struct RangeComponent : Component<RangeComponent> {
         // empty
     }
 
-    static void Add(EntityID entity) {
-        ComponentManager<RangeComponent>::Add(entity);
+    static RangeComponent* Add(EntityID entity) {
+        return ComponentManager<RangeComponent>::Add(entity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct DamageComponent : Component<DamageComponent> {
@@ -673,9 +742,12 @@ struct DamageComponent : Component<DamageComponent> {
 
     void Init( int _damage) {damage = _damage;}
 
-    static void Add(EntityID entity, int _damage) {
-        ComponentManager<DamageComponent>::Add(entity, _damage);
+    static DamageComponent* Add(EntityID entity, int _damage) {
+        return ComponentManager<DamageComponent>::Add(entity, _damage);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct ExplodeOnXYComponent : Component<ExplodeOnXYComponent> {
@@ -688,9 +760,12 @@ struct ExplodeOnXYComponent : Component<ExplodeOnXYComponent> {
         y = _y;
     }
 
-    static void Add(EntityID entity, int _x, int _y) {
-        ComponentManager<ExplodeOnXYComponent>::Add(entity, _x, _y);
+    static ExplodeOnXYComponent* Add(EntityID entity, int _x, int _y) {
+        return ComponentManager<ExplodeOnXYComponent>::Add(entity, _x, _y);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct MoveToXYComponent : Component<MoveToXYComponent> {
@@ -705,8 +780,8 @@ struct MoveToXYComponent : Component<MoveToXYComponent> {
         speed = spd;
     }
 
-    static void Add(EntityID entity, int x, int y, int spd) {
-        ComponentManager<MoveToXYComponent>::Add(entity, x, y, spd);
+    static MoveToXYComponent* Add(EntityID entity, int x, int y, int spd) {
+        return ComponentManager<MoveToXYComponent>::Add(entity, x, y, spd);
     }
 
     void Destroy() override {
@@ -714,6 +789,9 @@ struct MoveToXYComponent : Component<MoveToXYComponent> {
         int targetY = 0;
         int hasTransformComponent = 0; // used to log missing only once
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct TimedSpriteComponent : Component<TimedSpriteComponent> {
@@ -734,8 +812,8 @@ struct TimedSpriteComponent : Component<TimedSpriteComponent> {
         }
     }
 
-    static void Add(EntityID entity, float currTime_, float animTime_, int loop_, int maxSprites_) {
-        ComponentManager<TimedSpriteComponent>::Add(entity, currTime_, animTime_, loop_, maxSprites_);
+    static TimedSpriteComponent* Add(EntityID entity, float currTime_, float animTime_, int loop_, int maxSprites_) {
+        return ComponentManager<TimedSpriteComponent>::Add(entity, currTime_, animTime_, loop_, maxSprites_);
     }
 
     void Destroy() override
@@ -748,6 +826,9 @@ struct TimedSpriteComponent : Component<TimedSpriteComponent> {
             sprites[i] = nullptr;
         }
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 // a TAG used to know if the transform + collider is used to destroy the entity 
@@ -758,9 +839,12 @@ struct EnemyExitComponent : Component<EnemyExitComponent> {
         // empty
     }
 
-    static void Add(EntityID entity) {
-        ComponentManager<EnemyExitComponent>::Add(entity);
+    static EnemyExitComponent* Add(EntityID entity) {
+        return ComponentManager<EnemyExitComponent>::Add(entity);
     }
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct EnemyDebugComponent : Component<EnemyDebugComponent> {
@@ -773,11 +857,14 @@ struct EnemyDebugComponent : Component<EnemyDebugComponent> {
         debug = 0;
     }
 
-    static void Add(EntityID entity, TOWER_TYPE t) {
-        ComponentManager<EnemyDebugComponent>::Add(entity, t);
+    static EnemyDebugComponent* Add(EntityID entity, TOWER_TYPE t) {
+        return ComponentManager<EnemyDebugComponent>::Add(entity, t);
     }
 
     void Destroy() override {}
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 struct EnemyComponent : Component<EnemyComponent> {
@@ -795,8 +882,8 @@ struct EnemyComponent : Component<EnemyComponent> {
         speed = _speed;
     }
 
-    static void Add(EntityID entity, int health, int _speed) {
-        ComponentManager<EnemyComponent>::Add(entity, health, _speed);
+    static EnemyComponent* Add(EntityID entity, int health, int _speed) {
+        return ComponentManager<EnemyComponent>::Add(entity, health, _speed);
     }
 
     void Destroy()
@@ -804,6 +891,9 @@ struct EnemyComponent : Component<EnemyComponent> {
         alive = 0;
     }
 
+
+//private:
+//    static inline bool _r = RegisterType();
 };
 
 // Component initialization functions declarations only

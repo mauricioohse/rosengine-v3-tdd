@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SDL.h>
 
 typedef uint32_t EntityID;
@@ -16,3 +17,5 @@ struct Component : BaseComponent {
 
     static bool registered;
 };
+
+#include "base_component.tpp"
