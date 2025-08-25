@@ -2,6 +2,7 @@
 #include "enemy_spawner.h"
 #include "main_game_scene.h"
 #include "grid.h"
+#include <cstdio>
 
 static WaveSystemState g_wave_state = {};
 

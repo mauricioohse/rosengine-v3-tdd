@@ -1,7 +1,7 @@
 #include "move_to_target_system.h"
 #include "engine.h"
 #include "math.h"
-#include "../component_manager.h"
+#include "../components.h"
 
 void move_to_target_system::Init()
 {
@@ -11,7 +11,7 @@ void move_to_target_system::Update(float deltaTime, std::vector<EntityID> entiti
 {
     for (EntityID e : entities)
     {
-        if (HasComponents<TransformComponent, MoveToXYComponent>(e))
+        if (HasComponent<TransformComponent, MoveToXYComponent>(e))
         {
             TransformComponent* transform = Get<TransformComponent>(e);
             MoveToXYComponent* moveTarget = Get<MoveToXYComponent>(e);

@@ -10,6 +10,15 @@
 #include "game/game_systems/resolve_elements_system.h"
 #include "../components.h"
 
+std::map<std::string, RenderColor> paletteOpaque = {
+    {"red", {255, 0, 0, 255}},
+    {"green", {0, 255, 0, 255}},
+    {"blue", {0, 0, 255, 255}},
+    {"white", {255, 255, 255, 255}},
+    {"black", {0, 0, 0, 255}},
+    {"grey", {122, 122, 122, 255}}
+};
+
 // Global variable to track which tower should be hidden during placement preview
 static EntityID g_towerToHide = INVALID_ENTITY;
 
@@ -88,7 +97,7 @@ static void RenderJet(EntityID entity)
     // the splash is the remaining .25 seconds 
 
     // if (!HAS_COMPONENT(entity, C_JetAnimation | C_LifeTime)) {
-    if (!HasComponents<JetAnimationComponent, LifeTimeComponent>(entity)) {
+    if (!HasComponent<JetAnimationComponent, LifeTimeComponent>(entity)) {
         return;
     }
 
@@ -141,7 +150,7 @@ static void RenderJet(EntityID entity)
 static bool ShouldRenderTowerRange(EntityID entity)
 {
     // if (!HAS_COMPONENT(entity, C_Tower | C_Transform)) {
-    if (!HasComponents<TowerComponent, TransformComponent>(entity)) {
+    if (!HasComponent<TowerComponent, TransformComponent>(entity)) {
         return false;
     }
 
@@ -269,7 +278,7 @@ static void RenderTowerPlacementPreview()
 static void RenderEnemyLife(EntityID entity)
 {
     // if (!HAS_COMPONENT(entity, C_Enemy | C_Transform)) {
-    if (!HasComponents<EnemyComponent, TransformComponent>(entity)) {
+    if (!HasComponent<EnemyComponent, TransformComponent>(entity)) {
         return;
     }
     
@@ -416,7 +425,7 @@ static void RenderChain(EntityID entity){
 static void RenderDebugAOE(EntityID e)
 {
     // if (HAS_COMPONENT(e, C_Transform | C_ExplodeOnXY)) {
-    if (HasComponents<TransformComponent, ExplodeOnXYComponent>(e)) {
+    if (HasComponent<TransformComponent, ExplodeOnXYComponent>(e)) {
         // TransformComponent* transform = Get<TransformComponent>(e);
         TransformComponent* transform = Get<TransformComponent>(e);
         
@@ -441,7 +450,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_Sprite) &&
         //     !HAS_COMPONENT(entity, C_UIBox)) {
-        if (HasComponents<TransformComponent, SpriteComponent>(entity) &&
+        if (HasComponent<TransformComponent, SpriteComponent>(entity) &&
             !HasComponent<UIBoxComponent>(entity)) {
             RenderSpriteEntity(entity, camera);
         }
@@ -451,7 +460,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_Text) &&
         //     !HAS_COMPONENT(entity, C_UIBox)) {  // Exclude UI elements
-        if (HasComponents<TransformComponent, TextComponent>(entity) &&
+        if (HasComponent<TransformComponent, TextComponent>(entity) &&
             !HasComponent<UIBoxComponent>(entity)) {  // Exclude UI elements
             RenderTextEntity(entity, camera);
         }
@@ -460,14 +469,14 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     // 3. Third pass: Render UI boxes with their text
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_UIBox)) {
-        if (HasComponents<TransformComponent, UIBoxComponent>(entity)) {
+        if (HasComponent<TransformComponent, UIBoxComponent>(entity)) {
             RenderUIEntity(entity, camera);
         }
     }
     // 4. render TIMEDSPRITEENTITY
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_TimedSprite)) {
-        if (HasComponents<TransformComponent, TimedSpriteComponent>(entity)) {
+        if (HasComponent<TransformComponent, TimedSpriteComponent>(entity)) {
             RenderTimedSpriteEntity(entity, camera, deltaTime);
         }
     }
@@ -476,7 +485,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities)
     {
         // if (HAS_COMPONENT(entity, C_Transform | C_ExplodeOnXY))
-        if (HasComponents<TransformComponent, ExplodeOnXYComponent>(entity))
+        if (HasComponent<TransformComponent, ExplodeOnXYComponent>(entity))
         {
             RenderDebugAOE(entity);
         }
@@ -486,7 +495,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities)
     {
         // if (HAS_COMPONENT(entity, C_Transform | C_Enemy | C_Sprite))
-        if (HasComponents<TransformComponent, EnemyComponent, SpriteComponent>(entity))
+        if (HasComponent<TransformComponent, EnemyComponent, SpriteComponent>(entity))
         {
             RenderEnemyLife(entity);
         }
@@ -496,7 +505,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities)
     {
         // if (HAS_COMPONENT(entity, C_Transform | C_Tower))
-        if (HasComponents<TransformComponent, TowerComponent>(entity))
+        if (HasComponent<TransformComponent, TowerComponent>(entity))
         {
             if (ShouldRenderTowerRange(entity))
             {
@@ -512,7 +521,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities)
     {
         // if (HAS_COMPONENT(entity, C_JetAnimation | C_LifeTime))
-        if (HasComponents<JetAnimationComponent, LifeTimeComponent>(entity))
+        if (HasComponent<JetAnimationComponent, LifeTimeComponent>(entity))
         {
             RenderJet(entity);
         }

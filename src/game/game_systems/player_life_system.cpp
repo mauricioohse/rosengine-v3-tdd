@@ -1,6 +1,7 @@
 #include "player_life_system.h"
 #include "main_game_scene.h"
 #include "grid.h"
+#include "../../core/ecs/components.h"
 
 playerLife_context ctx;
 

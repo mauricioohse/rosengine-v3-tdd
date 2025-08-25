@@ -15,7 +15,7 @@ void UISystem::Update(float deltaTime, std::vector<EntityID> entities) {
 
     // Update UI states
     for (EntityID entity : entities) {
-        if (!HasComponents<TransformComponent, UIBoxComponent>(entity)) {
+        if (!HasComponent<TransformComponent, UIBoxComponent>(entity)) {
             continue;
         }
 

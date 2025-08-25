@@ -11,7 +11,7 @@ using namespace std;
 
 template<typename ComponentType>
 template<typename... Args>
-void ComponentManager<ComponentType>::Add(EntityID entity, Args&&... args) {
+ComponentType* ComponentManager<ComponentType>::Add(EntityID entity, Args&&... args) {
     auto* array = ComponentStorage::GetArray<ComponentType>();
 
     g_Engine.entityManager.AddComponentToEntity(entity, TypeIndex<ComponentType>());
@@ -19,9 +19,17 @@ void ComponentManager<ComponentType>::Add(EntityID entity, Args&&... args) {
     ComponentType* component = array ? static_cast<ComponentType*>(array->GetData(entity)) : nullptr;
     if (component) {
         component->Init(forward<Args>(args)...);
+        return component;
     } else {
         printf("Failed to retrieve %s component for entity %u\n", typeid(ComponentType).name(), entity);
+        return nullptr;
     }
+}
+
+// Check if entity has component
+template<typename ComponentType>
+bool ComponentManager<ComponentType>::Has(EntityID entity) {
+    return g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentType>());
 }
 
 // Get component from entity
@@ -31,16 +39,13 @@ ComponentType* ComponentManager<ComponentType>::Get(EntityID entity) {
     return array ? static_cast<ComponentType*>(array->GetData(entity)) : nullptr;
 }
 
-// Check if entity has component
-template<typename ComponentType>
-bool ComponentManager<ComponentType>::Has(EntityID entity) {
-    return g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentType>());
-}
-
 // Remove component from entity
 template<typename ComponentType>
 void ComponentManager<ComponentType>::Remove(EntityID entity) {
-    g_Engine.entityManager.RemoveComponentFromEntity(entity, TypeIndex<ComponentType>());
+    // Note: entity is being verified twice for validity (Has and RemoveComponentFromEntity), once everything works, think about how to optimize this
+    if (ComponentManager<ComponentType>::Has(entity)) {
+        g_Engine.entityManager.RemoveComponentFromEntity(entity, TypeIndex<ComponentType>());
+    }
 }
 
 // ===== SINGLE COMPONENT ITERATION =====
@@ -58,7 +63,7 @@ void ComponentManager<ComponentType>::ForEach(SceneBase* scene, Func&& callback)
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _component))
+                    if (callback(entity, _component) == false)
                         break;
                 } else {
                     // Normal callback, no early exit required
@@ -76,7 +81,7 @@ template<typename ComponentType>
 template<typename OtherComponent, typename Func>
 void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callback) {
     for (EntityID entity : scene->entities) {
-        if (HasComponents<ComponentType, OtherComponent>(entity)) {
+        if (HasComponent<ComponentType, OtherComponent>(entity)) {
             ComponentType* _comp1 = Get(entity);
             OtherComponent* _comp2 = ComponentManager<OtherComponent>::Get(entity);
 
@@ -84,7 +89,7 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, OtherComponent*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2))
+                    if (callback(entity, _comp1, _comp2) == false)
                         break;
                 } else {
                     // Normal callback, no early exit required
@@ -100,7 +105,7 @@ template<typename ComponentType>
 template<typename Comp2, typename Comp3, typename Func>
 void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callback) {
     for (EntityID entity : scene->entities) {
-        if (HasComponents<ComponentType, Comp2, Comp3>(entity)) {
+        if (HasComponent<ComponentType, Comp2, Comp3>(entity)) {
             ComponentType* _comp1 = Get(entity);
             Comp2* _comp2 = ComponentManager<Comp2>::Get(entity);
             Comp3* _comp3 = ComponentManager<Comp3>::Get(entity);
@@ -109,7 +114,8 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, Comp2*, Comp3*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2, _comp3)) break;
+                    if (callback(entity, _comp1, _comp2, _comp3) == false)
+                        break;
                 } else {
                     // Normal callback, no early exit required
                     callback(entity, _comp1, _comp2, _comp3);
@@ -124,7 +130,7 @@ template<typename ComponentType>
 template<typename Comp2, typename Comp3, typename Comp4, typename Func>
 void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callback) {
     for (EntityID entity : scene->entities) {
-        if (HasComponents<ComponentType, Comp2, Comp3, Comp4>(entity)) {
+        if (HasComponent<ComponentType, Comp2, Comp3, Comp4>(entity)) {
             ComponentType* _comp1 = Get(entity);
             Comp2* _comp2 = ComponentManager<Comp2>::Get(entity);
             Comp3* _comp3 = ComponentManager<Comp3>::Get(entity);
@@ -134,7 +140,8 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
                 if constexpr (std::is_invocable_r_v<bool, Func, EntityID, ComponentType*, Comp2*, Comp3*, Comp4*>) {
                     // If the callback returns false, break early
                     // If the callback returns true, skip to next iteration
-                    if (!callback(entity, _comp1, _comp2, _comp3, _comp4)) break;
+                    if (callback(entity, _comp1, _comp2, _comp3, _comp4) == false)
+                        break;
                 } else {
                     // Normal callback, no early exit required
                     callback(entity, _comp1, _comp2, _comp3, _comp4);
@@ -144,19 +151,8 @@ void ComponentManager<ComponentType>::ForEachWith(SceneBase* scene, Func&& callb
     }
 }
 
-template<typename ComponentType>
-bool HasComponent(EntityID entity) {
-    return g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentType>());
-}
-
 // Check if an entity has all of the specified components
 template<typename... ComponentTypes>
-bool HasComponents(EntityID entity) {
+bool HasComponent(EntityID entity) {
     return (... && g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentTypes>()));
-}
-
-// Check if an entity has any of the specified components
-template<typename... ComponentTypes>
-bool HasAnyComponent(EntityID entity) {
-    return (... || g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentTypes>()));
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "../../engine.h"
+#include "../components.h"
 
 void WASDControllerSystem::Init() {
     printf("WASDControllerSystem initialized\n");
@@ -12,7 +13,7 @@ void WASDControllerSystem::Update(float deltaTime, std::vector<EntityID> entitie
     // Loop through all entities
     for ( EntityID entity : entities) {
         // Check if entity has both transform and WASD controller components
-        if (HasComponents<TransformComponent, WASDControllerComponent>(entity)) {
+        if (HasComponent<TransformComponent, WASDControllerComponent>(entity)) {
             TransformComponent* transform = Get<TransformComponent>(entity);
             WASDControllerComponent* controller = Get<WASDControllerComponent>(entity);
 

@@ -1,6 +1,7 @@
 #include "enemy_spawner.h"
 #include "engine.h"
 #include "main_game_scene.h"
+#include "../core/ecs/components.h"
 
 // file to have functions for organizing enemy creation
 

@@ -1,5 +1,6 @@
 #include "text_update_system.h"
 #include "../../engine.h"
+#include "../components.h"
 
 void TextUpdateSystem::Init() {
     printf("TextUpdateSystem initialized\n");

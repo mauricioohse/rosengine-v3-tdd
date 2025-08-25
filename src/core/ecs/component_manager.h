@@ -13,7 +13,7 @@ template<typename ComponentType>
 class ComponentManager {
 public:
     template<typename... Args>
-    static void Add(EntityID entity, Args&&... args);
+    static ComponentType* Add(EntityID entity, Args&&... args);
     
     // Get component from entity
     static ComponentType* Get(EntityID entity);
@@ -41,16 +41,8 @@ public:
     static void ForEachWith(SceneBase* scene, Func&& callback);
 };
 
-// Check if an entity has a specific component
-template<typename ComponentType>
-bool HasComponent(EntityID entity);
-
 // Check if an entity has all of the specified components
 template<typename... ComponentTypes>
-bool HasComponents(EntityID entity);
-
-// Check if an entity has any of the specified components
-template<typename... ComponentTypes>
-bool HasAnyComponent(EntityID entity);
+bool HasComponent(EntityID entity);
 
 #include "component_manager.tpp"
