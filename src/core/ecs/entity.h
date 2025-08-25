@@ -1,6 +1,7 @@
 #pragma once
 #include "ecs_types.h"
 #include <typeindex>
+#include <vector>
 
 struct EntityManager {
     // Tracks which entities are active
@@ -12,10 +13,14 @@ struct EntityManager {
     EntityID CreateEntity();
     void DestroyEntity(EntityID entity);
     bool IsEntityValid(EntityID entity);
+    void ProcessPendingDestructions();
     
     // Component relationship functions
     void AddComponentToEntity(EntityID entity, std::type_index typeIdx);
     void RemoveComponentFromEntity(EntityID entity, std::type_index typeIdx);
     bool HasComponent(EntityID entity, std::type_index typeIdx);
     void Init();
+
+private:
+    std::vector<EntityID> toDestroy;
 };
