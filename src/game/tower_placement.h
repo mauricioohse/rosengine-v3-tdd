@@ -1,8 +1,8 @@
 #pragma once
+
 #include "../core/ecs/ecs_types.h"
-#include "../core/input.h"
 #include "grid.h"
-#include "components.h"
+#include "../core/ecs/components.h"
 
 struct TowerPlacement {
     static void Init();

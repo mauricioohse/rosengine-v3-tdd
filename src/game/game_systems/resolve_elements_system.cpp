@@ -1,5 +1,9 @@
 #include "resolve_elements_system.h"
 #include "engine.h"
+#include "game/tower_placement.h"
+#include "systems.h"
+#include "scene_manager.h"
+#include "game/scenes/main_game_scene.h"
 
 // the element combination dictionary
 static ElementCombo g_element_combinations[] = {
@@ -28,7 +32,7 @@ static ElementCombo g_element_combinations[] = {
 
 static const int g_num_combinations = sizeof(g_element_combinations) / sizeof(ElementCombo);
 
-void SortDescendingElementsInPlace(ELEMENT*elements)
+void SortDescendingElementsInPlace(ELEMENT* elements)
 {
     // bubble sort
     for (int i = 0; i < MAX_ELEMENTS - 1; i++) {
@@ -60,9 +64,6 @@ TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
 
 void ResolveElementSystem(SceneBase * scene)
 {
-    // FOR_EACH_COMPONENT_2(scene, entity,
-    //                       Element, elementC,
-    //                       ResolveElement, _)
     ForEachComponent<ElementComponent, ResolveElementComponent>(scene, [&](EntityID entity, ElementComponent* elementC, ResolveElementComponent* _)
     {
         SortDescendingElementsInPlace(elementC->elements);

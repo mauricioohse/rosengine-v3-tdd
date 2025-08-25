@@ -8,7 +8,6 @@
 #include "game/tower_placement.h"
 #include "game/scenes/main_game_scene.h"
 #include "game/game_systems/resolve_elements_system.h"
-#include "../components.h"
 
 std::map<std::string, RenderColor> paletteOpaque = {
     {"red", {255, 0, 0, 255}},
@@ -450,8 +449,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_Sprite) &&
         //     !HAS_COMPONENT(entity, C_UIBox)) {
-        if (HasComponent<TransformComponent, SpriteComponent>(entity) &&
-            !HasComponent<UIBoxComponent>(entity)) {
+        if (HasComponent<TransformComponent, SpriteComponent>(entity) && !HasComponent<UIBoxComponent>(entity)) {
             RenderSpriteEntity(entity, camera);
         }
     }
@@ -460,8 +458,7 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     for (EntityID entity : entities) {
         // if (HAS_COMPONENT(entity, C_Transform | C_Text) &&
         //     !HAS_COMPONENT(entity, C_UIBox)) {  // Exclude UI elements
-        if (HasComponent<TransformComponent, TextComponent>(entity) &&
-            !HasComponent<UIBoxComponent>(entity)) {  // Exclude UI elements
+        if (HasComponent<TransformComponent, TextComponent>(entity) && !HasComponent<UIBoxComponent>(entity)) {  // Exclude UI elements
             RenderTextEntity(entity, camera);
         }
     }
@@ -612,7 +609,9 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, CameraComponent* camera) 
     TransformComponent* transform = Get<TransformComponent>(entity);
     SpriteComponent* sprite = Get<SpriteComponent>(entity);
 
-    if (!transform || !sprite || !sprite->texture || !sprite->isVisible) return;
+    if (!transform || !sprite || !sprite->texture || !sprite->isVisible) {
+        return;
+    }
     
     // Skip rendering if this tower should be hidden during placement preview
     if (entity == g_towerToHide) return;

@@ -1,6 +1,7 @@
 #pragma once
 #include "../systems.h"
 #include "../../window.h"
+#include "../components.h"
 #include <map>
 #include <string>
 

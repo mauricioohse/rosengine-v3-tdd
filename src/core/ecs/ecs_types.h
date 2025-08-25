@@ -11,6 +11,7 @@ typedef uint64_t ComponentType;
 // Constants
 #define MAX_ENTITIES 1000
 #define INVALID_ENTITY 0
+#define MAX_ELEMENTS 3
 
 template<typename T>
 static std::type_index TypeIndex() {

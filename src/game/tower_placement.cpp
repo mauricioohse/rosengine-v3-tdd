@@ -1,9 +1,8 @@
 #include "tower_placement.h"
 #include "../core/engine.h"
 #include "../core/resource_manager.h"
-#include "../core/ecs/components.h"
 #include "main_game_scene.h"
-#include "grid.h"
+#include "../core/input.h"
 #include "enemy_spawner.h"
 
 bool TowerPlacement::isPlacementMode = false;
@@ -134,6 +133,7 @@ bool TowerPlacement::TryPlaceTower(ELEMENT type, int mouseX, int mouseY) {
             existingTower = entity;
             return false; // Stop search when matching tower is found
         }
+        return true; // Continue searching
     });
 
     EntityID new_tower = 0;

@@ -39,6 +39,7 @@ static EntityID CheckEnemyInRange(EntityID tower){
                 enemyInRange = enemy;
                 return false; // enemy found, breaks loop
             }
+            return true; // continue searching
     });
 
     return enemyInRange; // zero -> didnt find any valid enemy 
@@ -115,7 +116,8 @@ void ExplodeOnXYSystem(SceneBase *scene)
                 {
                     if (IsEnemyInRange(enemy, exp->x, exp->y, 100))
                         en->currHealth -= dmg->damage;
-                    });
+                    return true; // continue processing
+                });
             }
             scene->DeleteEntity(entity);
         }
@@ -155,6 +157,7 @@ void DamageOnCollisionSystem(SceneBase * scene)
                 g_mainGame.DeleteEntity(damage_entity);
                 return false;
             }
+            return true; // continue searching
         });
     });
 }
