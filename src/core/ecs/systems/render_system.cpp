@@ -205,7 +205,7 @@ static void RenderTowerPlacementPreview()
     ForEachComponent<TowerComponent, TransformComponent>(scene, [&](EntityID entity, TowerComponent* tower, TransformComponent* transform) {
         if (transform->x == gridPoint.x && transform->y == gridPoint.y) {
             towerFound = true;
-            EntityID existingTower = entity;
+            existingTower = entity;
             return false; // break loop
         }
         return true; // continue loop

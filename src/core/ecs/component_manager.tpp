@@ -14,7 +14,7 @@ template<typename... Args>
 ComponentType* ComponentManager<ComponentType>::Add(EntityID entity, Args&&... args) {
     // Ensure component type is registered
     Component<ComponentType>::RegisterType();
-    
+
     auto* array = ComponentStorage::GetArray<ComponentType>();
 
     g_Engine.entityManager.AddComponentToEntity(entity, TypeIndex<ComponentType>());
@@ -32,16 +32,12 @@ ComponentType* ComponentManager<ComponentType>::Add(EntityID entity, Args&&... a
 // Check if entity has component
 template<typename ComponentType>
 bool ComponentManager<ComponentType>::Has(EntityID entity) {
-    // Ensure component type is registered
-    Component<ComponentType>::RegisterType();
-    
     return g_Engine.entityManager.HasComponent(entity, TypeIndex<ComponentType>());
 }
 
 template<typename ComponentType>
 ComponentType* ComponentManager<ComponentType>::Get(EntityID entity) {
-    // Ensure component type is registered
-    Component<ComponentType>::RegisterType();
+    if (!ComponentManager<ComponentType>::Has(entity)) return nullptr;
 
     auto* array = ComponentStorage::GetArray<ComponentType>();
     if (!array)
