@@ -7,7 +7,7 @@ playerLife_context ctx;
 
 void playerLife_init()
 {
-    ctx.health = 100;
+    ctx.health = 10;
     // create entity to write life at
     ctx.health_text_entity = g_mainGame.RegisterEntity();
     char text[10];
@@ -27,3 +27,8 @@ void playerLife_decrease_health(int amount)
     printf("health updated to %d\n", ctx.health);
 
 }
+
+int playerLife_get_health()
+{
+    return ctx.health;
+} 

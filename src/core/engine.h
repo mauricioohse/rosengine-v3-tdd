@@ -30,6 +30,7 @@ struct Engine {
     bool isRunning;
     float deltaTime;
     Uint32 lastFrameTime;
+    int speed = 1; // changes game speed, options are 1, 2 and 3
     
     // Core systems
     Window* window;
@@ -43,6 +44,8 @@ struct Engine {
     
     // Cleanup the engine
     static void Cleanup();
+
+    void ChangeSpeed();
 
     void RunFrame();
 

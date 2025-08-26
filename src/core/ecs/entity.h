@@ -4,6 +4,8 @@
 #include <vector>
 
 struct EntityManager {
+    // Tracks which components each entity has
+    uint64_t componentMasks[MAX_ENTITIES];
     // Tracks which entities are active
     bool activeEntities[MAX_ENTITIES];
     // Number of active entities

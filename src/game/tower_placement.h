@@ -17,5 +17,6 @@ struct TowerPlacement {
 
     // archetypes
     static void CreateFireTower(EntityID tower);
+    static void HandleSelection();
 
 }; 

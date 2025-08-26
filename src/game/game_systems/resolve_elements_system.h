@@ -10,6 +10,8 @@ struct TowerData {
     float cooldown;
     int damage;
     TextureID tex = TEXTURE_BOX_MISSING;
+    SDL_Color colorMod = {255, 255, 255, 255};
+
 };
 
 struct ElementCombo {

@@ -41,25 +41,6 @@ static EntityID CheckEnemyInRange(EntityID tower){
 
 }
 
-// TODO: this targeting system sucks and needs to be better thought out. sometimes towers shoots entities outside their range if the target is aquired while CD > 0
-void TargetingSystem(SceneBase *scene)
-{
-    ForEachComponent<TargetComponent, TowerComponent>(scene, [&](EntityID tower, TargetComponent* tar, TowerComponent* tc)
-    {
-
-        if (INVALID_ENTITY == tar->target && tc->currCD<=0) {
-            tar->target= CheckEnemyInRange(tower);
-            if (tar->target) printf("Tower %d found target tar->target %d!\n", tower, tar->target);
-        }
-        else
-        {
-            if (!g_Engine.entityManager.IsEntityValid(tar->target))
-                tar->target = 0;
-        }
-        
-    });
-}
-
 static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
 {
     auto enemy_tr = Get<TransformComponent>(enemy);
@@ -101,7 +82,8 @@ void ExplodeOnXYSystem(SceneBase *scene)
             if (dmg) {
                 ForEachComponent<EnemyComponent, TransformComponent, ColliderComponent>(scene, [&](EntityID enemy, EnemyComponent* en, TransformComponent* enemy_tr, ColliderComponent* enemy_cc)
                 {
-                    if (IsEnemyInRange(enemy, exp->x, exp->y, 100))
+                
+                    if (IsEnemyInRange(enemy, exp->x, exp->y, exp->range))
                         en->currHealth -= dmg->damage;
                     return true; // continue processing
                 });
@@ -167,7 +149,7 @@ static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int da
     EntityID bomb = scene->RegisterEntity();
     TransformComponent::Add(bomb, x, y, 0, 1);
     DamageComponent::Add(bomb, damage);
-    ExplodeOnXYComponent::Add(bomb, x, y); // note: explosion radius is hardcoded for now
+    ExplodeOnXYComponent::Add(bomb, x, y, range);
 }
 
 // TODO: think of a better way to separate the chainlightning into smaller components
@@ -200,7 +182,7 @@ void ChainLightningSystem(SceneBase * scene)
                         {
                             auto target_transform = Get<TransformComponent>(CL->target);
                             // creates a mini explosion on the target
-                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100, CL->damage);
+                            CreateExplosionAt(scene, target_transform->x, target_transform->y, 30, CL->damage);
                         }
                         else // individual damage only
                         {
@@ -291,27 +273,56 @@ static void CreateCCGust(SceneBase* scene, EntityID target)
 }
 
 
+static EntityID GetTarget(TransformComponent* tr, TowerComponent * tw )
+{
+    SceneBase * scene = &g_mainGame;
+    
+    EntityID bestTarget = 0;
+    int maxPathProgress = -1;
+    
+    // iterate through all enemies
+    ForEachComponent<TransformComponent, EnemyComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* en)
+    {
+        // check if enemy is in range
+        float dx = enemy_tr->x - tr->x;
+        float dy = enemy_tr->y - tr->y;
+        float distance = sqrt(dx * dx + dy * dy);
+        
+        if (distance <= tw->range) {
+            // enemy is in range, check if it's more advanced than current best
+            if (en->currPathIdx > maxPathProgress) {
+                maxPathProgress = en->currPathIdx;
+                bestTarget = enemy;
+            }
+        }
+    });
+    
+    return bestTarget;
+}
+
 
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
-    TargetComponent* tc = Get<TargetComponent>(tower);
-    TransformComponent* target_transform = nullptr;
-    EntityID target = tc ? tc->target : INVALID_ENTITY; // store target
-
-    if (g_Engine.entityManager.IsEntityValid(target))
+    TransformComponent* tower_transform = Get<TransformComponent>(tower);
+    TowerComponent* tower_component = Get<TowerComponent>(tower);
+    
+    if (!tower_transform || !tower_component) return;
+    
+    EntityID target = GetTarget(tower_transform, tower_component);
+    TransformComponent *target_transform = nullptr;
+    
+    if (target != 0 && g_Engine.entityManager.IsEntityValid(target))
     {
-        target_transform = Get<TransformComponent>(tc->target);
-        tc->target = 0; // resets target
+        target_transform = Get<TransformComponent>(target);
     }
     else
         return; // no target, do nothing
 
     // if (!ps) {DO_ONCE(printf("something wrong happened here!\n"); return;);} // how the hell we came here!?
 
-    TransformComponent* tower_transform = Get<TransformComponent>(tower);
-    DamageComponent * tower_damage = Get<DamageComponent>(tower);
-    EnemyComponent *enemy = Get<EnemyComponent>(target);
+    DamageComponent* tower_damage = Get<DamageComponent>(tower);
+    EnemyComponent*enemy = Get<EnemyComponent>(target);
 
     EntityID projectile = scene->RegisterEntity();
 
@@ -324,7 +335,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         MoveToXYComponent::Add(projectile, target_transform->x, target_transform->y, 200);
         SpriteComponent::Add(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
         DamageComponent::Add(projectile, tower_damage->damage);
-        ExplodeOnXYComponent::Add(projectile, target_transform->x, target_transform->y);
+        ExplodeOnXYComponent::Add(projectile, target_transform->x, target_transform->y, 75);
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
@@ -355,7 +366,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
     case PROJECTILE_LIGHTNING:
         ChainLightningComponent::Add(projectile, tower_transform->x, tower_transform->y,
-                           target_transform->x, target_transform->y, target, tower_damage->damage, 5, 0);
+                           target_transform->x, target_transform->y, target, tower_damage->damage, 3, 0);
         LifeTimeComponent::Add(projectile, .3f); // in case we forget to delete
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
         break;
@@ -365,7 +376,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
             // jet bomb is actually two entities: one jet with 0 damage, and a exploding bomb
             CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y); // this it just the animation
 
-            CreateExplosionAt(scene, target_transform->x, target_transform->y, 100,tower_damage->damage );
+            CreateExplosionAt(scene, target_transform->x, target_transform->y, 50, tower_damage->damage);
             scene->DeleteEntity(projectile);
         
         }

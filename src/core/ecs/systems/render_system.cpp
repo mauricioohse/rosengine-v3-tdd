@@ -67,6 +67,7 @@ static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius, Render
        }
    }
 }
+
 static void RenderCollider(EntityID entity)
 {
     TransformComponent* transform = TransformComponent::Get(entity);
@@ -95,13 +96,10 @@ static void RenderJet(EntityID entity)
     // use the lifetime to change the animation. the jet starts thin, increasis width until .250 seconds, at which point the splash starts and the jet ends
     // the splash is the remaining .25 seconds 
 
-    // if (!HAS_COMPONENT(entity, C_JetAnimation | C_LifeTime)) {
     if (!HasComponent<JetAnimationComponent, LifeTimeComponent>(entity)) {
         return;
     }
 
-    // JetAnimationComponent* jet = GET_JetAnimation(entity);
-    // LifeTimeComponent* lifetime = GET_LifeTime(entity);
     JetAnimationComponent* jet = JetAnimationComponent::Get(entity);
     LifeTimeComponent* lifetime = LifeTimeComponent::Get(entity);
     SDL_Renderer* renderer = g_Engine.window->renderer;
@@ -330,12 +328,10 @@ static void RenderEnemyLife(EntityID entity)
 
 static void RenderChain(EntityID entity){
     // renders a purple rectange from the currXY to nextXY
-    // if (!HAS_COMPONENT(entity, C_ChainLightning)) {
     if (!HasComponent<ChainLightningComponent>(entity)) {
         return;
     }
 
-    // ChainLightningComponent* chain = GET_ChainLightning(entity);
     ChainLightningComponent* chain = Get<ChainLightningComponent>(entity);
     if (!chain) {
         return;
@@ -535,14 +531,14 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     }
 
     // DEBUG: draw all Colliders rectangle edges in red
-    for (EntityID entity : entities)
-    {
-        // if (HAS_COMPONENT(entity, C_Collider))
-        if (HasComponent<ColliderComponent>(entity))
-        {
-            RenderCollider(entity);
-        }
-    }
+    // for (EntityID entity : entities)
+    // {
+    //     // if (HAS_COMPONENT(entity, C_Collider))
+    //     if (HasComponent<ColliderComponent>(entity))
+    //     {
+    //         RenderCollider(entity);
+    //     }
+    // }
 }
 
 void RenderSystem::RenderTimedSpriteEntity(EntityID entity, CameraComponent* camera, float deltaTime) {
@@ -631,6 +627,12 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, CameraComponent* camera) 
         sprite->height*transform->scale
     };
 
+    // Apply color modulation for hue shifting
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 
+                          sprite->colorMod.r, 
+                          sprite->colorMod.g, 
+                          sprite->colorMod.b);
+
     SDL_RenderCopyEx(
         g_Engine.window->renderer,
         sprite->texture->sdlTexture,
@@ -640,13 +642,16 @@ void RenderSystem::RenderSpriteEntity(EntityID entity, CameraComponent* camera) 
         NULL,
         SDL_FLIP_NONE
     );
+
+    // Reset color modulation to prevent affecting other sprites
+    SDL_SetTextureColorMod(sprite->texture->sdlTexture, 255, 255, 255);
 }
 
 void RenderSystem::RenderTextEntity(EntityID entity, CameraComponent* camera) {
     TransformComponent* transform = Get<TransformComponent>(entity);
     TextComponent* text = Get<TextComponent>(entity);
 
-    if (!transform || !text || !text->texture) return;
+    if (!transform || !text || !text->texture || !text->visible) return;
 
     float screenX = transform->x;
     float screenY = transform->y;
@@ -656,22 +661,25 @@ void RenderSystem::RenderTextEntity(EntityID entity, CameraComponent* camera) {
         screenY -= camera->y;
     }
 
+    int scaledWidth = (int)(text->texture->width * transform->scale);
+    int scaledHeight = (int)(text->texture->height * transform->scale);
+
     // Adjust position based on alignment
     switch (text->alignment) {
         case TEXT_CENTER:
-            screenX -= text->texture->width / 2;
-            screenY -= text->texture->height / 2;
+            screenX -= scaledWidth / 2;
+            screenY -= scaledHeight / 2;
             break;
         case TEXT_RIGHT:
-            screenX -= text->texture->width;
+            screenX -= scaledWidth;
             break;
     }
 
     SDL_Rect destRect = {
         (int)screenX,
         (int)screenY,
-        text->texture->width,
-        text->texture->height
+        scaledWidth,
+        scaledHeight
     };
 
     SDL_RenderCopy(
