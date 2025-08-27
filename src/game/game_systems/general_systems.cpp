@@ -250,6 +250,7 @@ void ChainLightningSystem(SceneBase * scene)
                 }
             }
         }
+        return true;
     });
 }
 
