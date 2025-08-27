@@ -5,19 +5,19 @@ struct SceneBase;
 
 // ===== CONVENIENCE FUNCTIONS =====
 
-// These provide a cleaner interface for multi-component iteration
+// ForEachComponent usage example:
+//
+// ForEachComponent<TowerComponent, TransformComponent>(scene, [&](auto entity, auto* tower, auto* transform) {
+//     // Do something with each entity of the scene that contains tower and transform components
+// });
+//
+// Note: You can add "return false" to break the ForEachComponent loop early or "return true" to skip to the next ForEachComponent iteration.
+// Note: If you don't add a return, the loop will continue without any intervention until it iterates over all scene entities.
+// Important: Adding any return statement to the callback function will require return statements at all exit points of that callback function.
 
-/// @brief Iterates on the entities of a scene
 template<typename Comp, typename Func>
 void ForEachComponent(SceneBase* scene, Func&& callback);
 
-/// @brief Loop over the entities of a scene that have the specified components
-/// @return add "return false" to break the loop, "return true" to skip to next iteration, no return continues with no intervention
-/// @code
-/// ForEachComponent<TowerComponent, TransformComponent>(scene, [&](auto entity, auto* tower, auto* transform) {
-///     // Do something with tower and transform
-/// });
-/// @endcode
 template<typename Comp1, typename Comp2, typename Func>
 void ForEachComponent(SceneBase* scene, Func&& callback);
 
