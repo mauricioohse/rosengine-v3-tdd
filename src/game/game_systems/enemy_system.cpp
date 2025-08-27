@@ -30,9 +30,10 @@ bool HandlePathEnd(EntityID entity, EnemyComponent* enemy) {
 }
 
 void MoveNormalEnemy(EntityID entity, TransformComponent* transform, EnemyComponent* enemy, float speed, float deltaTime) {
-    if (enemy->currPathIdx >= Grid::GetMonsterPathSize()) return;
+    if (enemy->currPathIdx >= Grid::GetMonsterPathSize())
+        return;
 
-    Point targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx + 1);
+    Point targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
 
     // calculate distance to current target
     float dx = targetPos.x - transform->x;
