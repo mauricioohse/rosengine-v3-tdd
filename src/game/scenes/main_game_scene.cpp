@@ -11,6 +11,7 @@
 #include "enemy_spawner.h"
 #include "wave_system.h"
 #include "player_life_system.h"
+#include "../../core/ecs/components.h"
 #include <cstdlib>
 
 
@@ -31,9 +32,9 @@ static void loadDebugLevelTowers()
         
         // add a exit collider one square above each tower
         EntityID exitCollider = g_mainGame.RegisterEntity();
-        ADD_Transform(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
-        ADD_Collider(exitCollider, Grid::GRID_SQUARE_LENGTH, 1, 1);
-        g_Engine.entityManager.AddComponentToEntity(exitCollider, C_EnemyExit);
+        TransformComponent::Add(exitCollider, currentX, startY - Grid::GRID_SQUARE_LENGTH, 0, 1.0f);
+        ColliderComponent::Add(exitCollider, Grid::GRID_SQUARE_LENGTH, 1, 1);
+        EnemyExitComponent::Add(exitCollider);
 
         // move to next horizontal position based on current tower's range
         currentX += 250;
@@ -56,7 +57,7 @@ static void spawnDebugEnemies()
         {
             ENEMY_TYPE type = ENEMY_BASIC_I;//(ENEMY_TYPE)(rand()%ENEMY_LAST_VALUE);
             EntityID e = EnemySpawner::SpawnEnemyAt(&g_mainGame, currentX, startY, type, true);
-            ADD_EnemyDebug(e, element);
+            EnemyDebugComponent::Add(e, element);
             // move to next horizontal position based on current tower's range
             currentX += 250;
         }
@@ -74,35 +75,35 @@ static EntityID mousePosTextEntity;
 static EntityID victoryTextEntity;
 
 static void Init_speed_text(){
-     speedTextEntity = g_mainGame.RegisterEntity();
-    ADD_Transform(speedTextEntity, 1400, 833, 0, 1.0f);
+    speedTextEntity = g_mainGame.RegisterEntity();
+    TransformComponent::Add(speedTextEntity, 1400, 833, 0, 1.0f);
     char * text = "Press F to change speed: 1x";
-    ADD_Text(speedTextEntity, ResourceManager::GetFont(FONT_FPS), text);
+    TextComponent::Add(speedTextEntity, ResourceManager::GetFont(FONT_FPS), text);
 
     // debug: also show mouse position
     mousePosTextEntity = g_mainGame.RegisterEntity();
-    ADD_Transform(mousePosTextEntity, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 30, 0, 1.0f);
+    TransformComponent::Add(mousePosTextEntity, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 30, 0, 1.0f);
     char * mousePosText = "(0, 0)";
-    ADD_Text(mousePosTextEntity, ResourceManager::GetFont(FONT_FPS), mousePosText);
+    TextComponent::Add(mousePosTextEntity, ResourceManager::GetFont(FONT_FPS), mousePosText);
 
 
     // victory text, will be only shown in screen if all waves ends
     // victory text entity
     EntityID victoryTextEntity = g_mainGame.RegisterEntity();
-    ADD_Transform(victoryTextEntity, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 3.0f);
-    auto t =ADD_Text(victoryTextEntity, ResourceManager::GetFont(FONT_FPS), "victory!");
+    TransformComponent::Add(victoryTextEntity, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 3.0f);
+    auto t = TextComponent::Add(victoryTextEntity, ResourceManager::GetFont(FONT_FPS), "victory!");
     t->visible = false;
 }
 
 static void Update_speed_text()
 {
     char text[30];
-    auto comp = GET_Text(speedTextEntity);
+    auto comp = Get<TextComponent>(speedTextEntity);
     snprintf(comp->text, sizeof(comp->text), "Press F to change speed: %dx", g_Engine.speed);
     comp->isDirty = true;
 
     // update mouse position text
-    auto mousePosComp = GET_Text(mousePosTextEntity);
+    auto mousePosComp = Get<TextComponent>(mousePosTextEntity);
     snprintf(mousePosComp->text, sizeof(mousePosComp->text), "(%d, %d)", (int)Input::mouseX, (int)Input::mouseY);
     mousePosComp->isDirty = true;
 
@@ -111,7 +112,7 @@ static void Update_speed_text()
     {
         // update text based on remaining life: more than 0, yellow vicotry text. 0 or less, show DEFEATED, TRY HARDER
         victoryTextEntity = speedTextEntity + 2; // hacky but works since we know the order
-        auto victoryComp = GET_Text(victoryTextEntity);
+        auto victoryComp = Get<TextComponent>(victoryTextEntity);
         
         if (playerLife_get_health() > 0) {
             // yellow victory text
@@ -226,16 +227,16 @@ static void PrintDebugTowerStats()
         if (statTextEntities[element] == 0)
         {
             statTextEntities[element] = g_mainGame.RegisterEntity();
-            ADD_Transform(statTextEntities[element], currentX, textY, 0, 0.5f);
-            ADD_Text(statTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
+            TransformComponent::Add(statTextEntities[element], currentX, textY, 0, 0.5f);
+            TextComponent::Add(statTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // create or update kills text entity (below KPS text)
         if (killsTextEntities[element] == 0)
         {
             killsTextEntities[element] = g_mainGame.RegisterEntity();
-            ADD_Transform(killsTextEntities[element], currentX, textY + 20, 0, 0.5f);
-            ADD_Text(killsTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
+            TransformComponent::Add(killsTextEntities[element], currentX, textY + 20, 0, 0.5f);
+            TextComponent::Add(killsTextEntities[element], ResourceManager::GetFont(FONT_FPS), "");
         }
         
         // update KPS text content
@@ -244,8 +245,7 @@ static void PrintDebugTowerStats()
                 TowerElementToString(element), kpsValues[element]);
         
         // update KPS text component
-        TextComponent* textComp = (TextComponent*)GET_COMPONENT(
-            statTextEntities[element], C_Text);
+        TextComponent* textComp = Get<TextComponent>(statTextEntities[element]);
         if (textComp)
         {
             strncpy(textComp->text, statText, sizeof(textComp->text) - 1);
@@ -258,8 +258,7 @@ static void PrintDebugTowerStats()
         snprintf(killsText, sizeof(killsText), "kills: %d", g_Game.debugTowerKills[element]);
         
         // update kills text component
-        TextComponent* killsTextComp = (TextComponent*)GET_COMPONENT(
-            killsTextEntities[element], C_Text);
+        TextComponent* killsTextComp = Get<TextComponent>(killsTextEntities[element]);
         if (killsTextComp)
         {
             strncpy(killsTextComp->text, killsText, sizeof(killsTextComp->text) - 1);

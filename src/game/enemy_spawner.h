@@ -2,6 +2,7 @@
 #include "systems.h"
 #include "scene_manager.h"
 #include "ecs_types.h"
+#include "../core/resource_manager.h"
 
 
 struct EnemyArchetype {

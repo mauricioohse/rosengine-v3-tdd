@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include "resource_manager.h"
 #include "ecs/systems.h"
-#include "ecs/components.h"
 #include "ecs/entity.h"
 #include "scene_manager.h"
 #include "engine_constants.h"
@@ -38,7 +37,6 @@ struct Engine {
     ResourceManager* resources;
     EntityManager entityManager;
     SystemManager systemManager;
-    ComponentArrays componentArrays;
     SceneManager sceneManager;
     
     // Initialize the engine
@@ -56,6 +54,3 @@ struct Engine {
 };
 
 extern Engine g_Engine;  // Global engine instance
-
-// requires Engine externation
-#include "ecs/component_macros.h"

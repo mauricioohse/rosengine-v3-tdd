@@ -1,7 +1,6 @@
-#include "systems.h"
-#include "scene_manager.h"
-#include "game/scenes/main_game_scene.h"
-#include "game/tower_placement.h"
+#pragma once
+
+#include "../../core/ecs/ecs_types.h"
 #include "core/ecs/components.h"
 
 // tower data lookup table
@@ -15,12 +14,14 @@ struct TowerData {
 
 };
 
-// element combination lookup
 struct ElementCombo {
     ELEMENT elements[MAX_ELEMENTS]; // sorted elements
     TowerData tower_data;
 };
 
-void ResolveElementSystem(SceneBase * scene);
+// element combination lookup
+struct ElementCombo;
+
+void ResolveElementSystem(SceneBase* scene);
 TowerData* GetTowerDataForElements(ELEMENT* elements);
-void SortDescendingElementsInPlace(ELEMENT*elements);
+void SortDescendingElementsInPlace(ELEMENT* elements);

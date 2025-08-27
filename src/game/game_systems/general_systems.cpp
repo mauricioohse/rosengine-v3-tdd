@@ -10,46 +10,40 @@
 
 static EntityID CheckEnemyInRange(EntityID tower){
 
-    SceneBase * scene = &g_mainGame;
+    SceneBase* scene = &g_mainGame;
 
-    TowerComponent* tower_c      = (TowerComponent*)GET_COMPONENT(tower, C_Tower); 
-    TransformComponent* tower_tr  = (TransformComponent*)GET_COMPONENT(tower, C_Transform); 
-    
+    TowerComponent* tower_c      = Get<TowerComponent>(tower);
+    TransformComponent* tower_tr  = Get<TransformComponent>(tower);
+
     // we create a fake collider based on the tower range
     ColliderComponent tower_cc;
     tower_cc.radius     = tower_c->range;
     tower_cc.isStatic   = 1;
     tower_cc.isTrigger  = 0;
+    EntityID enemyInRange = INVALID_ENTITY;
     
     // check collision with enemies
-    FOR_EACH_COMPONENT_3(scene, enemy, 
-                        Transform, enemy_tr,
-                        Enemy, en,
-                        Collider, enemy_cc)
-    {
+    ForEachComponent<TransformComponent, EnemyComponent, ColliderComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* enemy_c, ColliderComponent* enemy_cc) {
 
-
-            float penX,penY; //used to get the penetration of the collision, but we dont care in this case
+            float penX, penY; //used to get the penetration of the collision, but we dont care in this case
             if(CheckCollision(tower_tr, &tower_cc, enemy_tr, enemy_cc, penX, penY))
             {
                 // printf("collision detected! tower pos: (%.2f, %.2f) size: (%.2f, %.2f) enemy pos: (%.2f, %.2f) size: (%.2f, %.2f)\n", 
                 //        tr->x, tr->y, cc_range.width, cc_range.height, 
                 //        enemy_tr->x, enemy_tr->y, enemy_cc->width, enemy_cc->height);
-
-                return enemy;
+                enemyInRange = enemy;
+                return false; // enemy found, breaks loop
             }
-            
+            return true; // continue searching
+    });
 
-                
-    } END_FOR_EACH
-
-    return 0; // zero -> didnt find any valid enemy 
+    return enemyInRange; // zero -> didnt find any valid enemy 
 
 }
 
 static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
 {
-    auto enemy_tr = GET_Transform(enemy);
+    auto enemy_tr = Get<TransformComponent>(enemy);
 
     float dx = enemy_tr->x - tower_x;
     float dy = enemy_tr->y - tower_y;
@@ -64,63 +58,46 @@ static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
 
 void ExplodeOnXYSystem(SceneBase *scene)
 {
-    FOR_EACH_COMPONENT_2(scene, entity,
-                         Transform, tr,
-                         ExplodeOnXY, exp)
+    ForEachComponent<TransformComponent, ExplodeOnXYComponent>(scene, [&](EntityID entity, TransformComponent* tr, ExplodeOnXYComponent* exp)
     {
         const int TOLERANCE = 10; // 10px tolerance each side
         if (abs(exp->x - tr->x) <= TOLERANCE && abs(exp->y - tr->y) <= TOLERANCE)
         {
             // reached target position, trigger explosion
             EntityID explosion = scene->RegisterEntity();
-            ADD_Transform(explosion, tr->x, tr->y, 0.0f, 1.0f);
-            ADD_TimedSprite(explosion, 0, 0.2f, 0, 3);
-            ADD_LifeTime(explosion, 0.6f);
+            TransformComponent::Add(explosion, tr->x, tr->y, 0.0f, 1.0f);
+            TimedSpriteComponent::Add(explosion, 0, 0.2f, 0, 3);
+            LifeTimeComponent::Add(explosion, 0.6f);
             PlaySound::PlaySound(SOUND_BOOM_LOW);
-            
-            TimedSpriteComponent* timedSprite = GET_TimedSprite(explosion);
+
+            TimedSpriteComponent* timedSprite = Get<TimedSpriteComponent>(explosion);
             if (timedSprite) {
                 timedSprite->sprites[0] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_1);
                 timedSprite->sprites[1] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_2);
                 timedSprite->sprites[2] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_3);
             }
-            
+
             // deal damage to nearby enemies
-            DamageComponent* dmg = GET_Damage(entity);
+            DamageComponent* dmg = Get<DamageComponent>(entity);
             if (dmg) {
-                FOR_EACH_COMPONENT_3(scene, enemy,
-                                   Transform, enemy_tr,
-                                   Enemy, en,
-                                   Collider, enemy_cc)
+                ForEachComponent<EnemyComponent, TransformComponent, ColliderComponent>(scene, [&](EntityID enemy, EnemyComponent* en, TransformComponent* enemy_tr, ColliderComponent* enemy_cc)
                 {
                 
                     if (IsEnemyInRange(enemy, exp->x, exp->y, exp->range))
                         en->currHealth -= dmg->damage;
-                
-                    } END_FOR_EACH
-
+                    return true; // continue processing
+                });
             }
-            
             scene->DeleteEntity(entity);
         }
-    }
-    END_FOR_EACH
+    });
 }
 
 void DamageOnCollisionSystem(SceneBase * scene)
 {
-    FOR_EACH_COMPONENT_4(scene, damage_entity,
-                         DamageOnCollision, unused,
-                         Damage, entity_dmg,
-                         Collider, entity_col,
-                         Transform, entity_tr)
+    ForEachComponent<DamageOnCollisionComponent, DamageComponent, ColliderComponent, TransformComponent>(scene, [&](EntityID damage_entity, auto* unused, auto* entity_dmg, auto* entity_col, auto* entity_tr)
     {
-        // look for enemies that collide with the entity
-        FOR_EACH_COMPONENT_3(scene, enemy,
-                             Enemy, enemy_component,
-                             Transform,
-                             enemy_tr,
-                             Collider, enemy_col)
+        ForEachComponent<EnemyComponent, TransformComponent, ColliderComponent>(scene, [&](EntityID enemy, auto* enemy_component, auto* enemy_tr, auto* enemy_col)
         {
             float penX, penY;
             if (CheckCollision(entity_tr, entity_col, enemy_tr, enemy_col, penX, penY))
@@ -129,68 +106,62 @@ void DamageOnCollisionSystem(SceneBase * scene)
                 enemy_component->currHealth -= entity_dmg->damage;
 
                 // also checks for AddSlowOnCollision
-                auto add_slow = GET_AddSlowOnCollision(damage_entity); 
-                if (add_slow)
+                auto add_slow = Get<AddSlowOnCollisionComponent>(damage_entity);
+                if (nullptr != add_slow)
                 {
-                    ADD_Slow(enemy, add_slow->intensity, add_slow->duration);
+                    SlowComponent::Add(enemy, add_slow->intensity, add_slow->duration);
                 }
 
                 PlaySound::PlaySound(SOUND_HIT_NOISE);
                 g_mainGame.DeleteEntity(damage_entity);
-                break;
+                return false;
             }
-        } END_FOR_EACH
-    } END_FOR_EACH
-
+            return true; // continue searching
+        });
+    });
 }
 
 void new_CrowdcontrolSystem(SceneBase * scene)
 {
-
-    FOR_EACH_COMPONENT_2(scene, entity,
-                         Transform, tc,
-                         Crowdcontrol, CC)
+    ForEachComponent<TransformComponent, CrowdControlComponent>(scene, [&](EntityID entity, TransformComponent* tc, CrowdControlComponent* CC)
     {
-        TransformComponent * enemy_tr = GET_Transform(CC->target);
+        TransformComponent * enemy_tr = Get<TransformComponent>(CC->target);
         // this locks the enemy_tr x and y to the data saved in the CC component
         if(enemy_tr)
         {
             enemy_tr->x = CC->targetX;
             enemy_tr->y = CC->targetY;
         }
-    } END_FOR_EACH
+    });
 }
 
 void static CastJetAtTarget(int srcX, int srcY, int  destX, int destY)
 {
     EntityID jet = g_mainGame.RegisterEntity();
 
-    ADD_JetAnimation(jet, srcX, srcY, destX, destY);
-    ADD_LifeTime(jet, .2);
+    JetAnimationComponent::Add(jet, srcX, srcY, destX, destY);
+    LifeTimeComponent::Add(jet, .2);
     PlaySound::PlaySound(SOUND_SHOOT_LOW1);
-
-
 }
 
 static void CreateExplosionAt(SceneBase * scene, int x, int y, int range, int damage)
 {
     EntityID bomb = scene->RegisterEntity();
-    ADD_Transform(bomb, x, y, 0, 1);
-    ADD_Damage(bomb, damage);
-    ADD_ExplodeOnXY(bomb, x, y, range); // note: explosion radius is hardcoded for now
+    TransformComponent::Add(bomb, x, y, 0, 1);
+    DamageComponent::Add(bomb, damage);
+    ExplodeOnXYComponent::Add(bomb, x, y, range);
 }
 
 // TODO: think of a better way to separate the chainlightning into smaller components
 void ChainLightningSystem(SceneBase * scene)
 {
-    FOR_EACH_COMPONENT(scene, entity,
-                       ChainLightning, CL)
+    ForEachComponent<ChainLightningComponent>(scene, [&](EntityID entity, ChainLightningComponent* CL)
     {
         // if no jumps left, delete entity
         if (CL->jumps <= 0)
         {
             g_mainGame.DeleteEntity(entity);
-            continue;
+            return true; // skips to next loop iteration
         }
 
         // increment frame delay counter
@@ -202,14 +173,14 @@ void ChainLightningSystem(SceneBase * scene)
             // damage current target if valid and hasn't been damaged yet
             if (CL->target != INVALID_ENTITY && !CL->hasDealtDamage)
             {
-                if (HAS_COMPONENT(CL->target, C_Enemy))
+                if (HasComponent<EnemyComponent>(CL->target))
                 {
-                    EnemyComponent *enemy = GET_Enemy(CL->target);
-                    if (enemy)
+                    EnemyComponent* enemy = Get<EnemyComponent>(CL->target);
+                    if (nullptr != enemy)
                     {
                         if (CL->explodes)
                         {
-                            auto target_transform = GET_Transform(CL->target);
+                            auto target_transform = Get<TransformComponent>(CL->target);
                             // creates a mini explosion on the target
                             CreateExplosionAt(scene, target_transform->x, target_transform->y, 30, CL->damage);
                         }
@@ -226,7 +197,7 @@ void ChainLightningSystem(SceneBase * scene)
                     if (CL->hits[i] == INVALID_ENTITY)
                     {
                         CL->hits[i] = CL->target;
-                        break;
+                        return false;
                     }
                 }
 
@@ -237,9 +208,7 @@ void ChainLightningSystem(SceneBase * scene)
             EntityID nextTarget = INVALID_ENTITY;
             float closestDist = 150.0f; // max chain range
 
-            FOR_EACH_COMPONENT_2(scene, enemy,
-                                Transform, enemy_tr,
-                                Enemy, enemy_c)
+            ForEachComponent<TransformComponent, EnemyComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* enemy_c)
             {
                 // check if already hit
                 bool alreadyHit = false;
@@ -248,13 +217,13 @@ void ChainLightningSystem(SceneBase * scene)
                     if (CL->hits[i] == enemy)
                     {
                         alreadyHit = true;
-                        break;
+                        return false;
                     }
                 }
 
-                if (!alreadyHit)
+                if (!alreadyHit) // note: this conditional seems redundant
                 {
-                    // NOTE: this should probably use the already existing target system instead of doing it again here. or create a component "TargetAndRemember"
+                    // TODO: this should probably use the already existing target system instead of doing it again here. or create a component "TargetAndRemember"
                     float dist = sqrt(pow(enemy_tr->x - CL->nextX, 2) + pow(enemy_tr->y - CL->nextY, 2));
                     if (dist < closestDist)
                     {
@@ -262,13 +231,12 @@ void ChainLightningSystem(SceneBase * scene)
                         nextTarget = enemy;
                     }
                 }
-            }
-            END_FOR_EACH
+            });
 
             // update chain position and decrement jumps, or delete if no more targets
             if (nextTarget != INVALID_ENTITY)
             {
-                TransformComponent *nextTransform = GET_Transform(nextTarget);
+                TransformComponent *nextTransform = Get<TransformComponent>(nextTarget);
                 if (nextTransform)
                 {
                     CL->currX = CL->nextX;
@@ -282,23 +250,26 @@ void ChainLightningSystem(SceneBase * scene)
                 }
             }
         }
-    } END_FOR_EACH
+        return true;
+    });
 }
 
 static void CreateCCGust(SceneBase* scene, EntityID target)
 {
     // creates a CC entity with gust sprite. delete the projectile, leave the CC entity to deal with the enemy.
     EntityID gust_entity = scene->RegisterEntity();
-    auto target_transform = GET_Transform(target);
+    auto target_transform = Get<TransformComponent>(target);
 
-    ADD_Transform(gust_entity, target_transform->x, target_transform->y, 0.0f, 1.0f);
-    ADD_Crowdcontrol(gust_entity, target, target_transform->x, target_transform->y);
-    ADD_LifeTime(gust_entity, 1.0f);
-    ADD_TimedSprite(gust_entity, .8f, .2f, 1, 4);
-    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
-    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
-    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
-    g_Engine.componentArrays.TimedSprites[gust_entity].sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
+    TransformComponent::Add(gust_entity, target_transform->x, target_transform->y, 0.0f, 1.0f);
+    CrowdControlComponent::Add(gust_entity, target, target_transform->x, target_transform->y);
+    LifeTimeComponent::Add(gust_entity, 1.0f);
+    TimedSpriteComponent::Add(gust_entity, .8f, .2f, 1, 4);
+
+    Get<TimedSpriteComponent>(gust_entity)->sprites[0] = ResourceManager::GetTexture(TEXTURE_GUST_1);
+    Get<TimedSpriteComponent>(gust_entity)->sprites[1] = ResourceManager::GetTexture(TEXTURE_GUST_2);
+    Get<TimedSpriteComponent>(gust_entity)->sprites[2] = ResourceManager::GetTexture(TEXTURE_GUST_3);
+    Get<TimedSpriteComponent>(gust_entity)->sprites[3] = ResourceManager::GetTexture(TEXTURE_GUST_4);
+
     PlaySound::PlaySound(SOUND_BLIP_HIGH);
 }
 
@@ -311,9 +282,7 @@ static EntityID GetTarget(TransformComponent* tr, TowerComponent * tw )
     int maxPathProgress = -1;
     
     // iterate through all enemies
-    FOR_EACH_COMPONENT_2(scene, enemy,
-                        Transform, enemy_tr,
-                        Enemy, en)
+    ForEachComponent<TransformComponent, EnemyComponent>(scene, [&](EntityID enemy, TransformComponent* enemy_tr, EnemyComponent* en)
     {
         // check if enemy is in range
         float dx = enemy_tr->x - tr->x;
@@ -327,7 +296,7 @@ static EntityID GetTarget(TransformComponent* tr, TowerComponent * tw )
                 bestTarget = enemy;
             }
         }
-    } END_FOR_EACH
+    });
     
     return bestTarget;
 }
@@ -336,8 +305,8 @@ static EntityID GetTarget(TransformComponent* tr, TowerComponent * tw )
 // TODO: refactor this into smaller functions that each spawn specific projectile + have a logic for the targeting
 static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE type)
 {
-    TransformComponent* tower_transform = GET_Transform(tower);
-    TowerComponent* tower_component = GET_Tower(tower);
+    TransformComponent* tower_transform = Get<TransformComponent>(tower);
+    TowerComponent* tower_component = Get<TowerComponent>(tower);
     
     if (!tower_transform || !tower_component) return;
     
@@ -346,15 +315,15 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     
     if (target != 0 && g_Engine.entityManager.IsEntityValid(target))
     {
-        target_transform = GET_Transform(target);
+        target_transform = Get<TransformComponent>(target);
     }
     else
-    return ; // no target, do nothing
+        return; // no target, do nothing
 
     // if (!ps) {DO_ONCE(printf("something wrong happened here!\n"); return;);} // how the hell we came here!?
 
-    DamageComponent * tower_damage = GET_Damage(tower);
-    EnemyComponent *enemy = GET_Enemy(target);
+    DamageComponent* tower_damage = Get<DamageComponent>(tower);
+    EnemyComponent*enemy = Get<EnemyComponent>(target);
 
     EntityID projectile = scene->RegisterEntity();
 
@@ -363,11 +332,11 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     case PROJECTILE_BOMB:
         printf("creating projectile!\n");
 
-        ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
-        ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 200);
-        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
-        ADD_Damage(projectile, tower_damage->damage);
-        ADD_ExplodeOnXY(projectile, target_transform->x, target_transform->y, 75);
+        TransformComponent::Add(projectile, tower_transform->x, tower_transform->y, 0, 1);
+        MoveToXYComponent::Add(projectile, target_transform->x, target_transform->y, 200);
+        SpriteComponent::Add(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
+        DamageComponent::Add(projectile, tower_damage->damage);
+        ExplodeOnXYComponent::Add(projectile, target_transform->x, target_transform->y, 75);
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);
@@ -380,12 +349,12 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
     case PROJECTILE_PELLET:
     {
-        ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
-        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
-        ADD_Collider(projectile,27,0,0);
-        ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 400);
-        ADD_Damage(projectile, tower_damage->damage);
-        ADD_DamageOnCollision(projectile);
+        TransformComponent::Add(projectile, tower_transform->x, tower_transform->y, 0, 1);
+        SpriteComponent::Add(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_BROWN));
+        ColliderComponent::Add(projectile,27,0,0);
+        MoveToXYComponent::Add(projectile, target_transform->x, target_transform->y, 400);
+        DamageComponent::Add(projectile, tower_damage->damage);
+        DamageOnCollisionComponent::Add(projectile);
     }
     break;
 
@@ -397,9 +366,9 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         break;
 
     case PROJECTILE_LIGHTNING:
-        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+        ChainLightningComponent::Add(projectile, tower_transform->x, tower_transform->y,
                            target_transform->x, target_transform->y, target, tower_damage->damage, 3, 0);
-        ADD_LifeTime(projectile, .3f); // in case we forget to delete
+        LifeTimeComponent::Add(projectile, .3f); // in case we forget to delete
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
         break;
 
@@ -416,23 +385,20 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
     case PROJECTILE_AREA_GUST:
         // area gust queries for all enemies in tower range, then spawn a CC entity for each enemy that will despawn shortly
         // TODO: in the future we should not do a range check here, I think there should be a "AreaRange" component or something like that
-        FOR_EACH_COMPONENT_2(scene, enemy,
-                             Enemy, enemy_en,
-                             Transform, enemy_tr)
+        ForEachComponent<EnemyComponent, TransformComponent>(scene, [&](EntityID enemy, EnemyComponent* enemy_en, TransformComponent* enemy_tr)
         {
-            auto tower_c = GET_Tower(tower);
-            if (IsEnemyInRange(enemy, tower_transform->x, tower_transform->y, 50))
+            auto tower_c = Get<TowerComponent>(tower);
+            if (IsEnemyInRange(enemy, tower_transform->x, tower_transform->y, tower_c->range))
             {
                 printf("area gust single CC created!\n");
                 CreateCCGust(scene, enemy);
             }
-        }
-        END_FOR_EACH
+        });
 
     break;
 
     case PROJECTILE_EXPLODING_LIGHTNING:
-        ADD_ChainLightning(projectile, tower_transform->x, tower_transform->y,
+        ChainLightningComponent::Add(projectile, tower_transform->x, tower_transform->y,
                            target_transform->x, target_transform->y, target, tower_damage->damage, 5, 1);
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
 
@@ -440,13 +406,13 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
     case PROJECTILE_ICE_SHARD:
         // similar to pellet, but adds slow on collision
-        ADD_AddSlowOnCollision(projectile, .5, .2); // Note: hardcoded
-        ADD_Transform(projectile, tower_transform->x, tower_transform->y, 0, 1);
-        ADD_Sprite(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_ICE_SHARD));
-        ADD_Collider(projectile, 54,0,0);
-        ADD_MoveToXY(projectile, target_transform->x, target_transform->y, 500);
-        ADD_Damage(projectile, tower_damage->damage);
-        ADD_DamageOnCollision(projectile);
+        AddSlowOnCollisionComponent::Add(projectile, .5, .2); // Note: hardcoded
+        TransformComponent::Add(projectile, tower_transform->x, tower_transform->y, 0, 1);
+        SpriteComponent::Add(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE_ICE_SHARD));
+        ColliderComponent::Add(projectile, 54,0,0);
+        MoveToXYComponent::Add(projectile, target_transform->x, target_transform->y, 500);
+        DamageComponent::Add(projectile, tower_damage->damage);
+        DamageOnCollisionComponent::Add(projectile);
         PlaySound::PlaySound(SOUND_SHOOT_LOW);
 
     break;
@@ -460,33 +426,25 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
 
 void ProjectileSpawningSystem(SceneBase *scene)
 {
-    FOR_EACH_COMPONENT_4(scene, tower,
-                         ProjectileSpawner, spawner,
-                         Tower, tc,
-                         Cooldown, cd,
-                         Transform, tr )
+    ForEachComponent<ProjectileSpawnerComponent, TowerComponent, CooldownComponent, TransformComponent>(scene, [&](EntityID tower, ProjectileSpawnerComponent* spawner, TowerComponent* tc, CooldownComponent* cd, TransformComponent* tr)
     {
-
         if(cd->remainingCD<0)
         {
-            // it is time to spawn
+            // SPAWNING TIME!!!1!!!
             SpawnProjectile(tower, scene, spawner->type);
             cd->remainingCD = cd->CD;
         }
         
 
-    } END_FOR_EACH
-
+    });
 }
 
 void AttackCDSystem(SceneBase *scene, float deltaTime)
 {
-    FOR_EACH_COMPONENT(scene, entity,
-                       Cooldown, cd)
+    ForEachComponent<CooldownComponent>(scene, [&](EntityID entity, CooldownComponent* cd)
     {
         cd->remainingCD-=deltaTime;
-    }
-    END_FOR_EACH
+    });
 }
 
 

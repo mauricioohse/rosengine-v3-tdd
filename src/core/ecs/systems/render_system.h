@@ -1,12 +1,13 @@
 #pragma once
 #include "../systems.h"
 #include "../../window.h"
+#include "../components.h"
 #include <map>
 #include <string>
 
 struct RenderSystem : System {
     void Init() override;
-    void Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) override;
+    void Update(float deltaTime, std::vector<EntityID> entities) override;
     void Destroy() override;
     
     // Camera properties (we can expand this later)
@@ -16,10 +17,10 @@ struct RenderSystem : System {
 private:
     void RenderEntity(TransformComponent* transform, SpriteComponent* sprite);
     void RenderAnimatedEntity(TransformComponent *transform, AnimationComponent *anim);
-    static void RenderSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
-    static void RenderTextEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
-    static void RenderUIEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera);
-    void RenderTimedSpriteEntity(EntityID entity, ComponentArrays* components, CameraComponent* camera,  float deltaTime);
+    static void RenderSpriteEntity(EntityID entity, CameraComponent* camera);
+    static void RenderTextEntity(EntityID entity, CameraComponent* camera);
+    static void RenderUIEntity(EntityID entity, CameraComponent* camera);
+    void RenderTimedSpriteEntity(EntityID entity, CameraComponent* camera,  float deltaTime);
 };
 
 struct RenderColor {

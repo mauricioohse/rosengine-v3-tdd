@@ -1,6 +1,9 @@
 #include "resolve_elements_system.h"
 #include "engine.h"
-
+#include "game/tower_placement.h"
+#include "systems.h"
+#include "scene_manager.h"
+#include "game/scenes/main_game_scene.h"
 
 // the element combination dictionary
 static ElementCombo g_element_combinations[] = {
@@ -34,7 +37,7 @@ static ElementCombo g_element_combinations[] = {
 
 static const int g_num_combinations = sizeof(g_element_combinations) / sizeof(ElementCombo);
 
-void SortDescendingElementsInPlace(ELEMENT*elements)
+void SortDescendingElementsInPlace(ELEMENT* elements)
 {
     // bubble sort
     for (int i = 0; i < MAX_ELEMENTS - 1; i++) {
@@ -66,22 +69,19 @@ TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
 
 void ResolveElementSystem(SceneBase * scene)
 {
-    FOR_EACH_COMPONENT_2(scene, entity,
-                          Element, elementC,
-                          ResolveElement, _)
+    ForEachComponent<ElementComponent, ResolveElementComponent>(scene, [&](EntityID entity, ElementComponent* elementC, ResolveElementComponent* _)
     {
         SortDescendingElementsInPlace(elementC->elements);
 
         TowerData* tower_data = GetTowerDataForElements(elementC->elements);
         if (tower_data) {
             // apply the tower configuration
-            ADD_ProjectileSpawner(entity, tower_data->projectile_type);
-            ADD_Damage(entity, tower_data->damage);
-            ADD_Cooldown(entity, tower_data->cooldown);
-            ADD_Tower(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
-            ADD_Sprite(entity, ResourceManager::GetTexture(tower_data->tex));
+            ProjectileSpawnerComponent::Add(entity, tower_data->projectile_type);
+            DamageComponent::Add(entity, tower_data->damage);
+            CooldownComponent::Add(entity, tower_data->cooldown);
+            TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
+            SpriteComponent* sprite = SpriteComponent::Add(entity, ResourceManager::GetTexture(tower_data->tex));
 
-            auto sprite = GET_Sprite(entity);
             sprite->colorMod = tower_data->colorMod;
 
             printf("configured tower with projectile type %d\n", tower_data->projectile_type);
@@ -90,6 +90,6 @@ void ResolveElementSystem(SceneBase * scene)
         }
 
         // remove the resolve component so this doesn't run again
-        g_Engine.entityManager.RemoveComponentFromEntity(entity, C_ResolveElement);
-    } END_FOR_EACH
+        RemoveComponent<ResolveElementComponent>(entity);
+    });
 }

@@ -41,13 +41,13 @@ void SystemManager::UnregisterSystem(System* system) {
     }
 }
 
-void SystemManager::UpdateSystems(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
+void SystemManager::UpdateSystems(float deltaTime, std::vector<EntityID> entities) {
 
     for (int i = 0; i < systemCount; i++) {
         if (systems[i]) {
 
                 // Update all systems when game is active
-                systems[i]->Update(deltaTime, entities, components);
+                systems[i]->Update(deltaTime, entities);
         }
     }
 }

@@ -11,66 +11,129 @@ void enemy_system::Init()
 {
 }
 
-void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays *components)
-{
-    FOR_EACH_COMPONENT_3((&g_mainGame), entity,
-                         Transform, transform,
-                         Enemy, enemy,
-                         Collider, coll)
-    {
-        float speed = enemy->speed;
+float ApplySlow(EntityID entity, EnemyComponent* enemy, float baseSpeed, float deltaTime) {
+    if (auto* slow = Get<SlowComponent>(entity)) {
+        slow->duration -= deltaTime;
+        return baseSpeed * slow->intensity;
+    }
+    return baseSpeed;
+}
 
-        auto enemy_slow = GET_Slow(entity);
-        if (enemy_slow)
-        {
-            speed *= enemy_slow->intensity;
-            enemy_slow->duration -= deltaTime;
+bool HandlePathEnd(EntityID entity, EnemyComponent* enemy) {
+    if (enemy->currPathIdx >= Grid::GetMonsterPathSize()) {
+        printf("Enemy %d reached end of path, marking for destruction\n", entity);
+        enemy->currHealth = -1;
+        playerLife_decrease_health(1);
+        return true;
+    }
+    return false;
+}
+
+void MoveNormalEnemy(EntityID entity, TransformComponent* transform, EnemyComponent* enemy, float speed, float deltaTime) {
+    if (enemy->currPathIdx >= Grid::GetMonsterPathSize())
+        return;
+
+    Point targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
+
+    // calculate distance to current target
+    float dx = targetPos.x - transform->x;
+    float dy = targetPos.y - transform->y;
+    float distance = sqrt(dx*dx + dy*dy);
+
+    // if close enough to target, advance to next path point
+    if (distance <= 10.0f) {
+        enemy->currPathIdx++;
+               
+        if (HandlePathEnd(entity, enemy)) return;
+        
+        targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
+        dx = targetPos.x - transform->x;
+        dy = targetPos.y - transform->y;
+        distance = sqrt(dx*dx + dy*dy);
+    }
+
+    // move towards current target
+    if (distance > 1.0f) {
+        // pixels per second
+        dx /= distance;
+        dy /= distance;
+
+        transform->x += dx * speed * deltaTime;
+        transform->y += dy * speed * deltaTime;
+    }
+}
+
+void MoveDebugEnemy(TransformComponent* transform, EnemyComponent* enemy, float speed, float deltaTime) {
+    float oldY = transform->y;
+    transform->y -= speed * deltaTime;
+    printf("Debug enemy moved from y=%.1f to y=%.1f\n", oldY, transform->y);
+}
+
+bool HandleDeath(EntityID entity, EnemyComponent* enemy, EnemyDebugComponent* debug) {
+    if (HasComponent<EnemyDebugComponent>(entity)) {
+        // Debug enemies: die if health <= 0
+        if (enemy->currHealth <= 0) {
+            g_Game.debugTowerKills[debug->element]++;
+            g_Engine.entityManager.DestroyEntity(entity);
+            return true;
+        }
+    } else {
+        // Normal enemies: die if marked as not alive OR health <= 0
+        if (!enemy->alive || enemy->currHealth <= 0) {
+            printf("Enemy %d being destroyed: alive=%d, health=%d\n", entity, enemy->alive, enemy->currHealth);
+            g_Engine.entityManager.DestroyEntity(entity);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CheckExitCollisions(EntityID entity, TransformComponent* transform, ColliderComponent* coll, std::vector<EntityID>& exits) {
+    for (EntityID exit : exits) {
+        if (HasComponent<TransformComponent, ColliderComponent, EnemyExitComponent>(exit)) {
+            auto* exitTransform = Get<TransformComponent>(exit);
+            auto* exitCollider  = Get<ColliderComponent>(exit);
+            float penX, penY;
+
+            if (exitTransform && exitCollider && CheckCollision(transform, coll, exitTransform, exitCollider, penX, penY)) {
+                printf("enemy %d reached exit\n", entity);
+                g_Engine.entityManager.DestroyEntity(entity);
+                playerLife_decrease_health(1);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void enemy_system::Update(float deltaTime, std::vector<EntityID> entities)
+{
+    // Iterate over all entities passed by the system manager
+    for (EntityID entity : entities) {
+        // Check if this entity has the required components
+        if (!HasComponent<TransformComponent, EnemyComponent, ColliderComponent>(entity)) {
+            continue;
         }
 
-        EnemyDebugComponent * debug = GET_EnemyDebug(entity);
+        TransformComponent* transform = Get<TransformComponent>(entity);
+        EnemyComponent* enemy = Get<EnemyComponent>(entity);
+        ColliderComponent* coll = Get<ColliderComponent>(entity);
 
-        if (transform && enemy && !debug)
-        {
-            // get current target position from monster path
-            if (enemy->currPathIdx < Grid::GetMonsterPathSize())
-            {
-                Point targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
+        if (!transform || !enemy || !coll) {
+            continue;
+        }
 
-                // calculate distance to current target
-                float dx = targetPos.x - transform->x;
-                float dy = targetPos.y - transform->y;
-                float distance = sqrt(dx * dx + dy * dy);
+        float speed = ApplySlow(entity, enemy, enemy->speed, deltaTime);
 
-                // if close enough to target, advance to next path point
-                if (distance <= 10.0f)
-                {
-                    enemy->currPathIdx++;
-                    if (enemy->currPathIdx >= Grid::GetMonsterPathSize())
-                    {
-                        // reached end of path, destroy enemy
-                        g_Engine.entityManager.DestroyEntity(entity);
-                        playerLife_decrease_health(1);
-                        continue;
-                    }
-                    // get new target position
-                    targetPos = Grid::GetMonsterPathPoint(enemy->currPathIdx);
-                    dx = targetPos.x - transform->x;
-                    dy = targetPos.y - transform->y;
-                    distance = sqrt(dx * dx + dy * dy);
-                }
+        EnemyDebugComponent* debug = nullptr;
 
-                // move towards current target
-                if (distance > 1.0f)
-                {
-                    // pixels per second
-                    dx /= distance; // normalize
-                    dy /= distance;
+        if (HasComponent<EnemyDebugComponent>(entity)) {
+            debug = Get<EnemyDebugComponent>(entity);
+            MoveDebugEnemy(transform, enemy, speed, deltaTime);
+        }
+        else {
+            MoveNormalEnemy(entity, transform, enemy, speed, deltaTime);
 
-                    transform->x += dx * speed * deltaTime;
-                    transform->y += dy * speed * deltaTime;
-                }
-            }
-        
             // specific enemy logic here
             switch (enemy->type)
             {
@@ -78,12 +141,12 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                 case ENEMY_BOSS:
                 {
                     // first, check if enemySpawner component already exists. if not, create it.
-                    EnemySpawnerComponent *spawner = GET_EnemySpawner(entity);
+                    EnemySpawnerComponent *spawner = Get<EnemySpawnerComponent>(entity);
 
                     if (!spawner)
                     {
                         // if the entity does not have the spawner component yet, we add it here once
-                        spawner = ADD_EnemySpawner(entity, 3.0f, ENEMY_RUNNER_III);
+                        spawner = EnemySpawnerComponent::Add(entity, 3.0f, ENEMY_RUNNER_III);
                     }
 
                     // if already exists, then apply the enemySpawn when the cooldown is less than zero, and also reset the cooldown
@@ -99,7 +162,7 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                             int spawnY = bossPos.y;
 
                             EntityID spawnedEnemy = EnemySpawner::SpawnEnemyAt(&g_mainGame, spawnX, spawnY, (ENEMY_TYPE)spawner->spawnType);
-                            auto spawnedEnemy_enemyComponent = GET_Enemy(spawnedEnemy);
+                            auto spawnedEnemy_enemyComponent = Get<EnemyComponent>(spawnedEnemy);
                             spawnedEnemy_enemyComponent->currPathIdx = enemy->currPathIdx;
 
                             spawner->currentSpawns++;
@@ -117,58 +180,11 @@ void enemy_system::Update(float deltaTime, std::vector<EntityID> entities, Compo
                 break;
             }
         }
-        else if (transform && enemy && debug)
-        {
-            // just move upward
-            transform->y -= speed * deltaTime;
-        }
 
-        if (!enemy->alive)
-        {
-            g_Engine.entityManager.DestroyEntity(entity);
-            printf("killing entity %d because note alive\n", entity);
-        }
-
-        // check if enemy health is above zero, if not, destroy him
-        if (enemy && enemy->currHealth <= 0)
-        {
-
-            EnemyDebugComponent *debug =
-                (EnemyDebugComponent *)GET_COMPONENT(entity, C_EnemyDebug);
-
-            if (debug)
-            {
-                g_Game.debugTowerKills[debug->element]++;
-            }
-
-            g_Engine.entityManager.DestroyEntity(entity);
-        }
-
-        // Check if enemy hit any of the exit collider entities
-        for (EntityID exit : entities)
-        {
-            if (HAS_COMPONENT(exit, C_EnemyExit | C_Transform | C_Collider))
-            {
-                TransformComponent *exitTransform =
-                    (TransformComponent *)components->GetComponentData(exit, C_Transform);
-                ColliderComponent *exitCollider =
-                    (ColliderComponent *)components->GetComponentData(exit, C_Collider);
-
-                if (exitTransform && exitCollider)
-                {
-                    float penX, penY;
-                    if (CheckCollision(transform, coll, exitTransform, exitCollider, penX, penY))
-                    {
-                        // enemy reached exit, destroy it
-                        g_Engine.entityManager.DestroyEntity(entity);
-                        printf("enemy %d reached exit\n", entity);
-                        playerLife_decrease_health(1);
-                        break;
-                    }
-                }
-            }
-        } 
-    } END_FOR_EACH
+        // centralize destruction checks
+        if (HandleDeath(entity, enemy, debug)) continue;
+        if (CheckExitCollisions(entity, transform, coll, entities)) continue;
+    }
 }
 
 void enemy_system::Destroy()

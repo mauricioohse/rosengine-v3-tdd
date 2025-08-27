@@ -10,15 +10,15 @@
     X is the horizontal and increases to the right
     Y is the vertical and increases to the bottom
 */
-typedef struct Point{
+struct Point{
     int x;
     int y;
 
-    Point operator+(Point const& obj)
+    Point operator+(Point const& obj) const
     {
         return Point{x+obj.x, y+obj.y};
     }
-} Point;
+};
 
 namespace Grid {
     extern Point GRID_START_POINT;

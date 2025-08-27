@@ -3,16 +3,17 @@
 #include "../resource_manager.h"
 #include "string.h"
 #include "stdio.h"
-#include "base_component.h"
 #include <float.h>
 #include "components/background_component.h"
+#include "base_component.h"
+#include "component_helpers.h"
 
 // Add camera constants
-#define CAMERA_FOLLOW_SPEED 15.0f     // How fast camera catches up to target
+#define CAMERA_FOLLOW_SPEED 15.0f    // How fast camera catches up to target
 #define CAMERA_DEADZONE_X 100.0f     // Horizontal deadzone before camera starts moving
 #define CAMERA_DEADZONE_Y 100.0f     // Vertical deadzone before camera starts moving
 
-struct TransformComponent : Component {
+struct TransformComponent : Component<TransformComponent> {
     float x, y;
     float rotation;
     float scale;
@@ -24,6 +25,10 @@ struct TransformComponent : Component {
         scale = scl;
     }
 
+    static TransformComponent* Add(EntityID entity, float x, float y, float rotation = 0.0f, float scale = 1.0f) {
+        return ComponentManager<TransformComponent>::Add(entity, x, y, rotation, scale);
+    }
+
     void Destroy() override {
         x = 0.0f;
         y = 0.0f;
@@ -32,7 +37,7 @@ struct TransformComponent : Component {
     }
 };
 
-struct SpriteComponent : Component {
+struct SpriteComponent : Component<SpriteComponent> {
     Texture* texture;
     int width, height;
     SDL_Rect srcRect;
@@ -57,6 +62,10 @@ struct SpriteComponent : Component {
         }
         colorMod = {255, 255, 255, 255}; // default: no shift
         hueShift = 0.0f;
+    }
+
+    static SpriteComponent* Add(EntityID entity, Texture* tex) {
+        return ComponentManager<SpriteComponent>::Add(entity, tex);
     }
 
     void ChangeTexture(Texture* newTexture) {
@@ -102,7 +111,7 @@ struct SpriteComponent : Component {
     }
 };
 
-struct WASDControllerComponent : Component {
+struct WASDControllerComponent : Component<WASDControllerComponent> {
     float moveSpeed;
     bool canMove;
     float moveX;
@@ -117,6 +126,10 @@ struct WASDControllerComponent : Component {
         moveForce = 1.0f;
     }
 
+    static WASDControllerComponent* Add(EntityID entity, float speed = 200.0f, bool enabled = true) {
+        return ComponentManager<WASDControllerComponent>::Add(entity, speed, enabled);
+    }
+
     void Destroy() override {
         moveSpeed = 0.0f;
         canMove = false;
@@ -126,7 +139,7 @@ struct WASDControllerComponent : Component {
     }
 };
 
-struct ColliderComponent : Component {
+struct ColliderComponent : Component<ColliderComponent> {
     float radius;
     bool isTrigger;  // If true, detects collision but doesn't prevent movement
     bool isStatic;   // If true, this object won't be moved during collision resolution
@@ -136,6 +149,10 @@ struct ColliderComponent : Component {
         isStatic = staticCollider;
         isTrigger = triggerCollider;
     }
+
+    static ColliderComponent* Add(EntityID entity, float r, bool staticCollider = false, bool triggerCollider = false) {
+        return ComponentManager<ColliderComponent>::Add(entity, r, staticCollider, triggerCollider);
+    }
     
     void Destroy() override {
         radius = 0.0f;
@@ -144,7 +161,7 @@ struct ColliderComponent : Component {
     }
 };
 
-struct AnimationComponent : Component {
+struct AnimationComponent : Component<AnimationComponent> {
     Texture* spriteSheet;            // The sprite sheet texture
     SDL_Rect frameRect;             // Current frame rectangle
     int frameWidth;                 // Width of each frame
@@ -176,6 +193,11 @@ struct AnimationComponent : Component {
         UpdateFrameRect();
     }
 
+    static AnimationComponent* Add(EntityID entity, Texture* sheet, int frameW, int frameH, int cols, int frames, 
+                    float time = 0.1f, bool shouldLoop = true) {
+        return ComponentManager<AnimationComponent>::Add(entity, sheet, frameW, frameH, cols, frames, time, shouldLoop);
+    }
+
     void Destroy() override {
         spriteSheet = nullptr;
         frameRect = {0, 0, 0, 0};
@@ -198,7 +220,7 @@ struct AnimationComponent : Component {
     }
 };
 
-struct GravityComponent : Component {
+struct GravityComponent : Component<GravityComponent> {
     float velocityY;       // Current vertical velocity
     float gravityScale;    // Multiplier for gravity (1.0 = normal, 0.5 = half gravity, etc.)
     bool isGrounded;       // Is the entity touching the ground?
@@ -208,7 +230,11 @@ struct GravityComponent : Component {
         gravityScale = scale;
         isGrounded = false;
     }
-    
+
+    static GravityComponent* Add(EntityID entity, float scale = 1.0f) {
+        return ComponentManager<GravityComponent>::Add(entity, scale);
+    }
+
     void Destroy() override {
         velocityY = 0.0f;
         gravityScale = 1.0f;
@@ -216,7 +242,7 @@ struct GravityComponent : Component {
     }
 };
 
-struct CameraComponent : Component {
+struct CameraComponent : Component<CameraComponent> {
     float x, y;              // Camera position (top-left corner)
     float targetX, targetY;  // Position camera is trying to reach
     float viewportWidth;     // Width of the camera view
@@ -248,7 +274,11 @@ struct CameraComponent : Component {
         minY = 0.0f;
         maxY = height * 50.0f;
     }
-    
+
+    static CameraComponent* Add(EntityID entity, float width, float height, EntityID target = 0) {
+        return ComponentManager<CameraComponent>::Add(entity, width, height, target);
+    }
+
     void Destroy() override {
         x = y = 0.0f;
         targetX = targetY = 0.0f;
@@ -266,7 +296,7 @@ enum TextAlignment {
     TEXT_RIGHT
 };
 
-struct TextComponent : Component {
+struct TextComponent : Component<TextComponent> {
     Font* font = nullptr;
     char text[200];
     SDL_Color color = {255, 255, 255, 255};
@@ -286,6 +316,10 @@ struct TextComponent : Component {
         printf("text component initialized: %s\n", text);
     }
 
+    static TextComponent* Add(EntityID entity, Font* _font, const char* _text, TextAlignment _alignment = TEXT_CENTER) {
+        return ComponentManager<TextComponent>::Add(entity, _font, _text, _alignment);
+    }
+
     void Destroy() override {
         font = nullptr;
         text[0] = '\0';
@@ -296,7 +330,7 @@ struct TextComponent : Component {
     }
 };
 
-struct UIBoxComponent : Component {
+struct UIBoxComponent : Component<UIBoxComponent> {
     float width;              // Box width
     float height;            // Box height
     SDL_Color backgroundColor;// Background color of the box
@@ -323,6 +357,16 @@ struct UIBoxComponent : Component {
         isPressed = false;
         onClick = callback;
     }
+
+    static UIBoxComponent* Add(EntityID entity,
+                    float w,
+                    float h,
+                    SDL_Color bgColor = {50, 50, 50, 255},
+                    SDL_Color brdColor = {255, 255, 255, 255},
+                    float brdWidth = 2.0f,
+                    OnClickCallback callback = nullptr) {
+        return ComponentManager<UIBoxComponent>::Add(entity, w, h, bgColor, brdColor, brdWidth, callback);
+    }
     
     void Destroy() override {
         width = 0.0f;
@@ -348,7 +392,7 @@ enum TOWER_TYPE{
     TOWER_DEBUG
 };
 
-struct TowerComponent : Component {
+struct TowerComponent : Component<TowerComponent> {
     TOWER_TYPE type;
     int range; // radius
     float attackCD; // attack cooldown, measured in seconds
@@ -359,6 +403,10 @@ struct TowerComponent : Component {
         range = r;
         attackCD = CD;
         currCD=0;
+    }
+
+    static TowerComponent* Add(EntityID entity, TOWER_TYPE t, int r, float CD) {
+        return ComponentManager<TowerComponent>::Add(entity, t, r, CD);
     }
 
     void Destroy()
@@ -393,30 +441,43 @@ inline const char* GetElementName(ELEMENT element) {
     return g_element_names[element];
 }
 
-#define MAX_ELEMENTS 3
-struct ElementComponent  {
+struct ElementComponent : Component<ElementComponent> {
     ELEMENT elements[MAX_ELEMENTS] = {};
 
     void Init(ELEMENT new_ele)
     {
         memset(elements,0, sizeof(elements));
         elements[0] = new_ele;
+    }
 
-        
+    static ElementComponent* Add(EntityID entity, ELEMENT new_ele) {
+        return ComponentManager<ElementComponent>::Add(entity, new_ele);
     }
 };
 
 // tag component
-struct ResolveElementComponent: Component {
-    
+struct ResolveElementComponent : Component<ResolveElementComponent> {
+
+    void Init()
+    {
+        // empty
+    }
+
+    static ResolveElementComponent* Add(EntityID entity) {
+        return ComponentManager<ResolveElementComponent>::Add(entity);
+    }
 };
 
-struct LifeTimeComponent : Component {
+struct LifeTimeComponent : Component<LifeTimeComponent> {
     float remaininglifeTime; // in seconds
 
     void Init(float lifeTime)
     {
         remaininglifeTime = lifeTime;
+    }
+
+    static LifeTimeComponent* Add(EntityID entity, float lifeTime) {
+        return ComponentManager<LifeTimeComponent>::Add(entity, lifeTime);
     }
 
     void Destroy() override 
@@ -426,11 +487,19 @@ struct LifeTimeComponent : Component {
 };
 
 // tag
-struct DamageOnCollisionComponent : Component {
+struct DamageOnCollisionComponent : Component<DamageOnCollisionComponent> {
 
+    void Init()
+    {
+        // empty
+    }
+
+    static DamageOnCollisionComponent* Add(EntityID entity) {
+        return ComponentManager<DamageOnCollisionComponent>::Add(entity);
+    }
 };
 
-struct JetAnimationComponent : Component {
+struct JetAnimationComponent : Component<JetAnimationComponent> {
     int srcX;
     int srcY;
     int destX;
@@ -448,6 +517,10 @@ struct JetAnimationComponent : Component {
         currentStep = 0;
     }
 
+    static JetAnimationComponent* Add(EntityID entity, int _srcX, int _srcY, int _destX, int _destY) {
+        return ComponentManager<JetAnimationComponent>::Add(entity, _srcX, _srcY, _destX, _destY);
+    }
+
     void Destroy() override 
     {
         srcX = 0;
@@ -457,7 +530,7 @@ struct JetAnimationComponent : Component {
     }
 };
 
-struct ChainLightningComponent : Component {
+struct ChainLightningComponent : Component<ChainLightningComponent> {
     EntityID hits[12]; // considering 12 the maximum amount of jumps possible
     int jumps; // how many times the chain in will (how many enemies will be hit)
     // the lighntining will be drawn between the current target and the next target every jump
@@ -472,7 +545,7 @@ struct ChainLightningComponent : Component {
     int currFrameDelay;
     int hasDealtDamage;
 
-    void Init(int _currX,int _currY,int _nextX,int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes )
+    void Init(int _currX, int _currY, int _nextX, int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes)
     {
         currX = _currX;
         currY = _currY;
@@ -488,13 +561,17 @@ struct ChainLightningComponent : Component {
         currFrameDelay = 0;
     }
 
+    static ChainLightningComponent* Add(EntityID entity, int _currX, int _currY, int _nextX, int _nextY, EntityID _target, int _damage, int _jumps, bool _explodes) {
+        return ComponentManager<ChainLightningComponent>::Add(entity, _currX, _currY, _nextX, _nextY, _target, _damage, _jumps, _explodes);
+    }
+
     void Destroy () override 
     {
 
     }
 };
 
-struct CrowdcontrolComponent : Component {
+struct CrowdControlComponent : Component<CrowdControlComponent> {
     EntityID target;
     int targetX;
     int targetY;
@@ -504,7 +581,10 @@ struct CrowdcontrolComponent : Component {
         target = tgt;
         targetX = _targetX; 
         targetY = _targetY;
-    
+    }
+
+    static CrowdControlComponent* Add(EntityID entity, EntityID tgt, int _targetX, int _targetY) {
+        return ComponentManager<CrowdControlComponent>::Add(entity, tgt, _targetX, _targetY);
     }
 
     void Destroy() override
@@ -526,27 +606,20 @@ enum PROJECTILE_TYPE {
     PROJECTILE_AREA_GUST
 };
 
-struct ProjectileSpawnerComponent : Component {
+struct ProjectileSpawnerComponent : Component<ProjectileSpawnerComponent> {
     PROJECTILE_TYPE type;
 
     void Init(PROJECTILE_TYPE _type)
     {
         type = _type;
     }
-};
 
-struct AddSlowOnCollisionComponent : Component {
-    float duration;
-    float intensity; // from 0 to 1, in %
-
-    void Init(float _duration,float _intensity)
-    {
-        duration = _duration;
-        intensity = _intensity; 
+    static ProjectileSpawnerComponent* Add(EntityID entity, PROJECTILE_TYPE _type) {
+        return ComponentManager<ProjectileSpawnerComponent>::Add(entity, _type);
     }
 };
 
-struct SlowComponent : Component {
+struct AddSlowOnCollisionComponent : Component<AddSlowOnCollisionComponent> {
     float duration;
     float intensity; // from 0 to 1, in %
 
@@ -555,9 +628,28 @@ struct SlowComponent : Component {
         duration = _duration;
         intensity = _intensity; 
     }
+
+    static AddSlowOnCollisionComponent* Add(EntityID entity, float _duration, float _intensity) {
+        return ComponentManager<AddSlowOnCollisionComponent>::Add(entity, _duration, _intensity);
+    }
 };
 
-struct CooldownComponent : Component{
+struct SlowComponent : Component<SlowComponent> {
+    float duration;
+    float intensity; // from 0 to 1, in %
+
+    void Init(float _duration, float _intensity)
+    {
+        duration = _duration;
+        intensity = _intensity; 
+    }
+
+    static SlowComponent* Add(EntityID entity, float _duration, float _intensity) {
+        return ComponentManager<SlowComponent>::Add(entity, _duration, _intensity);
+    }
+};
+
+struct CooldownComponent : Component<CooldownComponent> {
     float remainingCD;
     float CD;
 
@@ -566,20 +658,36 @@ struct CooldownComponent : Component{
         CD = _CD;
         remainingCD = 0;
     }
+
+    static CooldownComponent* Add(EntityID entity, float _CD) {
+        return ComponentManager<CooldownComponent>::Add(entity, _CD);
+    }
 };
 
-struct RangeComponent : Component {
+struct RangeComponent : Component<RangeComponent> {
     int range;
+    
+    void Init()
+    {
+        // empty
+    }
+
+    static RangeComponent* Add(EntityID entity) {
+        return ComponentManager<RangeComponent>::Add(entity);
+    }
 };
 
-struct DamageComponent : Component {
+struct DamageComponent : Component<DamageComponent> {
     int damage;
 
     void Init( int _damage) {damage = _damage;}
+
+    static DamageComponent* Add(EntityID entity, int _damage) {
+        return ComponentManager<DamageComponent>::Add(entity, _damage);
+    }
 };
 
-struct ExplodeOnXYComponent : Component
-{
+struct ExplodeOnXYComponent : Component<ExplodeOnXYComponent> {
     int x, y, range;
 
     void Init(int _x, int _y, int _range)
@@ -588,11 +696,13 @@ struct ExplodeOnXYComponent : Component
         y = _y;
         range = _range;
     }
+
+    static ExplodeOnXYComponent* Add(EntityID entity, int _x, int _y, int _range) {
+        return ComponentManager<ExplodeOnXYComponent>::Add(entity, _x, _y, _range);
+    }
 };
 
-
-
-struct MoveToXYComponent : Component {
+struct MoveToXYComponent : Component<MoveToXYComponent> {
     int targetX;
     int targetY;
     int speed;
@@ -604,6 +714,10 @@ struct MoveToXYComponent : Component {
         speed = spd;
     }
 
+    static MoveToXYComponent* Add(EntityID entity, int x, int y, int spd) {
+        return ComponentManager<MoveToXYComponent>::Add(entity, x, y, spd);
+    }
+
     void Destroy() override {
         int targetX = 0;
         int targetY = 0;
@@ -611,8 +725,8 @@ struct MoveToXYComponent : Component {
     }
 };
 
-struct TimedSpriteComponent : Component {
-    Texture *sprites[5];
+struct TimedSpriteComponent : Component<TimedSpriteComponent> {
+    Texture* sprites[5];
     float currTime;
     float animTime; // frame time
     int loop;
@@ -629,6 +743,10 @@ struct TimedSpriteComponent : Component {
         }
     }
 
+    static TimedSpriteComponent* Add(EntityID entity, float currTime_, float animTime_, int loop_, int maxSprites_) {
+        return ComponentManager<TimedSpriteComponent>::Add(entity, currTime_, animTime_, loop_, maxSprites_);
+    }
+
     void Destroy() override
     {
         currTime = 0.0f;
@@ -642,13 +760,19 @@ struct TimedSpriteComponent : Component {
 };
 
 // a TAG used to know if the transform + collider is used to destroy the entity 
-struct EnemyExitComponent : Component
-{
+struct EnemyExitComponent : Component<EnemyExitComponent> {
 
+    void Init()
+    {
+        // empty
+    }
+
+    static EnemyExitComponent* Add(EntityID entity) {
+        return ComponentManager<EnemyExitComponent>::Add(entity);
+    }
 };
 
-struct EnemyDebugComponent : Component 
-{
+struct EnemyDebugComponent : Component<EnemyDebugComponent> {
     ELEMENT element;
     bool debug;
 
@@ -658,10 +782,14 @@ struct EnemyDebugComponent : Component
         debug = 0;
     }
 
+    static EnemyDebugComponent* Add(EntityID entity, ELEMENT _element) {
+        return ComponentManager<EnemyDebugComponent>::Add(entity, _element);
+    }
+
     void Destroy() override {}
 };
 
-struct EnemyComponent : Component {
+struct EnemyComponent : Component<EnemyComponent> {
     int alive;
     int currHealth;
     int maxHealth;
@@ -678,14 +806,17 @@ struct EnemyComponent : Component {
         type = _type;
     }
 
+    static EnemyComponent* Add(EntityID entity, int health, int _speed, int _type) {
+        return ComponentManager<EnemyComponent>::Add(entity, health, _speed, _type);
+    }
+
     void Destroy()
     {
         alive = 0;
     }
-
 };
 
-struct EnemySpawnerComponent : Component {
+struct EnemySpawnerComponent : Component<EnemySpawnerComponent> {
     float spawnCooldown;
     float currentCooldown;
     int spawnType; // using int instead of ENEMY_TYPE to avoid forward declaration issues
@@ -696,6 +827,10 @@ struct EnemySpawnerComponent : Component {
         currentCooldown = cooldown;
         spawnType = type;
         currentSpawns = 0;
+    }
+
+    static EnemySpawnerComponent* Add(EntityID entity, float cooldown, int type) {
+        return ComponentManager<EnemySpawnerComponent>::Add(entity, cooldown, type);
     }
     
     void Destroy() override {
@@ -718,26 +853,42 @@ void InitSquirrelPhysics(EntityID entity);
 void InitCamera(EntityID entity, float width, float height, EntityID target = 0);
 
 
-struct ComponentArrays {
-    // Component data pools
-#define xcomponent( type, id, ...) type##Component type##s[MAX_ENTITIES];
-#include "components/components.def"
-#undef xcomponent
-    WASDControllerComponent wasdControllers[MAX_ENTITIES];
-    AnimationComponent animations[MAX_ENTITIES];
-    GravityComponent gravities[MAX_ENTITIES];
-    CameraComponent cameras[MAX_ENTITIES];
-    BackgroundComponent backgrounds[MAX_ENTITIES];
+// struct ComponentArrays {
+//     // Component data pools
+// #define xcomponent( type, id, ...) type##Component type##s[MAX_ENTITIES];
+// #include "components/components.def"
+// #undef xcomponent
+//     WASDControllerComponent wasdControllers[MAX_ENTITIES];
+//     AnimationComponent animations[MAX_ENTITIES];
+//     GravityComponent gravities[MAX_ENTITIES];
+//     CameraComponent cameras[MAX_ENTITIES];
+//     BackgroundComponent backgrounds[MAX_ENTITIES];
 
-    // Core functions
-    void* GetComponentData(EntityID entity, ComponentType type);
-    void RemoveComponent(EntityID entity, ComponentType type);
+//     // Core functions
+//     void* GetComponentData(EntityID entity, ComponentType type);
+//     void RemoveComponent(EntityID entity, ComponentType type);
     
-    // Add this to ComponentArrays struct
-    void Init() {
-        // Zero out all component arrays
-        memset(this, 0, sizeof(ComponentArrays));
+//     // Add this to ComponentArrays struct
+//     void Init() {
+//         // Zero out all component arrays
+//         memset(this, 0, sizeof(ComponentArrays));
         
-        printf("ComponentArrays initialized\n");
-    }
-}; 
+//         printf("ComponentArrays initialized\n");
+//     }
+// };
+
+// class IComponentArray {
+// public:
+//     virtual void* GetData(EntityID entity) = 0;
+//     virtual ~IComponentArray() = default;
+// };
+
+// template<typename T>
+// class ComponentArray : public IComponentArray {
+//     std::vector<T> componentsArray;
+// public:
+//     ComponentArray(size_t size) : componentsArray(size) {}
+//     void* GetData(EntityID entity) override {
+//         return &componentsArray[entity];
+//     }
+// };

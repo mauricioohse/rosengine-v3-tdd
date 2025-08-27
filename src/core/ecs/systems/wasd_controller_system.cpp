@@ -2,22 +2,21 @@
 #include <stdio.h>
 #include <math.h>
 #include "../../engine.h"
+#include "../components.h"
 
 void WASDControllerSystem::Init() {
     printf("WASDControllerSystem initialized\n");
     speedMultiplier = 1.0f;
 }
 
-void WASDControllerSystem::Update(float deltaTime, std::vector<EntityID> entities, ComponentArrays* components) {
+void WASDControllerSystem::Update(float deltaTime, std::vector<EntityID> entities) {
     // Loop through all entities
     for ( EntityID entity : entities) {
         // Check if entity has both transform and WASD controller components
-        if (HAS_COMPONENT(entity, C_Transform | C_WASD_CONTROLLER )) {
-            TransformComponent* transform = 
-                (TransformComponent*)components->GetComponentData(entity, C_Transform);
-            WASDControllerComponent* controller = 
-                (WASDControllerComponent*)components->GetComponentData(entity, C_WASD_CONTROLLER);
-            
+        if (HasComponent<TransformComponent, WASDControllerComponent>(entity)) {
+            TransformComponent* transform = Get<TransformComponent>(entity);
+            WASDControllerComponent* controller = Get<WASDControllerComponent>(entity);
+
             if (!transform || !controller || !controller->canMove) {
                 continue;
             }

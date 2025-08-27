@@ -2,6 +2,7 @@
 #include "enemy_spawner.h"
 #include "main_game_scene.h"
 #include "grid.h"
+#include <cstdio>
 #include "engine.h"
 #include "tower_placement.h"
 
@@ -215,8 +216,8 @@ void WaveSystem_StartNextWave()
         if (!g_Engine.entityManager.IsEntityValid(wave_text))
         {
             wave_text = g_mainGame.RegisterEntity();
-            ADD_Transform(wave_text, 1440, 50, 0, 1.0f);
-            ADD_Text(wave_text, ResourceManager::GetFont(FONT_FPS), text);
+            TransformComponent::Add(wave_text, 1440, 50, 0, 1.0f);
+            TextComponent::Add(wave_text, ResourceManager::GetFont(FONT_FPS), text);
         }
         else
         {
@@ -224,7 +225,7 @@ void WaveSystem_StartNextWave()
             if (g_wave_ctx.current_wave_index != last_wave_in_text)
             {
                 last_wave_in_text = g_wave_ctx.current_wave_index;
-                auto comp = GET_Text(wave_text);
+                auto comp = Get<TextComponent>(wave_text);
                 snprintf(comp->text, sizeof(comp->text), text);
                 comp->isDirty =  true;
             }

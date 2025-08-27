@@ -56,7 +56,6 @@ bool Engine::Init() {
     // Initialize engine systems
     g_Engine.entityManager.Init();
     g_Engine.systemManager.Init();
-    g_Engine.componentArrays.Init();
 
     return true;
 }
@@ -122,6 +121,9 @@ void Engine::RunFrame() {
     if (frameTime < FRAME_TIME) {
         SDL_Delay(FRAME_TIME - frameTime);
     }
+
+    // Destroy entities marked for destruction during other system updates
+    g_Engine.entityManager.ProcessPendingDestructions();
 }
 
 void Engine::Run() {
