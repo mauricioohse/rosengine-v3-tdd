@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL.h>
-
 typedef uint32_t EntityID;
 
 // Base component - no Init()
