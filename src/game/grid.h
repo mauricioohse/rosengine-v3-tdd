@@ -14,7 +14,7 @@ typedef struct Point{
     int x;
     int y;
 
-Point operator+(Point const& obj)
+    Point operator+(Point const& obj)
     {
         return Point{x+obj.x, y+obj.y};
     }
