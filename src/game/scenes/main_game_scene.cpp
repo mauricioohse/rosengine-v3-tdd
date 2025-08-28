@@ -215,7 +215,7 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     // update tower placement
     TowerPlacement::Update();
 
-    Grid::DrawGrid();
+    Grid::DrawGrid(!strcmp(levelPath, "lvl2.csv"));
 
     TargetingSystem(&g_mainGame);
 
