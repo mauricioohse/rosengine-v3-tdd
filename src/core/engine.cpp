@@ -3,6 +3,36 @@
 #include "window.h"
 #include "input.h"
 #include <stdio.h>
+#include <fstream>
+#include <chrono>
+
+#ifdef DEBUG
+static std::ofstream profile_file;
+static bool profile_initialized = false;
+static int frame_count = 0;
+
+struct ProfileTimer {
+    std::chrono::high_resolution_clock::time_point start;
+    const char* name;
+    
+    ProfileTimer(const char* timer_name) : name(timer_name) {
+        start = std::chrono::high_resolution_clock::now();
+    }
+    
+    ~ProfileTimer() {
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        
+        if (profile_file.is_open()) {
+            profile_file << "frame_" << frame_count << "," << name << "," << duration.count() << "us" << std::endl;
+        }
+    }
+};
+
+#define PROFILE_SCOPE(name) ProfileTimer timer(name)
+#else
+#define PROFILE_SCOPE(name)
+#endif
 
 #define TARGET_FPS 60
 #define FRAME_TIME (1000.0f / TARGET_FPS)
@@ -11,6 +41,18 @@
 Engine g_Engine;
 
 bool Engine::Init() {
+#ifdef DEBUG
+    // Initialize profiling
+    if (!profile_initialized) {
+        profile_file.open("bin/debug/profile.txt");
+        if (profile_file.is_open()) {
+            profile_file << "frame,section,duration" << std::endl;
+            profile_initialized = true;
+            printf("Profiling initialized - writing to bin/debug/profile.txt\n");
+        }
+    }
+#endif
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf("SDL initialization failed! SDL Error: %s\n", SDL_GetError());
@@ -67,59 +109,90 @@ static void emscripten_loop() {
 #endif
 
 void Engine::RunFrame() {
+    PROFILE_SCOPE("total_frame");
+    
+#ifdef DEBUG
+    frame_count++;
+#endif
 
-    // Update input state
-    Input::Update();
+    {
+        PROFILE_SCOPE("input_update");
+        // Update input state
+        Input::Update();
+    }
 
-    // Handle events
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                g_Engine.isRunning = false;
-                break;
-                
-            case SDL_KEYDOWN:
-                Input::keys[event.key.keysym.scancode] = true;
-                Input::keysPressed[event.key.keysym.scancode] = true;
-                break;
-                
-            case SDL_KEYUP:
-                Input::keys[event.key.keysym.scancode] = false;
-                Input::keysReleased[event.key.keysym.scancode] = true;
-                break;
-                
-            case SDL_MOUSEBUTTONDOWN:
-                Input::mouseButtons[event.button.button] = true;
-                Input::mouseButtonsPressed[event.button.button] = true;
-                break;
-                
-            case SDL_MOUSEBUTTONUP:
-                Input::mouseButtons[event.button.button] = false;
-                Input::mouseButtonsReleased[event.button.button] = true;
-                break;
+    {
+        PROFILE_SCOPE("event_handling");
+        // Handle events
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    g_Engine.isRunning = false;
+                    break;
+                    
+                case SDL_KEYDOWN:
+                    Input::keys[event.key.keysym.scancode] = true;
+                    Input::keysPressed[event.key.keysym.scancode] = true;
+                    break;
+                    
+                case SDL_KEYUP:
+                    Input::keys[event.key.keysym.scancode] = false;
+                    Input::keysReleased[event.key.keysym.scancode] = true;
+                    break;
+                    
+                case SDL_MOUSEBUTTONDOWN:
+                    Input::mouseButtons[event.button.button] = true;
+                    Input::mouseButtonsPressed[event.button.button] = true;
+                    break;
+                    
+                case SDL_MOUSEBUTTONUP:
+                    Input::mouseButtons[event.button.button] = false;
+                    Input::mouseButtonsReleased[event.button.button] = true;
+                    break;
+            }
         }
     }
 
-    // Clear screen
-    g_Engine.window->Clear();
+    {
+        PROFILE_SCOPE("window_clear");
+        // Clear screen
+        g_Engine.window->Clear();
+    }
 
-    // Update and render game
-    g_Game.Update(g_Engine.deltaTime * speed);
-    g_Game.Render();
+    {
+        PROFILE_SCOPE("game_update");
+        // Update and render game
+        g_Game.Update(g_Engine.deltaTime * speed);
+    }
+    
+    {
+        PROFILE_SCOPE("game_render");
+        g_Game.Render();
+    }
 
-    // Present screen
-    g_Engine.window->Present();
+    {
+        PROFILE_SCOPE("window_present");
+        // Present screen
+        g_Engine.window->Present();
+    }
 
-    // Calculate delta time
-    Uint32 currentTime = SDL_GetTicks();
-    g_Engine.deltaTime = (currentTime - g_Engine.lastFrameTime) / 1000.0f;
-    g_Engine.lastFrameTime = currentTime;
+    Uint32 currentTime;
+    {
+        PROFILE_SCOPE("delta_time_calc");
+        // Calculate delta time
+        currentTime = SDL_GetTicks();
+        g_Engine.deltaTime = (currentTime - g_Engine.lastFrameTime) / 1000.0f;
+        g_Engine.lastFrameTime = currentTime;
+    }
 
-    // Cap framerate
-    Uint32 frameTime = SDL_GetTicks() - currentTime;
-    if (frameTime < FRAME_TIME) {
-        SDL_Delay(FRAME_TIME - frameTime);
+    {
+        PROFILE_SCOPE("framerate_cap");
+        // Cap framerate
+        Uint32 frameTime = SDL_GetTicks() - currentTime;
+        if (frameTime < FRAME_TIME) {
+            SDL_Delay(FRAME_TIME - frameTime);
+        }
     }
 
     // Destroy entities marked for destruction during other system updates
@@ -139,13 +212,20 @@ void Engine::Run() {
 }
 
 void Engine::Cleanup() {
+#ifdef DEBUG
+    // Close profiling file
+    if (profile_file.is_open()) {
+        printf("Profiling complete - %d frames logged to bin/debug/profile.txt\n", frame_count);
+        profile_file.close();
+    }
+#endif
+
     ResourceManager::UnloadAllResources();
 
     if (g_Engine.window) {
         g_Engine.window->Cleanup();
         delete g_Engine.window;
     }
-
 
     TTF_Quit();
     IMG_Quit();
