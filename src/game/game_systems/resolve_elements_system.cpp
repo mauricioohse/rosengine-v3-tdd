@@ -5,17 +5,19 @@
 #include "scene_manager.h"
 #include "game/scenes/main_game_scene.h"
 
+#define DEFAULT_COLORMOD SDL_Color{255,255,255,255}
+
 // the element combination dictionary
 static ElementCombo g_element_combinations[] = {
     // single elements - balanced for ~50 dps single target, or 50 dps considering area damage +three targets
-    {{ELE_FIRE, ELE_NONE, ELE_NONE}, {PROJECTILE_BOMB, 125, 2.f, 40, TEXTURE_BOX}},
+    {{ELE_FIRE, ELE_NONE, ELE_NONE}, TowerData{PROJECTILE_BOMB, 125, 2.f, 40, TEXTURE_BOX, DEFAULT_COLORMOD, 75}},
     {{ELE_WATER, ELE_NONE, ELE_NONE}, {PROJECTILE_JET, 250, 3.0f, 150, TEXTURE_BOX_BLUE}},
     {{ELE_EARTH, ELE_NONE, ELE_NONE}, {PROJECTILE_PELLET, 150, 0.5f, 8, TEXTURE_BOX_EARTH}},
     {{ELE_WIND, ELE_NONE, ELE_NONE}, {PROJECTILE_GUST, 150, 2.0f, 0, TEXTURE_BOX_AIR}},
     {{ELE_ELECTRIC, ELE_NONE, ELE_NONE}, {PROJECTILE_LIGHTNING, 150, 2.5f, 60, TEXTURE_BOX_ELECTRO}},
     
     // dual combinations - stronger but more expensive
-    {{ELE_FIRE, ELE_FIRE, ELE_NONE}, {PROJECTILE_BOMB, 125, 1.5f, 60, TEXTURE_BOX, {125, 0, 0, 255} }},
+    {{ELE_FIRE, ELE_FIRE, ELE_NONE}, {PROJECTILE_BOMB, 125, 1.5f, 60, TEXTURE_BOX, {125, 0, 0, 255} , 150}},
     {{ELE_WATER, ELE_WATER, ELE_NONE}, {PROJECTILE_JET, 250, 3.0f, 300, TEXTURE_BOX_BLUE, {0, 0, 125, 255}}},
     {{ELE_WIND, ELE_WIND, ELE_NONE}, {PROJECTILE_GUST, 150, 1.0f, 0, TEXTURE_BOX_AIR, {125,125, 125, 255}}},
     {{ELE_WATER, ELE_FIRE, ELE_NONE}, {PROJECTILE_JET_BOMB, 150, 3.f, 100, TEXTURE_BOX_FIRE_WATER}},
@@ -28,7 +30,7 @@ static ElementCombo g_element_combinations[] = {
     // note: missing electro combinations with other elements
 
     // triple combinations
-    {{ELE_FIRE, ELE_FIRE, ELE_FIRE}, {PROJECTILE_BOMB, 125, 1.5f, 100, TEXTURE_BOX, {200, 100, 100, 255} }},
+    {{ELE_FIRE, ELE_FIRE, ELE_FIRE}, {PROJECTILE_BOMB, 125, 1.5f, 90, TEXTURE_BOX, {200, 100, 100, 255} , 300 }},
     {{ELE_WATER, ELE_WATER, ELE_WATER}, {PROJECTILE_JET, 250, 2.0f, 300, TEXTURE_BOX_BLUE, {100, 100, 200, 255}}},
     {{ELE_WIND, ELE_WIND, ELE_WIND}, {PROJECTILE_AREA_GUST, 150, 1.25f, 0, TEXTURE_BOX_AIR, {125,125, 125, 255}}},
     {{ELE_WATER, ELE_WATER, ELE_WIND}, {PROJECTILE_JET_BOMB,250, 1.5f, 100, TEXTURE_BOX, {200,200, 200, 200}}},
@@ -79,7 +81,7 @@ void ResolveElementSystem(SceneBase * scene)
             ProjectileSpawnerComponent::Add(entity, tower_data->projectile_type);
             DamageComponent::Add(entity, tower_data->damage);
             CooldownComponent::Add(entity, tower_data->cooldown);
-            TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0); // TODO: remove the unused tower component data (range should be a component, tower type and CD are unused)
+            TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0)->AOEradius=tower_data->AOE_radius; // TODO: actually use the tower component more!
             SpriteComponent* sprite = SpriteComponent::Add(entity, ResourceManager::GetTexture(tower_data->tex));
 
             sprite->colorMod = tower_data->colorMod;

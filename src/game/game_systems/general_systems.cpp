@@ -65,12 +65,12 @@ void ExplodeOnXYSystem(SceneBase *scene)
         {
             // reached target position, trigger explosion
             EntityID explosion = scene->RegisterEntity();
-            TransformComponent::Add(explosion, tr->x, tr->y, 0.0f, 1.0f);
-            TimedSpriteComponent::Add(explosion, 0, 0.2f, 0, 3);
+            TransformComponent::Add(explosion, tr->x, tr->y, 0.0f, (exp->range/75.0) );
             LifeTimeComponent::Add(explosion, 0.6f);
             PlaySound::PlaySound(SOUND_BOOM_LOW);
 
-            TimedSpriteComponent* timedSprite = Get<TimedSpriteComponent>(explosion);
+
+            auto timedSprite = TimedSpriteComponent::Add(explosion, 0, 0.2f, 0, 3);
             if (timedSprite) {
                 timedSprite->sprites[0] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_1);
                 timedSprite->sprites[1] = ResourceManager::GetTexture(TEXTURE_EXPLOSION_2);
@@ -336,7 +336,7 @@ static void SpawnProjectile(EntityID tower, SceneBase *scene, PROJECTILE_TYPE ty
         MoveToXYComponent::Add(projectile, target_transform->x, target_transform->y, 200);
         SpriteComponent::Add(projectile, ResourceManager::GetTexture(TEXTURE_BASIC_PROJECTILE));
         DamageComponent::Add(projectile, tower_damage->damage);
-        ExplodeOnXYComponent::Add(projectile, target_transform->x, target_transform->y, 75);
+        ExplodeOnXYComponent::Add(projectile, target_transform->x, target_transform->y, tower_component->AOEradius);
         break; 
     case PROJECTILE_JET:
         CastJetAtTarget(tower_transform->x, tower_transform->y, target_transform->x, target_transform->y);

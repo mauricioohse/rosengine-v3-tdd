@@ -397,12 +397,14 @@ struct TowerComponent : Component<TowerComponent> {
     int range; // radius
     float attackCD; // attack cooldown, measured in seconds
     float currCD;
+    int AOEradius;
 
     void Init(TOWER_TYPE t, int r, float CD) {
         type = t;
         range = r;
         attackCD = CD;
-        currCD=0;
+        currCD = 0;
+        AOEradius = 1;
     }
 
     static TowerComponent* Add(EntityID entity, TOWER_TYPE t, int r, float CD) {
