@@ -27,15 +27,6 @@ void RenderSystem::Init() {
     cameraY = 0.0f;
 }
 
-std::map<std::string, RenderColor> paletteOpaque = {
-    {"red", {255, 0, 0, 255}},
-    {"green", {0, 255, 0, 255}},
-    {"blue", {0, 0, 255, 255}},
-    {"white", {255, 255, 255, 255}},
-    {"black", {0, 0, 0, 255}},
-    {"grey", {122, 122, 122, 255}}
-};
-
 static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius, RenderColor color = paletteOpaque["grey"])
 {
     SDL_Renderer * renderer = g_Engine.window->renderer;
