@@ -30,7 +30,7 @@ typedef struct  {
 
 static LoadedLevel_t currLevel;
 
-static SDL_Texture* g_TileSpritesheet = NULL;
+static Texture* g_TileSpritesheet = NULL;
 
 static Point monster_path[100] = {0,0};
 static int monster_path_size = 0;
@@ -41,26 +41,10 @@ Point Grid::GRID_END_POINT = {
     GRID_START_POINT.y + GRID_VERTICAL_SQUARE_COUNT *GRID_SQUARE_LENGTH,
 };
 
-bool Grid::LoadTileSprites(SDL_Renderer* renderer){
-    const char* path = "assets/sprites/tilesheet.png"; 
-    g_TileSpritesheet = IMG_LoadTexture(renderer, path);
-    if (g_TileSpritesheet == NULL) {
-        printf("Failed to load tile spritesheet! SDL_image Error: %s\n", IMG_GetError());
-        return false;
-    }
-    printf("Successfully loaded tile spritesheet %s\n", path);
-    return true;
-}
-
-void Grid::FreeTileSprites(){
-    if (g_TileSpritesheet != NULL) {
-        SDL_DestroyTexture(g_TileSpritesheet);
-        g_TileSpritesheet = NULL;
-    }
-}
-
 void Grid::DrawGrid(bool isDebug){
-    bool drawGridMain, drawGridDual, drawMonsterPath = false;
+    bool drawGridMain = false;
+    bool drawGridDual = false;
+    bool drawMonsterPath = false;
 
     if (isDebug) {
         drawGridMain = true;
@@ -125,9 +109,6 @@ void Grid::DrawGrid(bool isDebug){
             Point p = GetNearestGridPoint(x,y);
             SDL_Rect rect = {p.x,p.y,GRID_SQUARE_LENGTH,GRID_SQUARE_LENGTH};
             SDL_RenderDrawRect(g_Engine.window->renderer,  &rect);
-            //Point p2 = GetNearestDualGridPoint(x,y);
-            //SDL_Rect rect2 = {p2.x,p2.y,GRID_SQUARE_LENGTH,GRID_SQUARE_LENGTH};
-            //SDL_RenderDrawRect(g_Engine.window->renderer, &rect2);
         }
     }
     
@@ -151,8 +132,7 @@ void Grid::DrawGrid(bool isDebug){
 
 static Grid::TileSpriteInfo tileLookup[Grid::SHAPE_COUNT];
 
-void Grid::InitTileLookup()
-{
+void Grid::InitTileLookup() {
     // initialize lookup: each SHAPE relates to a spriteId
     tileLookup[SHAPE_GRASS]           = { SHAPE_GRASS,           0 };   // grass sprite id
     tileLookup[SHAPE_DIRT]            = { SHAPE_DIRT,            1 };   // dirt sprite id
@@ -172,9 +152,10 @@ void Grid::InitTileLookup()
     tileLookup[SHAPE_DIAG_TR_BL]      = { SHAPE_DIAG_TR_BL,      15 };
     tileLookup[SHAPE_MISC]            = { SHAPE_MISC,            16 };
 
-    if (!Grid::LoadTileSprites(g_Engine.window->renderer)) {
-        printf("Failed to load tile sprites in InitTileLookup!\n");
-    }
+    // if (!Grid::LoadTileSprites(g_Engine.window->renderer)) {
+    //     printf("Failed to load tile sprites in InitTileLookup!\n");
+    // }
+    g_TileSpritesheet = ResourceManager::GetTexture(TILESHEET);
 }
 
 static Grid::TileShape MaskToShape(int mask) {
@@ -238,7 +219,7 @@ void Grid::DrawAutoTiledMap(int map[100][100], int maxX, int maxY) {
             };
             
             // draw sprite
-            SDL_RenderCopy(g_Engine.window->renderer, g_TileSpritesheet, &srcRect, &destRect);
+            SDL_RenderCopy(g_Engine.window->renderer, g_TileSpritesheet->sdlTexture, &srcRect, &destRect);
         }
     }
 }
@@ -313,20 +294,6 @@ static bool CreateMonsterPath(){
     
     printf("monster path created with %d points, last value: %d\n", monster_path_size, last_value);
     return true;
-}
-
-Point Grid::GetNearestDualGridPoint(int x, int y){
-    int offset = GRID_SQUARE_LENGTH/2;
-    int x_count_offset = (x - (GRID_START_POINT.x + offset)) / GRID_SQUARE_LENGTH;
-    int y_count_offset = (y - (GRID_START_POINT.y + offset)) / GRID_SQUARE_LENGTH;
-    int x_pos = GRID_START_POINT.x + offset + x_count_offset*GRID_SQUARE_LENGTH;
-    int y_pos = GRID_START_POINT.y + offset + y_count_offset*GRID_SQUARE_LENGTH;
-    return Point{x_pos, y_pos};
-}
-
-Point Grid::GetNearestDualGridPointCenter(int x, int y){
-    Point corner = GetNearestDualGridPoint(x,y);
-    return corner + Point{GRID_SQUARE_LENGTH/2, GRID_SQUARE_LENGTH/2};
 }
 
 bool Grid::LoadLevel(const char *filename){

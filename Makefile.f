@@ -1,4 +1,11 @@
-SHELL := /bin/bash
+SHELL := "C:\Program Files\Git\usr\bin\bash"
+
+#shell_info:
+#	@echo "MAKE SHELL = $(SHELL)"
+#	@bash --version
+#	pwd
+#	find src -name '*.cpp'
+#	echo $(SOURCES)
 
 # Common variables
 MAKEFLAGS += -j4
@@ -9,7 +16,37 @@ CXXFLAGS = -w -MD -MP
 #includes all folders, make it easier to #include headers
 INCLUDES = -I./include/SDL2 -I./src $(shell find src -type d -exec echo -I./{} \;)
 # Source files - now includes all cpp files in src and subdirectories
-SOURCES = $(shell find src -name '*.cpp')
+SOURCES = 	\
+	src/core/ecs/components.cpp\
+	src/core/ecs/entity.cpp\
+	src/core/ecs/systems/life_time_system.cpp\
+	src/core/ecs/systems/move_to_target_system.cpp\
+	src/core/ecs/systems/music_system.cpp\
+	src/core/ecs/systems/render_system.cpp\
+	src/core/ecs/systems/text_update_system.cpp\
+	src/core/ecs/systems/ui_system.cpp\
+	src/core/ecs/systems/wasd_controller_system.cpp\
+	src/core/ecs/systems.cpp\
+	src/core/engine.cpp\
+	src/core/input.cpp\
+	src/core/play_sound.cpp\
+	src/core/resource_manager.cpp\
+	src/core/scene_manager.cpp\
+	src/core/window.cpp\
+	src/game/enemy_spawner.cpp\
+	src/game/game.cpp\
+	src/game/game_systems/enemy_system.cpp\
+	src/game/game_systems/game_name_system.cpp\
+	src/game/game_systems/general_systems.cpp\
+	src/game/game_systems/player_life_system.cpp\
+	src/game/game_systems/resolve_elements_system.cpp\
+	src/game/game_systems/wave_system.cpp\
+	src/game/grid.cpp\
+	src/game/scenes/main_game_scene.cpp\
+	src/game/scenes/menu_scene.cpp\
+	src/game/scenes/pause_scene.cpp\
+	src/game/tower_placement.cpp\
+	src/main.cpp
 BUILD_DIR = bin
 WEB_DIR = web
 
