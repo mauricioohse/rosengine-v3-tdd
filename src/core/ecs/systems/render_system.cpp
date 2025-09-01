@@ -43,6 +43,7 @@ void RenderSystem::InitTowerText()
             TransformComponent::Add(towerTextToRender[i], 1580, 450+i*(40), 0, 1.1f);
             auto textComp = TextComponent::Add(towerTextToRender[i], ResourceManager::GetFont(FONT_FPS), "");
             textComp->visible = false; // start invisible
+            textComp->isDirty = false;
             textComp->alignment = TEXT_RIGHT;
         }
 }
@@ -219,19 +220,19 @@ static void RenderTowerTextBlock(TowerData* towerData)
         switch (i)
         {
         case 0:
-            snprintf(textComp->text, sizeof(textComp->text), towerData->textBlock.name);
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.name);
             break;
         case 1:
-            snprintf(textComp->text, sizeof(textComp->text), towerData->textBlock.projectileType);
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.projectileType);
             break;
         case 2:
-            snprintf(textComp->text, sizeof(textComp->text), towerData->textBlock.damage);
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.damage);
             break;
         case 3:
-            snprintf(textComp->text, sizeof(textComp->text), towerData->textBlock.attackSpeed);
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.attackSpeed);
             break;
         case 4:
-            snprintf(textComp->text, sizeof(textComp->text), towerData->textBlock.specialEffect);
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.specialEffect);
             break;
         
         default:
