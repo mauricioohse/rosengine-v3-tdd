@@ -1,4 +1,11 @@
-SHELL := /bin/bash
+SHELL := "C:\Program Files\Git\usr\bin\bash"
+
+#shell_info:
+#	@echo "MAKE SHELL = $(SHELL)"
+#	@bash --version
+#	pwd
+#	find src -name '*.cpp'
+#	echo $(SOURCES)
 
 # Common variables
 MAKEFLAGS += -j4

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL.h>
-#include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
@@ -90,6 +89,7 @@ enum TextureID {
     TEXTURE_GUST_2,
     TEXTURE_GUST_3,
     TEXTURE_GUST_4,
+    TILESHEET,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -129,6 +129,7 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/sprites/CC/gust_2.png", TEXTURE_GUST_2},
     {"assets/sprites/CC/gust_3.png", TEXTURE_GUST_3},
     {"assets/sprites/CC/gust_4.png", TEXTURE_GUST_4},
+    {"assets/sprites/tilesheet.png", TILESHEET},
     // Add new textures here
 };
 
