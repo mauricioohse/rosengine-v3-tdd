@@ -23,7 +23,7 @@ static void InitSelectionText()
         texts[i] = g_mainGame.RegisterEntity();
         
         auto textComp = TextComponent::Add(texts[i], ResourceManager::GetFont(FONT_FPS), "");
-        TransformComponent::Add(texts[i], 1580, 300+(i*40),0,1.3);
+        TransformComponent::Add(texts[i], 1580, 200+(i*40), 0, 1.3f);
         textComp->visible = false; // start invisible
         textComp->alignment = TEXT_RIGHT;
         switch(i) {

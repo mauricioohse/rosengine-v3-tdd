@@ -231,6 +231,7 @@ void ChainLightningSystem(SceneBase * scene)
                         nextTarget = enemy;
                     }
                 }
+                return true;
             });
 
             // update chain position and decrement jumps, or delete if no more targets
