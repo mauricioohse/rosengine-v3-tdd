@@ -16,7 +16,7 @@ CXXFLAGS = -w -MD -MP
 #includes all folders, make it easier to #include headers
 INCLUDES = -I./include/SDL2 -I./src $(shell find src -type d -exec echo -I./{} \;)
 # Source files - now includes all cpp files in src and subdirectories
-SOURCES = $(shell find src -name '*.cpp')
+SOURCES = $(shell find src -name '*.cpp' -print0 | xargs -0)
 BUILD_DIR = bin
 WEB_DIR = web
 
