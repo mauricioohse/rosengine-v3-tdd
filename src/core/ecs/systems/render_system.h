@@ -9,6 +9,7 @@ struct RenderSystem : System {
     void Init() override;
     void Update(float deltaTime, std::vector<EntityID> entities) override;
     void Destroy() override;
+    static void InitTowerText();
     
     // Camera properties (we can expand this later)
     float cameraX = 0.0f;

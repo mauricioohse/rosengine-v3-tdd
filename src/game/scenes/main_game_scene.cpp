@@ -12,6 +12,7 @@
 #include "wave_system.h"
 #include "player_life_system.h"
 #include "../../core/ecs/components.h"
+#include "../../core/ecs/systems/render_system.h"
 #include <cstdlib>
 
 
@@ -139,6 +140,8 @@ void MainGameScene::OnLoad()
     Init_speed_text();
 
     TowerPlacement::Init();
+
+    RenderSystem::InitTowerText();
 
     Grid::LoadLevel(levelPath);
 

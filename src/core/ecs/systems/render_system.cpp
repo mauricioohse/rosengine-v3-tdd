@@ -18,6 +18,14 @@ std::map<std::string, RenderColor> paletteOpaque = {
     {"grey", {122, 122, 122, 255}}
 };
 
+enum towerDataToRender {
+    NONE = 0,
+    RANGE,
+    FULL
+};
+
+static EntityID towerTextToRender[5];
+
 // Global variable to track which tower should be hidden during placement preview
 static EntityID g_towerToHide = INVALID_ENTITY;
 
@@ -27,7 +35,20 @@ void RenderSystem::Init() {
     cameraY = 0.0f;
 }
 
-static void DrawCircle( int32_t centreX, int32_t centreY, int32_t radius, RenderColor color = paletteOpaque["grey"])
+void RenderSystem::InitTowerText()
+{
+    for (int i = 0; i < 5; i++)
+        {
+            towerTextToRender[i] = g_mainGame.RegisterEntity();
+            TransformComponent::Add(towerTextToRender[i], 1580, 450+i*(40), 0, 1.1f);
+            auto textComp = TextComponent::Add(towerTextToRender[i], ResourceManager::GetFont(FONT_FPS), "");
+            textComp->visible = false; // start invisible
+            textComp->isDirty = false;
+            textComp->alignment = TEXT_RIGHT;
+        }
+}
+
+static void DrawCircle(int32_t centreX, int32_t centreY, int32_t radius, RenderColor color = paletteOpaque["grey"])
 {
     SDL_Renderer * renderer = g_Engine.window->renderer;
     const int32_t diameter = (radius * 2);
@@ -144,11 +165,11 @@ static void RenderJet(EntityID entity)
     }
 }
 
-static bool ShouldRenderTowerRange(EntityID entity)
+static towerDataToRender ShouldRenderTowerData(EntityID entity)
 {
     // if (!HAS_COMPONENT(entity, C_Tower | C_Transform)) {
     if (!HasComponent<TowerComponent, TransformComponent>(entity)) {
-        return false;
+        return towerDataToRender::NONE;
     }
 
     int mouseX, mouseY;
@@ -157,18 +178,21 @@ static bool ShouldRenderTowerRange(EntityID entity)
     TransformComponent* transform = TransformComponent::Get(entity);
     Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
 
-    // if left shift is pressed, render the range
-    if (true == Input::IsKeyDown(SDL_SCANCODE_LSHIFT))
+    towerDataToRender dataToRender = towerDataToRender::NONE;
+
+    // if the mouse is hovering over the tower, render data
+    // isPlacementMode is checked because I don't need to show any tower data when in placement mode. Placement preview already shows the relevant data
+    if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y) && (!TowerPlacement::isPlacementMode))
     {
-        return true;
+        dataToRender = towerDataToRender::FULL;
     }
-    // if the mouse is hovering over the tower, render the range
-    else if ((mousePoint.x == towerPoint.x) && (mousePoint.y == towerPoint.y) && (!TowerPlacement::isPlacementMode))
+    // if left shift is pressed, render the range
+    else if (true == Input::IsKeyDown(SDL_SCANCODE_LSHIFT))
     {
-        return true;
+        dataToRender = towerDataToRender::RANGE;
     }
 
-    return false;
+    return dataToRender;
 }
 
 static void RenderTowerRange(EntityID entity)
@@ -178,6 +202,55 @@ static void RenderTowerRange(EntityID entity)
     Point towerPoint = Grid::GetNearestGridPointCenter(transform->x, transform->y);
     DrawCircle(towerPoint.x, towerPoint.y, tower->range);
 }
+
+static void RenderTowerTextBlock(TowerData* towerData)
+{
+    /*
+        Data to write:
+            - Tower name
+            - Projectile type and qualitative projectile speed
+            - Qualitative damage output
+            - Qualitative attack speed
+            - Additional CC effect
+    */
+    for (int i = 0; i < 5; i++) {
+        TextComponent* textComp = Get<TextComponent>(towerTextToRender[i]);
+        textComp->isDirty =  true;
+        textComp->visible = true;
+        switch (i)
+        {
+        case 0:
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.name);
+            break;
+        case 1:
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.projectileType);
+            break;
+        case 2:
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.damage);
+            break;
+        case 3:
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.attackSpeed);
+            break;
+        case 4:
+            snprintf(textComp->text, sizeof(textComp->text) - 1, towerData->textBlock.specialEffect);
+            break;
+        
+        default:
+            break;
+        }
+   }
+}
+
+void RenderTowerData(EntityID entity)
+{
+    ElementComponent* existingTowerElement = ElementComponent::Get(entity);
+    TowerData* towerData = GetTowerDataForElements(existingTowerElement->elements);
+
+    RenderTowerTextBlock(towerData);
+    RenderTowerRange(entity);
+}
+
+// TODO: a warning is being printed from resource_manager line 162 because for Fire and Water (possibly others, but for Wind this does not happen) towers "font has no width" (?) when mouse hovers over them, don't really know why
 
 static void RenderTowerPlacementPreview()
 {
@@ -213,34 +286,23 @@ static void RenderTowerPlacementPreview()
     if (towerFound)
     {
         ElementComponent* existingTowerElement = ElementComponent::Get(existingTower);
-        if (!existingTowerElement) // existing tower has no Element component, this should never happen
+        if (existingTowerElement->elements[2] != ELE_NONE) // the currently placed tower has 3 elements, no tower will be created
         {
             return;
         }
-        
-        if (existingTowerElement->elements[2] != ELE_NONE) // the placed tower has 3 elements, no tower will be created
+        else if (existingTowerElement->elements[1] != ELE_NONE) // the currently placed tower has 2 elements
         {
-            return;
+            ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], existingTowerElement->elements[1], TowerPlacement::selectedElement};
+            SortDescendingElementsInPlace(tempElements);
+            towerData = GetTowerDataForElements(tempElements);
+            g_towerToHide = existingTower; // hide current tower during preview
         }
-        else if (existingTowerElement->elements[1] != ELE_NONE) // the placed tower has 2 elements
+        else if (existingTowerElement->elements[0] != ELE_NONE) // the currently placed tower has 1 element
         {
-            if (existingTowerElement->elements[0] != TowerPlacement::selectedElement && existingTowerElement->elements[1] != TowerPlacement::selectedElement) // check if its a unique element to add to current tower
-            {
-                ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], existingTowerElement->elements[1], TowerPlacement::selectedElement};
-                SortDescendingElementsInPlace(tempElements);
-                towerData = GetTowerDataForElements(tempElements);
-                g_towerToHide = existingTower; // hide current tower during preview
-            }
-        }
-        else if (existingTowerElement->elements[0] != ELE_NONE) // the placed tower has 1 element
-        {
-            if (existingTowerElement->elements[0] != TowerPlacement::selectedElement) // check if its a unique element to add
-            {
-                ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], TowerPlacement::selectedElement, ELE_NONE};
-                SortDescendingElementsInPlace(tempElements);
-                towerData = GetTowerDataForElements(tempElements);
-                g_towerToHide = existingTower; // hide current tower during preview
-            }
+            ELEMENT tempElements[MAX_ELEMENTS] = {existingTowerElement->elements[0], TowerPlacement::selectedElement, ELE_NONE};
+            SortDescendingElementsInPlace(tempElements);
+            towerData = GetTowerDataForElements(tempElements);
+            g_towerToHide = existingTower; // hide current tower during preview
         }
     }
     else
@@ -254,6 +316,9 @@ static void RenderTowerPlacementPreview()
     if (!towerData) {
         return;
     }
+
+    // renders text block indicating tower to be placed information
+    RenderTowerTextBlock(towerData);
 
     // draw preview range at mouse position
     DrawCircle(gridPoint.x, gridPoint.y, towerData->range);
@@ -416,7 +481,6 @@ static void RenderChain(EntityID entity){
     }
 }
 
-
 static void RenderDebugAOE(EntityID e)
 {
     // if (HAS_COMPONENT(e, C_Transform | C_ExplodeOnXY)) {
@@ -494,15 +558,30 @@ void RenderSystem::Update(float deltaTime, std::vector<EntityID> entities) {
         }
     }
 
+    // Hides tower data text since in item 7 this may be updated
+    for (int i = 0; i < 5; i++)
+    {
+        TextComponent* textComp = Get<TextComponent>(towerTextToRender[i]);
+        if (!textComp) continue; // skips if entity does not have a TextComponent
+        textComp->visible = false;
+    }
+    towerDataToRender temp = towerDataToRender::NONE;
     // 7. render tower range with left shift or on mouse hovering over tower
     for (EntityID entity : entities)
     {
         // if (HAS_COMPONENT(entity, C_Transform | C_Tower))
         if (HasComponent<TransformComponent, TowerComponent>(entity))
         {
-            if (ShouldRenderTowerRange(entity))
+            temp = ShouldRenderTowerData(entity);
+            // When holding shift, tower range will be rendered
+            if (towerDataToRender::RANGE == temp)
             {
                 RenderTowerRange(entity);
+            }
+            // When mouse is over tower, render full tower data
+            else if (towerDataToRender::FULL == temp)
+            {
+                RenderTowerData(entity);
             }
         }
     }
@@ -751,7 +830,6 @@ void RenderSystem::RenderUIEntity(EntityID entity, CameraComponent* camera) {
         );
     }
 }
-
 
 void RenderSystem::RenderAnimatedEntity(TransformComponent* transform, AnimationComponent* anim) {
     if (!anim->spriteSheet || !anim->spriteSheet->sdlTexture) return;
