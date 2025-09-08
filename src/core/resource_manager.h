@@ -90,6 +90,11 @@ enum TextureID {
     TEXTURE_GUST_2,
     TEXTURE_GUST_3,
     TEXTURE_GUST_4,
+    TEXTURE_GEM_WATER,
+    TEXTURE_GEM_FIRE,
+    TEXTURE_GEM_ELECTRO,
+    TEXTURE_GEM_WIND,
+    TEXTURE_GEM_EARTH,
     // add texture enums here
 
     TEXTURE_MAX,
@@ -128,13 +133,17 @@ static const TextureResource GAME_TEXTURES[] = {
     {"assets/sprites/CC/gust_1.png", TEXTURE_GUST_1},
     {"assets/sprites/CC/gust_2.png", TEXTURE_GUST_2},
     {"assets/sprites/CC/gust_3.png", TEXTURE_GUST_3},
-    {"assets/sprites/CC/gust_4.png", TEXTURE_GUST_4},
+    {"assets/sprites/gems/gem_water_2.png", TEXTURE_GEM_WATER},
+    {"assets/sprites/gems/gem_fire_2.png", TEXTURE_GEM_FIRE},
+    {"assets/sprites/gems/gem_electro_2.png", TEXTURE_GEM_ELECTRO},
+    {"assets/sprites/gems/gem_air_2.png", TEXTURE_GEM_WIND},
+    {"assets/sprites/gems/gem_earth_2.png", TEXTURE_GEM_EARTH},
     // Add new textures here
 };
 
 
 
-
+// TODO
 static const SoundResource GAME_SOUNDS[] = {
     {"assets/sounds/hit.wav", SOUND_HIT},
     {"assets/sounds/malformed_loop_1.mpeg", SOUND_BACKGROUND_MUSIC},

@@ -56,6 +56,18 @@ static bool IsEnemyInRange(EntityID enemy, int tower_x, int tower_y, int range)
     return false;
 }
 
+void RotateSystem (SceneBase *scene, float deltaTime)
+{
+    ForEachComponent<TransformComponent, RotateComponent>(scene, [&](EntityID entity, TransformComponent *transf, RotateComponent *rot) {
+
+        rot->curr_angle += rot->rot_speed*deltaTime;
+        transf->x = rot->x + rot->radius * cos(rot->curr_angle);
+        transf->y = rot->y + rot->radius * sin(rot->curr_angle);
+
+
+    });
+}
+
 void ExplodeOnXYSystem(SceneBase *scene)
 {
     ForEachComponent<TransformComponent, ExplodeOnXYComponent>(scene, [&](EntityID entity, TransformComponent* tr, ExplodeOnXYComponent* exp)

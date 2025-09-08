@@ -296,6 +296,7 @@ void MainGameScene::OptionalUpdate(float deltaTime)
     ChainLightningSystem(&g_mainGame);
 
     ResolveElementSystem(&g_mainGame);
+    RotateSystem(&g_mainGame, deltaTime);
 
 
     if (!strcmp(levelPath, "lvl2.csv"))

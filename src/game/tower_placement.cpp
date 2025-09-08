@@ -50,9 +50,9 @@ void TowerPlacement::Init() {
 
 }
 
-void TowerPlacement::HandleSelection()
+void TowerPlacement::select_element_based_on_input()
 {
-    const SDL_Color yellowColor = {255, 255, 0, 255};
+    // allow the inputs 1 to 3 to select fire, water or air tower
 
     // allow the inputs 1 to 3 to select fire, water or air tower
     if (Input::IsKeyPressed(SDL_SCANCODE_1))
@@ -73,6 +73,13 @@ void TowerPlacement::HandleSelection()
         isPlacementMode = true;
         printf("air tower selected\n");
     }
+}
+
+void TowerPlacement::HandleSelection()
+{
+    const SDL_Color yellowColor = {255, 255, 0, 255};
+
+    select_element_based_on_input();
 
     // now update the colors: the selected text should be yellow, others should be black
     for(int i = 0; i < 4; i++) {
@@ -106,6 +113,7 @@ void TowerPlacement::Update() {
     if(WaveSystem_IsInTowerSelection())
     {
         HandleSelection();
+
     }
     else
     {
@@ -144,7 +152,15 @@ void TowerPlacement::Update() {
     } else {
         mousePressed = false;
     }
-    
+
+// debug option for adding a new tower at any moment:
+#if 1
+    if (Input::IsKeyDown(SDL_SCANCODE_C))
+    {
+        select_element_based_on_input();
+    }
+#endif // NDEBUG
+
     // TODO: temporarely disabling debug tower placement. in future, we should have a way to have this enabled (maybe a terminal command or something else)
     if (1) return;
     

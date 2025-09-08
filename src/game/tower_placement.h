@@ -15,8 +15,7 @@ struct TowerPlacement {
     static bool isPlacementMode;
     static ELEMENT selectedElement; // 0 = fire, 1 = water, etc.
 
-    // archetypes
-    static void CreateFireTower(EntityID tower);
     static void HandleSelection();
+    static void select_element_based_on_input();
 
 }; 

@@ -69,6 +69,46 @@ TowerData* GetTowerDataForElements(ELEMENT* sorted_elements) {
     return nullptr; // no match found
 }
 
+#include "grid.h"
+
+static EntityID CreateGemEntity(ELEMENT element, EntityID tower, int id)
+{
+    EntityID e = g_mainGame.RegisterEntity();
+
+    Texture * tex;
+
+    switch (element)
+    {
+    case ELE_FIRE:
+        tex = ResourceManager::GetTexture(TEXTURE_GEM_FIRE);
+        break;
+    case ELE_ELECTRIC:
+        tex = ResourceManager::GetTexture(TEXTURE_GEM_ELECTRO);
+        break;
+    case ELE_WATER:
+        tex = ResourceManager::GetTexture(TEXTURE_GEM_WATER);
+        break;
+    case ELE_EARTH:
+        tex = ResourceManager::GetTexture(TEXTURE_GEM_EARTH);
+        break;
+    case ELE_WIND:
+        tex = ResourceManager::GetTexture(TEXTURE_GEM_WIND);
+        break;
+
+    default:
+        tex = ResourceManager::GetTexture(TEXTURE_BOX_MISSING);
+        break;
+    }
+
+    TransformComponent *tower_transform = TransformComponent::Get(tower);
+
+    // initialize the gems with a "RotateComponent" centered at the center of the tower, with rotating radius based on grid square size
+    RotateComponent::Add(e, tower_transform->x, tower_transform->y, (2*3.14/3)*id, 5, Grid::GRID_SQUARE_LENGTH / 3); // TODO: CHECK HARDCODED ROTATING SPEED
+    TransformComponent::Add(e, tower_transform->x, tower_transform->y, 0, .33); // TODO: check sprite scale
+    SpriteComponent::Add(e, tex);
+    return e;
+}
+
 void ResolveElementSystem(SceneBase * scene)
 {
     ForEachComponent<ElementComponent, ResolveElementComponent>(scene, [&](EntityID entity, ElementComponent* elementC, ResolveElementComponent* _)
@@ -77,14 +117,40 @@ void ResolveElementSystem(SceneBase * scene)
 
         TowerData* tower_data = GetTowerDataForElements(elementC->elements);
         if (tower_data) {
+
+            // First, check if the tower entity already had any gems. if there were, delete all gems entities before reconstructing it
+            TowerComponent *existing_tower_component = TowerComponent::Get(entity);
+            
+            if (existing_tower_component != nullptr)
+            {
+                // the entity already was a tower - so we need to delete the gems entities attached to it
+
+                for (int i = 0; i < MAX_GEMS_PER_TOWER; i++)
+                {
+                    printf("ResolveElementSystem testing sizeof existing_tower_component->gems %d\n", sizeof(existing_tower_component->gems));
+                    if (existing_tower_component->gems[i] != INVALID_ENTITY)
+                    {
+                        g_mainGame.DeleteEntity(existing_tower_component->gems[i]); // TODO: actually, when we get here, the tower component was already resetted. so we need to do this in the tower cleanup before the resolution!
+                    }
+                }
+            }
+
             // apply the tower configuration
             ProjectileSpawnerComponent::Add(entity, tower_data->projectile_type);
             DamageComponent::Add(entity, tower_data->damage);
             CooldownComponent::Add(entity, tower_data->cooldown);
-            TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0)->AOEradius=tower_data->AOE_radius; // TODO: actually use the tower component more!
+            TowerComponent* tc = TowerComponent::Add(entity,TOWER_NONE, tower_data->range, 0); // TODO: actually use the tower component more!
+            tc->AOEradius = tower_data->AOE_radius;
+
             SpriteComponent* sprite = SpriteComponent::Add(entity, ResourceManager::GetTexture(tower_data->tex));
 
             sprite->colorMod = tower_data->colorMod;
+
+            // now, create the gems entities based on the elements
+            for (int i = 0; elementC->elements[i] != ELE_NONE && i < MAX_GEMS_PER_TOWER; i++)
+            {
+                tc->gems[i] = CreateGemEntity(elementC->elements[i], entity, i);
+            }
 
             printf("configured tower with projectile type %d\n", tower_data->projectile_type);
         } else {

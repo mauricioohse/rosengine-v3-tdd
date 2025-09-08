@@ -392,12 +392,37 @@ enum TOWER_TYPE{
     TOWER_DEBUG
 };
 
+// makes the transform data rotate along the center + radius
+struct RotateComponent : Component<RotateComponent>
+{
+    float x,y; // reference rotation place
+    float rot_speed; // rad/s
+    float curr_angle;
+    float radius; // px
+
+    void Init(float _x, float _y, float _curr_angle, float _rot_speed, float _radius)
+    {
+        x = _x;
+        y = _y;
+        curr_angle = _curr_angle;
+        rot_speed = _rot_speed;
+        radius = _radius;
+    }
+
+    static RotateComponent* Add(EntityID entity, float _x, float _y, float _curr_angle, float _rot_speed, float _radius) {
+        return ComponentManager<RotateComponent>::Add(entity, _x, _y, _curr_angle, _rot_speed, _radius);
+    }
+};
+
+#define MAX_GEMS_PER_TOWER 3
+
 struct TowerComponent : Component<TowerComponent> {
     TOWER_TYPE type;
     int range; // radius
     float attackCD; // attack cooldown, measured in seconds
     float currCD;
     int AOEradius;
+    EntityID gems[MAX_GEMS_PER_TOWER]; // hold the gems entities. NOTE(mau): I am not sure this is the best design, coupling entities. but it is working so far!
 
     void Init(TOWER_TYPE t, int r, float CD) {
         type = t;
@@ -405,6 +430,8 @@ struct TowerComponent : Component<TowerComponent> {
         attackCD = CD;
         currCD = 0;
         AOEradius = 1;
+        memset(&gems,0,sizeof(gems));
+        
     }
 
     static TowerComponent* Add(EntityID entity, TOWER_TYPE t, int r, float CD) {
@@ -416,6 +443,8 @@ struct TowerComponent : Component<TowerComponent> {
         type = (TOWER_TYPE) 0 ;
     }
 };
+
+
 
 // only base elements
 enum ELEMENT {

@@ -28,7 +28,6 @@ void EntityManager::DestroyEntity(EntityID entity) {
         printf("Warning: Attempting to destroy inactive entity %u\n", entity);
         return;
     }
-    activeEntities[entity] = false;
     toDestroy.push_back(entity);
 }
 
@@ -37,6 +36,7 @@ void EntityManager::ProcessPendingDestructions() {
         for (auto& type : componentTypes[entity]) {
             ComponentStorage::RemoveByType(entity, type);
         }
+        activeEntities[entity] = false;
         componentTypes[entity].clear();
         entityCount--;
     }
